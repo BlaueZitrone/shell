@@ -1,0 +1,71 @@
+#!/bin/bash
+##########################################################################
+# script for deleting the MassFilter flag in the database
+# $Revision:: 13541
+# $LastChangedDate:: 2011-04-21 13:30:10 +0200 (Do, 21 Apr 2011)
+# $Author:: oliver.rogowski
+#
+# rehashed by Lars Herrlein 08/2015 to ONLY remove the Massfilter flag for
+#                                   one process ID
+#
+##########################################################################
+
+#include some ScriptFunctions
+. $FRAME_ROOT/tools/ScriptFunctions
+
+#parameter 1 -> Process-ID
+PROCESSID=$1
+
+#empty PROCESSID -> stop
+[[ "$PROCESSID" == "" ]] && exit 1
+
+#which integration type does the process have?
+#take only the rightmost value which represents the highest level
+INTEGRATIONTYPE=`SQLselect INTEGRATIONTYPE XIB_PROCESSIDPROPERTIES PROCESSIDCODE $PROCESSID | sed 's#^.* ##'`
+
+#if intgrationtype = null
+if [ "" == "$INTEGRATIONTYPE" ]
+then
+        echo "ERROR - invalid integrationtype found $INTEGRATIONTYPE for process $PROCESSID "
+        exit 2
+fi
+
+
+
+#get massfilter values for process ID
+#format output to CSV
+MFVALUES=`SQLselect PROCESSID,NOFILES,NOBYTES,FILTER_REACHED MON_MASSFILTER PROCESSID $PROCESSID | sed -e 's#, #,#g' -e 's# ,#,#g'`
+
+#no massfilter set for process? -> stop
+[[ "$MFVALUES" = "" ]] && echo "NOTHING TO DO!" && echo "Massfilter flag for $PROCESSID was already not set" && echo "exiting script..." && exit 3
+
+echo "Delete massfilter flag"
+echo
+echo "Please include the below Mass filter values in the incident and notice the integration type of the process ID"
+echo
+echo "PROCESSID,FILECOUNT,BYTES,FILTERREACHED,INTEGRATIONTYPE"
+echo "$MFVALUES,$INTEGRATIONTYPE"
+echo
+echo "Press <ENTER> to continue or <CTRL>+C to stop deleting the Mass filter flag"
+read dummy
+
+#actually delete the massfilter flag
+sqlplus -s $ORACLE_CONNECT/$ORACLE_PASSWD@$ORACLE_SERVER << EOF
+    whenever sqlerror exit failure
+            BEGIN
+          DELETE FROM MON_MASSFILTER WHERE PROCESSID = '$PROCESSID';
+              COMMIT;
+              EXCEPTION
+          WHEN others THEN
+              ROLLBACK;
+              END;
+          /
+EOF
+
+echo "Deleted the MassFilter for ProcessID: $PROCESSID!"
+
+#add action to tracefile
+tracefile=`ls -tr /ext/xib/data/trace/9/*|tail -1`
+datestamp=`date +'%Y%m%d:%H.%M.%S'`.00
+echo "AUDIT  :$datestamp:$0:MassFilter deleted for ProcessID: $PROCESSID!" >>$tracefile
+

@@ -1,0 +1,336 @@
+#!/bin/ksh
+##########################################################################
+#  contains functions that can be used within the shell scripts
+#  is included at the beginning in "every" script like this:
+#
+#  . $FRAME_ROOT/tools/ScriptFunctions
+#
+#
+#
+#
+#
+##########################################################################
+# $Revision:: 106446                                                     $
+# $LastChangedDate:: 2017-06-13 11:44:27 +0200 (Di, 13 Jun 2017)         $
+# $Author:: stephan.schuetz                                              $
+##########################################################################
+#set -x
+VERSION=8.1.0
+
+if [[ $LOGNAME = xib ]];then
+  if [[ $CORE_ROOT = "" ]];then
+  . /export/home/xib/.profile
+  fi
+fi
+
+
+#**********************************************************************/
+# set some variables needed in different scripts, the purpose is setting
+# them only once
+#**********************************************************************/
+#Section has been taken out, because we do not have regional installs anymore.
+#Delivery will be taken care of outside FW upgrades now
+
+# start functions section
+#**********************************************************************/
+# FUNCTION: log
+# all "log" statements in a shell script will be written into    
+# /ext/schenker/prot/`basename $0` with a preceeding time stamp: 
+# [Thu Sep 24 11:44:09 MEST 2015]:
+# If invoked with -v as $1, the log entry is also written to STDOUT
+# BUT the time stamp is only written to the log file
+#**********************************************************************/
+log()
+  {
+#set -x  
+IAm="${0##*/}"
+logfile="/ext/schenker/prot/$IAm.log"
+if [[ $1 = "-v" ]];then
+  shift                                             # cut off -v from $*
+  printf "[$(date)]: " >> $logfile                  # print date to log file only without LINEFEED 
+  exec echo "$*" 2>&1 |tee -a $logfile              # print $0 to screen and log file
+
+else
+  exec |tee -a $logfile                             # open the log file for appending
+  exec 2>&1                                         #everything in there please
+  echo "[$(date)]: $*" >>$logfile                   # print the log 
+fi  
+  }
+  
+#**********************************************************************/
+# FUNCTION: c_dir
+#     checks if a directory exists, if not it will be created
+#**********************************************************************/
+#
+c_dir()
+  {
+    if [[ ! -d "$1" ]];then
+    mkdir -p $1 >>/dev/null 2>>/dev/null
+    fi
+  }
+
+#**********************************************************************/
+# FUNCTION: c_file
+#     checks if a file exists, if not a message will be generated
+#**********************************************************************/
+#
+c_file()
+  {
+    if [[ ! -f "$1" ]];then
+    clear;echo "";log -v "$1 does not exist!, please check"
+    exit 7
+    fi
+  }
+
+#**********************************************************************/
+# FUNCTION: c_env
+#     checks if an environment variable is set,
+#     if not a message will be generated
+#**********************************************************************/
+#
+c_env()
+  {
+    if [[ "$1" = "" ]];then
+    clear;echo "";log -v "   $2 not set in ~/.profile or not exported !!!
+
+    "
+    exit 7
+    fi
+  }
+
+#**********************************************************************/
+# FUNCTION: mach_check
+#     checks if the script is allowed to run on application or gateway
+#     if called on the wrong machine, calling script will be renamed to
+#     "not_allowed_to_run_on_${MACHTYPE}_scriptname"
+#**********************************************************************/
+#
+mach_check()
+  {
+    if [[ "$MACHTYPE" != "$1" ]];then
+
+    mv $0 `dirname $0`/not_allowed_to_run_on_${MACHTYPE}_`basename $0`
+    log -v "$0 not allowed to run on a \"${MACHTYPE}\" machine, moved $0 to `dirname $0`/not_allowed_to_run_on_${MACHTYPE}_`basename $0`"
+    exit 1
+
+    fi
+  }
+
+#**********************************************************************/
+# FUNCTION: inst_check
+#     checks if the script is allowed to run on a specific instance
+#     if called on the wrong machine, calling script will be renamed to
+#     "not_allowed_to_run_on_${INSTANCE_FLAG}_scriptname"
+#**********************************************************************/
+#
+inst_check()
+  {
+    if [[ "$INSTANCE_FLAG" != "$1" ]];then
+
+    mv $0 `dirname $0`/not_allowed_to_run_on_${INSTANCE_FLAG}_`basename $0`
+    log -v "$0 not allowed to run on a \"${INSTANCE_FLAG}\" machine, moved $0 to `dirname $0`/not_allowed_to_run_on_${INSTANCE_FLAG}_`basename $0`"
+    exit 1
+
+    fi
+  }
+
+#**********************************************************************/
+# FUNCTION: ask
+#     paras: text positivevalue?check ifclause elseclause
+#     if you wanna use more than one command in the clauses, use "eval"
+#     i.e. "eval echo klaus;ls -l ."
+#**********************************************************************/
+ask()
+  {
+    echo "";echo""
+    echo "   $1?"
+    read Dummy
+    if [[ "$Dummy" = "$2" ]];then
+
+    $3
+
+    else
+
+    $4
+
+    fi
+  }
+
+#**********************************************************************/
+# FUNCTION: SQLselect
+#     paras: $1=field2select 
+#            $2=table
+#            $3=where ???
+#            $4=value2compare
+#**********************************************************************/
+SQLselect()
+  {
+    field=$1
+    table=$2
+    selectable=$3
+    value="'$4'"
+    
+    result=`sqlplus -s $ORACLE_CONNECT/$ORACLE_PASSWD@$ORACLE_SERVER << EOF
+    
+    set wrap off
+    set feedback off
+    set serveroutput off
+    set pagesize 0
+    set verify off
+    set linesize 5000
+    set term off
+    set colsep ,
+    set trimspool on
+    
+      SELECT $field FROM $table WHERE $selectable = $value;
+    
+    `
+    
+    echo $result
+  }
+
+#**********************************************************************/
+# FUNCTION: Checkmaint
+#     Check if maint flag is set and exits 
+#
+#**********************************************************************/
+Checkmaint()
+  {
+    
+    result=`sqlplus -s $ORACLE_CONNECT/$ORACLE_PASSWD@$ORACLE_SERVER << EOF
+    
+    set wrap off
+    set feedback off
+    set serveroutput off
+    set pagesize 0
+    set verify off
+    set linesize 5000
+    set term off
+    set colsep ,
+    set trimspool on
+    
+      SELECT KEY2 FROM XIB_LINK WHERE KEY1 = 'maint';
+EOF
+       `
+if [[ $result != "" && $result != "kpceinit: enter" ]];then
+  exit    
+fi
+  }
+
+#**********************************************************************/
+# FUNCTION: lastday
+#     Check lastday 
+#     paras YYYY MM DD
+#**********************************************************************/
+lastday()
+  {
+    year=$1
+    month=$2
+    day=$3
+    if [[ `echo "$year % 400"|bc` = 0 || `echo "$year % 4"|bc` = 0 && `echo "$year % 100"|bc` != 0 ]];then
+      leap_year=Y;
+    else
+      leap_year=N;
+    fi
+    lastday=`echo "$day -1"|bc`
+    if [[ $lastday = 0 ]];then
+      case $month in
+        05 | 07 | 10 | 12) lastday=30;;
+        01 | 02 | 04 | 06 | 08 | 09 | 11) lastday=31;;
+        03) 
+          if [[ $leap_year = Y ]];then
+            lastday=29
+          else
+            lastday=28
+          fi;;
+      esac
+    fi
+    case $lastday in
+    1| 2| 3| 4| 5| 6| 7| 8| 9) lastday=0$lastday;;
+    esac
+    echo $lastday
+  }
+
+#**********************************************************************/
+# FUNCTION: checkMyselfRunning
+#     
+#     
+#**********************************************************************/
+checkMyselfRunning()
+  {
+IAm="${0##*/}"
+LF="/tmp/$IAm.lock"
+HOST=`grep loghost /etc/hosts|awk -F" " '{ print $1,$2,$3 }'`
+set -C
+if  ! echo $$ > "$LF"
+then
+  PS=`ps -p "$(cat "$LF")"|grep -v "PID TTY         TIME CMD"`
+  if [[ $PS = "" ]];then
+    rm $LF
+    echo $$ > "$LF"
+  else
+    log -v "Exitting, $0 already running as pid $(cat "$LF")"
+    LD_PRELOAD_32="";mailx -s "${HOST}: Exitting, $0 already running as pid $(cat "$LF")" orogowski@gmail.com <$LF
+    exit 1
+  fi
+fi
+set +C
+
+trap 'rm -f "$LF"' EXIT
+trap 'echo "$IAm: Terminated by ABRT signal; $LF not removed." >&2
+  trap "" EXIT
+  exit 134' ABRT
+trap 'echo "$IAm: Terminated by HUP signal; $LF not removed." >&2
+  trap "" EXIT
+  exit 129' HUP
+trap 'echo "$IAm: Terminated by INT signal; $LF not removed." >&2
+  trap "" EXIT
+  exit 130' INT
+trap 'echo "$IAm: Terminated by QUIT signal; $LF not removed." >&2
+  trap "" EXIT
+  exit 131' QUIT
+trap 'echo "$IAm: Terminated by TERM signal; $LF not removed." >&2
+  trap "" EXIT
+  exit 143' TERM
+  }
+
+
+#**********************************************************************/
+# FUNCTION: sqlInsertLogHistory
+# inserts values into CFG.LOG_HISTORY. Parameters needed:
+# $1 = CHANGEOBJECT (agreement, map, whatever)
+# $2 = CHANGEMESSAGE (what did I do)
+# $3 = CREATED (time stamp)
+# $4 = CREATED_BY (user)
+#**********************************************************************/
+sqlInsertLogHistory()
+  {
+changeObject=$1
+ChangeMessage=$2
+timeStamp=$3
+user=$4
+TargetInstance=$5
+if [[ "$6" = "GLOBAL" ]];then
+  ORACLE_CONNECT=GLB
+  ORACLE_PASSWD=GLB4xib2014
+  ORACLE_SERVER=SYS_GLB
+  if [[ $SECC = true ]];then
+    ORACLE_CONNECT=global
+    ORACLE_PASSWD=global
+  fi
+fi  
+
+sqlplus -s $ORACLE_CONNECT/$ORACLE_PASSWD@$ORACLE_SERVER >>/dev/null << EOF
+    whenever sqlerror exit failure
+    BEGIN
+      INSERT INTO LOG_HISTORY (ID , CHANGEOBJECT , CHANGEMESSAGE , CREATED , CREATED_BY , INSTANCE)
+      VALUES (sys_guid(),'$changeObject','$ChangeMessage',to_timestamp('$timeStamp','YYYYMMDDHH24MISSFF3'),'$user','$TargetInstance');
+      COMMIT;
+    EXCEPTION
+    WHEN others THEN
+      ROLLBACK;
+END;
+/
+EOF
+
+  }

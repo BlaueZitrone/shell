@@ -1,0 +1,161 @@
+#***********************************************************************/
+#***                     msplit.scr                                  ***/
+#***********************************************************************/
+#***   Description:unix shell script to split huge files into small  ***/
+#***   files.                                                        ***/
+#***********************************************************************/
+#***  Name     Update-Description                                    ***/
+#***  M.H                                                            ***/
+#***********************************************************************/
+#*** $Source: /ext/schenker/toolslocal/msplit.scr,v $  ***/
+#***********************************************************************/
+#*** $Revision: 1.3 $ ***/
+#***********************************************************************/
+#*** $Date: 2003/03/24 13:00:24 $ ***/
+#***********************************************************************/
+#***********************************************************************/
+D1=`date "+%Y-%m-%d %H:%M:%S"`
+FNSRC=$1
+FL_SPLSIZE=$2
+if [ $FNSRC ] && [ $FL_SPLSIZE ]
+then
+    :
+else
+    echo "Usage msplit.scr <FILENAME_TO_SPLIT> <SPLIT_SIZE>"
+    exit
+fi
+echo "START "$D1
+    echo "Start $D1 $FNSRC  $FL_SPLSIZE "  >> /ext/schenker/support/large_exp/man_resend.ptk
+
+FNTMP=$$
+CO_OUT=1
+
+NA_HEA=`cat "$FNSRC" | head -1 | cut -c 1-6`
+
+case "$NA_HEA" in
+   "TTPROC") NAMST=itt;;
+   "SWAWBS") NAMST=awb;;
+   "STDAWB") NAMST=awb;;
+   "SWBLS ") NAMST=blm;;
+   "FR-TTM") NAMST=ett;;
+   "SWSRTM") NAMST=rtm;;
+   "PRINTS") NAMST=prt;;
+   "PIIREC") NAMST=pii;;
+   "CUSTMR") NAMST=edi;;
+          *) echo "unknown Messagetype"
+             exit;;
+esac
+
+
+# you can call shell commands from awk with this !
+# '"`rm file`"'
+
+# start to read input file      
+nawk 'BEGIN {
+               file  = '"$FNTMP"'
+               no    = '$CO_OUT'
+               fnout = file"."no
+               fsize = 0
+               max   = '$FL_SPLSIZE'
+           }
+           {
+               fsize = fsize + length($0) + 1
+               record = substr ($0,1,4)
+
+               if (( record == "TTPR" ) || \
+                   ( record == "FR-T" ) || \
+                   ( record == "PRIN" ) || \
+                   ( record == "PIIR" ) || \
+                   ( record == "CUST" ))
+               {
+                   if ( fsize > max )
+                   {
+                       close(fnout)
+                       no    = no + 1
+                       fnout = file"."no
+                       fsize = length($0) + 1
+                   }
+                   print $0 > fnout
+               }
+               else
+               {
+                   if (( record == "SWAW" ) || \
+                       ( record == "STDA" ) || \
+                       ( record == "SWBL" ) || \
+                       ( record == "SWSR" ))
+                   {
+                       rec1 = $0
+                   }
+                   else
+                   {
+                       if (( record == "AW00" ) || \
+                           ( record == "BL00" ) || \
+                           ( record == "RT00" ))
+                       {
+                           rec2 = $0
+                       }
+                       else
+                       {
+
+                           if (( record == "AW10" ) || \
+                               ( record == "BL10" ) || \
+                               ( record == "RT10" ))
+                           {
+                               bgm = substr ($0,5,3)
+                               if (( bgm == "740" ) || \
+                                   ( bgm == "741" ) || \
+                                   ( bgm == "746" ) || \
+                                   ( bgm == "744" ) || \
+                                   ( bgm == "842" ) || \
+                                   ( bgm == "747" ) || \
+                                   ( bgm == "705" ) || \
+                                   ( bgm == "704" ) || \
+                                   ( bgm == "712" ) || \
+                                   ( bgm == "717" ) || \
+                                   ( bgm == "785" ))
+                               {
+                                   if ( fsize > max )
+                                   {
+                                       close(fnout)
+                                       no    = no + 1
+                                       fnout = file"."no
+                                       fsize = length($0) + 1
+                                   }
+                               }
+                               print rec1 > fnout
+                               print rec2 > fnout
+                               print $0   > fnout
+                           }
+                           else
+                           {
+                               print $0 > fnout
+                           }
+                       }
+                   }
+               }
+           } ' $FNSRC
+
+b=0
+FILE=$FNSRC"*"
+for i in `ls $FILE`
+do
+    a=`ls -l $i | awk '{ print $5 }'`
+    b=`expr $b + $a`
+done
+a=`ls -l $FNSRC | awk '{ print $5 }'`
+
+D2=`date "+%Y-%m-%d %H:%M:%S"`
+echo "STOP  "$D2
+
+if [ $a -eq $b ]
+then
+    echo "Checksum ok. Amount of bytes to split: $a, amount splitted: $b"
+     echo "`date`   START  split  $FNSRC " >> /ext/schenker/support/large_exp/man_resend.ptk 
+     ls -l $FNSRC |cut -c31-150 >> /ext/schenker/support/large_exp/man_resend.ptk
+     compress $FNSRC
+     echo "mv $FNSRC /ext/schenker/support/large_exp/"
+     mv $FNSRC.Z /ext/schenker/support/large_exp/
+else
+    echo "Checksum not ok. Amount of bytes to split: $a, amount splitted: $b"
+    echo "Please check last file and run program with this again if needed"
+fi

@@ -1,0 +1,584 @@
+#!/bin/bash
+#
+# clean_up: (re)move FILEs from known issues
+# use optional -v to let mv and rm print what they do
+#
+#
+# return code = 1 if parameter 1 isn't "-v"
+# this script does not check whether or not files are to be
+# removed, it simply moves all files and disregards error messages
+#
+#
+
+#some predefined destination directories
+BAXTK="/ext/schenker/support/error/BAXGEVISTK/"
+BAYR="/ext/schenker/support/error/BAYRE2AEIM/"
+BOSCA="/ext/schenker/support/error/BOSCE2AEDA/"
+BOSCB="/ext/schenker/support/error/BOSCE2BEIM/"
+BURB="/ext/schenker/support/error/BURBE2SOXM/"
+ERDIR="/ext/schenker/data/error/"
+EUCA="/ext/schenker/support/error/EUCAEALLIN/"
+HMSE="/ext/schenker/support/error/HMSEE2POXM/"
+INTL12O="/ext/schenker/support/error/INTLE3B12O/"
+MALFCGENIN="/ext/schenker/support/error/MALFCGENIN/"
+MANHUM="/ext/schenker/support/error/MAHUESCIOF/"
+MWM="/ext/schenker/support/error/MWM_EPRTOF/"
+NOKI12I="/ext/schenker/support/error/NOKIE3B12I/"
+NOKI12O="/ext/schenker/support/error/NOKIE3B12O/"
+NOKI14I="/ext/schenker/support/error/NOKIE3B14I/"
+NOKI14O="/ext/schenker/support/error/NOKIE3B14O/"
+NOKI18I="/ext/schenker/support/error/NOKIE3B18I/"
+NOKI18O="/ext/schenker/support/error/NOKIE3B18O/"
+ODM="/ext/schenker/support/error/ODM/"
+ODMXM="/ext/schenker/support/error/ODM_ETPRXM/"
+SEMC="/ext/schenker/support/error/SEMCEB18RN/"
+SENL="/ext/schenker/support/error/SENLESDTXX/"
+SIEMCI="/ext/schenker/support/error/SIEMECISPO/"
+SYST="/ext/schenker/support/error/SYSTXERROR/"
+TANGO="/ext/schenker/support/error/SAG_ETGOBL/"
+TMP="/ext/schenker/tmp/"
+TRIP="/ext/schenker/support/roundtrip/"
+WBIMB="/ext/schenker/support/error/WBIMB_ERROR/"
+CISCACOR18="/ext/schenker/support/error/CISCACOR18/"
+SCXXEEMIED="/ext/schenker/support/error/SCXXEEMIED/"
+FERGCFFPOC="/ext/schenker/support/error/FERGCFFPOC/"
+### GTNXE315CE="/ext/schenker/support/error/GTNXE315CE/" - solved in INC000245253
+MORIE2XMCV="/ext/schenker/support/error/MORIE2XMCV/"
+ECRMAPANAIN="/ext/schenker/data/E_CR_Mapanain/"
+ECRMAPANAINERR="/ext/schenker/support/error/E_CR_Mapanain/"
+PRGBUWFMIN="/ext/schenker/support/error/PRGBUWFMIN"
+SCOUT_ICCCO1="/ext/schenker/support/error/SCOUT_ICCCO1/"
+ICM_ESPOBE="/ext/schenker/support/error/MassFilter.ICM_ESPOBE/"
+#predefine VERBOSE
+VERBOSE=0
+
+#check if $1 is -v and if yes, set variable VERBOSE to 1
+[ "-v" == "$1" ] && VERBOSE=1
+if [ $VERBOSE ]
+then
+        echo "*********************************************************"
+        echo "clean_up2 - verbose mode - show what's being (re-)moved. "
+        echo "*********************************************************"
+fi
+
+
+#check if parameter 1 is either emtpy or -v. If not -> print help and quit  
+if [ -n "$1" ]
+then
+	if [ "-v" != "$1" ]
+	then
+		echo "syntax: $0 [-v]"
+		echo "   -v: verbose. print what will be (re)moved"
+		exit 1
+	fi
+fi
+#from this point on $1 is either empty or -v 
+
+
+# create log entry in statlog FILE of the current day
+echo "clean_up2 has been started on host" $HOSTNAME "on" `date +%Y.%m.%d.` "at" `date +%H:%M:%S` >> /ext/schenker/support/statlog/clean_up/log/"$HOSTNAME"_clean_up_log_of_`date +%Y.%m.%d`
+
+# create log entry in statlog csv FILE of the current day
+echo $HOSTNAME";""clean_up2;"`date +%Y.%m.%d`";"`date +%H:%M:%S`";" >> /ext/schenker/support/statlog/csv/"$HOSTNAME"_`date +%Y%m%d`.csv
+
+### temporary zip FILEs
+find "$TMP" -name "CR_S*" -atime +1 -exec /opt/sfw/bin/rm $1 {} \;  
+
+### Tango TestFILEs
+#if [ `ls $ERDIR/SAG_ETGOBL*  2>/dev/null | wc -l ` -gt 0 ]
+#then
+#	/opt/sfw/bin/mv $1 $ERDIR/SAG_ETGOBL* $TANGO 
+#fi	
+
+### Nokia NOKIE3B12O
+if [ `ls $ERDIR/NOKIE3B12O*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/NOKIE3B12O* $NOKI12O 
+fi
+### Nokia NOKIE3B12I
+if [ `ls $ERDIR/NOKIE3B12I*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/NOKIE3B12I* $NOKI12I
+fi
+
+### Nokia NOKIE3B14O
+if [ `ls $ERDIR/NOKIE3B14O*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/NOKIE3B14O* $NOKI14O 
+fi
+
+### Nokia NOKIE3B14I
+if [ `ls $ERDIR/NOKIE3B14I*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/NOKIE3B14I* $NOKI14I
+fi
+
+### Nokia NOKIE3B18O
+if [ `ls $ERDIR/NOKIE3B18O*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/NOKIE3B18O* $NOKI18O
+fi
+
+### Nokia NOKIE3B18I
+if [ `ls $ERDIR/NOKIE3B18I*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/NOKIE3B18I* $NOKI18I
+fi
+
+
+### Nokia INTLE3B12O
+if [ `ls $ERDIR/INTLE3B12O*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/INTLE3B12O* $INTL12O 
+fi
+
+### E_CR_Mapanain - HPRoad vs HPLand - INC000002056940
+if [ `ls $ECRMAPANAIN/logger*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $ECRMAPANAIN/logger* $ECRMAPANAINERR
+fi
+
+# removing MassFilter.ICM_ESPOBE files from $err
+#if [ `ls $ERDIR/MassFilter.ICM_ESPOBE*att  2>/dev/null | wc -l ` -gt 0 ]
+#then
+#        #$1 is needed for verbose commandline parameter
+#        /opt/sfw/bin/mv $1 $ERDIR/MassFilter.ICM_ESPOBE*att $ICM_ESPOBE
+#fi
+
+#if [ `ls $ERDIR/MassFilter.ICM_ESPOBE*arc  2>/dev/null | wc -l ` -gt 0 ]
+#then
+#        #$1 is needed for verbose commandline parameter
+#        /opt/sfw/bin/mv $1 $ERDIR/MassFilter.ICM_ESPOBE*arc $ICM_ESPOBE
+#fi
+
+
+### ODM error FILEs
+if [ `ls $ERDIR/ODM_E*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for DEST in SJISEA SJCLRD SJCMBA SJGVIE SGSUSU
+    	do
+		for FILE in `grep -s -l $DEST $ERDIR/ODM_E* |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	    	do
+			#$1 is needed for verbose commandline parameter
+			/opt/sfw/bin/mv $1 $FILE* $ODM 
+		done
+	done
+fi
+
+### ODM_ETPRXM messages with wrong WRONGROOTELEMENT
+if [ `ls $ERDIR/ODM_ETPRXM*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l omResponse $ERDIR/ODM_ETPRXM*arc |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $ODMXM  
+	done
+fi
+
+### ODM_EFPRXM messages with wrong WRONGROOTELEMENT
+if [ `ls $ERDIR/ODM_EFPRXM*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l omResponse $ERDIR/ODM_EFPRXM*arc |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $ODMXM 
+	done
+fi
+
+### BURBE2SOXM files with missing DESTinations in dynamic table DYN_BURBERRY_DEST INC000035975
+ if [ `ls $ERDIR/BURBE2SOXM* 2>/dev/null | wc -l ` -gt 0 ]
+ then
+ 	for DEST in NETHERLANDS FRANCE
+	do
+		for FILE in `grep -s -l $DEST $ERDIR/BURBE2SOXM*arc |awk -F"." '{print $1"."$2"."$3"."$4}'`
+		do
+			#$1 is needed for verbose commandline parameter
+			/opt/sfw/bin/mv $1 $FILE* $BURB
+		done
+	done
+fi
+
+### MWM error FILEs
+if [ `ls $ERDIR/MWM_EPR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for DEST in GNL0000009 GNL0000005
+	do
+		for FILE in `grep -s -l $DEST $ERDIR/MWM_EPR* |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	    	do
+			#$1 is needed for verbose commandline parameter
+			/opt/sfw/bin/mv $1 $FILE* $MWM 
+		done
+	done
+fi
+
+### invoices to not defined DESTinations
+if [ `ls $ERDIR/EUCA*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#debugging EUCA files
+	#[ "-v" == "$1" ] && echo "EUCA files found"
+	for FILE in `egrep -l "R\+MKSISK|\ MKSISK|R\+TRSIIS|\ TRSIIS|R\+WWSITT|\ WWSITT" $ERDIR/EUCA*[!.att] |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $EUCA  
+	done
+fi
+
+### SEMCE FILEs having undefined DESTination code
+if [ `ls $ERDIR/SEMCE*  2>/dev/null | wc -l ` -gt 0 ]
+then
+    	for FILE in `grep -s -l 507751654 $ERDIR/SEMCE* |awk -F"." '{print $1"."$2"."$3"."$4}'`
+    	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SEMC 
+	done
+fi
+
+### BOSCE2BEIM FILEs having too long DGS record
+if [ `ls $ERDIR/BOSCE2BEIM*  2>/dev/null | wc -l ` -gt 0 ]
+then
+    	for FILE in `grep -s -l P001 $ERDIR/BOSCE2BEIM* |awk -F"." '{print $1"."$2"."$3"."$4}'`
+    	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $BOSCB 
+	done
+fi
+
+### BOSCE2AEDA FILEs having not defined DESTination code
+if [ `ls $ERDIR/BOSCE2AEDA*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l 000090571 $ERDIR/BOSCE2AEDA* |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $BOSCB  
+	done
+fi
+
+# remove 0 byte BAXGEVISTK FILEs
+if [ `ls $ERDIR/BAXGEVISTK*  2>/dev/null | wc -l ` -gt 0 ]
+then
+    	for FILE in `find $ERDIR/BAXGEVISTK* -size 0c |awk -F"." '{print $1"."$2"."$3"."$4}'`
+    	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $BAXTK 
+	done
+fi	
+
+### remove 0 byte MAHUESCIOF (Mann Hummel) FILEs 
+if [ `ls $ERDIR/MAHUESCIOF*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `find $ERDIR/MAHUESCIOF* -size 0c |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $MANHUM 
+	done
+fi
+
+### MassFilter FILEs for disabled HMSEE2POXM flow
+if [ `ls $ERDIR/MassFilter.HMSEE2POXM*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/MassFilter.HMSEE2POXM* $HMSE  
+fi
+
+
+### archive corrupt Bayer messages 
+if [ `ls $ERDIR/BAYRE2AEIM*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/BAYRE2AEIM* $BAYR 
+fi	
+
+### archive corrupt WBIMB messages 
+if [ `ls $ERDIR/WBIMB*WBIMB_ERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/WBIMB*WBIMB_ERROR* $WBIMB 
+fi
+
+### Spam via email from an SDAG server
+if [ `ls $ERDIR/SCXXEEMIED* 2>/dev/null | wc -l ` -gt 0 ]
+then
+	#$1 is needed for verbose commandline parameter
+	/opt/sfw/bin/mv $1 $ERDIR/SCXXEEMIED* $SCXXEEMIED
+fi
+
+### SYSTXERROR FILEs that are received due to corrupt customer configuration                  
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l "_COLL.CSV" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		echo "corrupt customer config: "
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SYST 
+	done
+fi
+
+# remove 0 byte BAXGEVISTK FILEs
+if [ `ls $ERDIR/SIEMECISPO*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `find $ERDIR/SIEMECISPO* -size 0c |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SIEMCI 
+	done
+fi	
+
+### SYSTXERROR for Cisco No ProcessID or RULE found ###
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l "O3B18R12" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		echo "CISCO no process/Rule found "
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SYST 
+	done
+fi
+
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l "ORTVFuncAck" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		echo ""ORTVFuncAck 
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SYST 
+	done
+fi
+
+### SYSTXERROR for SCXXEP09SG_inbound xml SGI with missing or wrong schemeName ###
+
+#INC000001171270
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l "SCXXEP09SG_inbound" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+	 	echo "SCXXEP09SG_inbound "
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SYST
+  	done
+fi
+
+### SYSTXERROR for KARCAOXXXX_inbound - receiving 997 that are not configured within the process ###
+#INC000002066534 and INC000002066370
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+        for FILE in `grep -s -l "KARCAOXXXX_inbound" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+	  	echo "KARCAOXXXX_inbound "
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SYST
+	done
+fi	  
+
+#GSD #1426213
+if [ `ls  $ERDIR/MALFCGENIN* 2>/dev/null |wc -l ` -gt 0 ]
+then
+	for FILE in `ggrep -s -l "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><ExtractFilename>" $ERDIR/MALFCGENIN*| gsed 's#....$##' ` 
+	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $MALFCGENIN 
+	done
+fi
+
+### SYSTXERROR messages with invalid Sender "NIKOLOV@SCHENKER.BG" via Email - GSD #1552637
+#1565168: delete me after 29.10.2013
+#LH 20141215 - deleted
+#if [  `ls $ERDIR/SYSTXERROR* 2>/dev/null | wc -l ` -gt 0 ]
+#then
+#	for file in `grep -l '{"NIKOLOV@SCHENKER.BG","XIBPROD@SWORD.SCHENKER.COM","sworddata+chk"}' $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+#	do
+#		/opt/sfw/bin/mv $1 $file* $SYST
+#	done
+#fi
+
+# CISCACOR18 GSD#1735455
+if [  `ls $ERDIR/CISCACOR18* 2>/dev/null | wc -l ` -gt 0 ]
+then
+	for file in `gegrep -l 'O3B18R12.*(SLCHOUSTONSH|SLCGUADSH).*\.zip' $ERDIR/CISCACOR18*att | awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $file* $CISCACOR18
+	done
+fi
+
+#GSD #2378813
+### SYSTXERROR temporary hk solution for Microsoft data for 220 files ###
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+        for FILE in `grep -s -l "RBTW_220" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		echo "Microsoft data 220 files " 
+		#$1 is needed for verbose commandline parameter
+                /opt/sfw/bin/mv $1 $FILE* $SYST
+	done
+fi
+
+#GSD #2378813
+### SYSTXERROR temporary hk solution for Microsoft data for 997 files###
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l "RBTW_997" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		echo "Microsoft data 997 files "
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SYST
+	done
+fi
+
+#INC000000956670
+### SYSTXERROR temporary hk solution for TOTAL ###
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+        for FILE in `grep -s -l "@TOTAL.COM" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+        do
+		echo "Temp. workaround for TOTAL "
+		#$1 is needed for verbose commandline parameter
+                /opt/sfw/bin/mv $1 $FILE* $SYST
+        done
+fi
+
+#INC000001791949I
+### SYSTXERROR temporary hk solution for SAMSTS1STA_inbound ###
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+        for FILE in `grep -s -l "SAMSTS1STA_inbound_inbound" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+        do
+		echo "SAMSTS1STA_inbound "
+		#$1 is needed for verbose commandline parameter
+                /opt/sfw/bin/mv $1 $FILE* $SYST
+        done
+fi
+
+
+
+#INC000001065147
+## move all EUCAEALLIN files away that are only 104,106,108,110,112 bytes in size
+if [ `ls $ERDIR/EUCAEALLIN*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `/opt/sfw/bin/gfind $ERDIR -name "EUCAEALLIN*.arc" -size 104c -o -size 106c -o -size 108c -o -size 110c -o -size 112c | awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		if [ `grep EUCAEALLIN_VIE_inbound $FILE*.att 2>/dev/null | wc -l ` -gt 0 ]
+		then
+			#$1 is needed for verbose commandline parameter
+			/opt/sfw/bin/mv $1 $FILE* $EUCA
+		fi
+	done	
+fi
+
+### SYSTXERROR for ENCOMENDASONLINE@LAIQ.COM - as there is no process setup for such emails (SPAM) ###
+
+#INC000001225820
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+        for FILE in `grep -s -l "ENCOMENDASONLINE@LAIQ.COM" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		echo "ENCOMENDASONLINE@LAIQ.COM "
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SYST
+	done
+fi
+
+### SYSTXERROR FILEs via email from Schenker Slovenia with "UNLOADING REPORT" in the subject line - sender address wrong likely ProccessID EUCAEULROF
+
+### INC000001505800
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l "UNLOADING REPORT" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+        do
+		echo 'Schenker Slovenia "UNLOADING REPORT "' 
+		#$1 is needed for verbose commandline parameter
+               	/opt/sfw/bin/mv $1 $FILE* $SYST
+        done
+fi
+
+### FERGCFFPOC empty files - respectively files that have only TAB entries - the content of regular files not incl. TABs - for TAB search used 'grep "[Strg+V][TAB]"'
+if [ `ls $ERDIR/FERGCFFPOC*arc   2>/dev/null | wc -l ` -gt 0 ] 
+then
+       	for FILE in `grep -s -l "	" $ERDIR/FERGCFFPOC*arc |awk -F"." '{print $1"."$2"."$3"."$4}'`
+       	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $FERGCFFPOC
+	done
+fi
+
+### Solution in INC000245253
+### Due to a missing container number on a not filled BL75 record in the BL-message no CECON record is not created
+### INC000001826805
+###
+#if [ `ls $ERDIR/GTNXE315CE*arc   2>/dev/null | wc -l ` -gt 0 ]
+#then
+#       for FILE in `ls $ERDIR/GTNXE315CE*`
+#       do
+#		#$1 is needed for verbose commandline parameter
+#		/opt/sfw/bin/mv $1 $FILE* $GTNXE315CE
+#       done
+#fi
+
+#REQ000001460541
+if [ `ls $ERDIR/MORIE2XMCV*arc   2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `ls $ERDIR/MORIE2XMCV*`
+	do
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $MORIE2XMCV
+        done
+fi
+
+### SYSTXERROR for 895-SPIN-MCP*TXT - as there is no process setup for these 895 files ###
+
+#INC000001986693
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+        for FILE in `grep -s -l "895-SPIN-MCP" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+        do
+		echo "SYSTXERROR for 895-SPIN-MCP*TXT " 
+		#$1 is needed for verbose commandline parameter
+		/opt/sfw/bin/mv $1 $FILE* $SYST
+        done
+fi
+
+#PRGBUWFMIN
+for FILE in `ls -1 $ERDIR/PRGBUWFMIN.*.arc 2>/dev/null | awk -F"." '{print $1"."$2"."$3"."$4"."$5}'`
+do
+	FILESIZE=$(stat -c%s "$FILE.arc")
+	if [[ "$FILESIZE" -eq "45" ]] 
+	then 
+               	#$1 is needed for verbose commandline parameter
+	        /opt/sfw/bin/mv $1 $FILE* $PRGBUWFMIN
+	fi	
+done
+
+### SYSTXERROR for files with DEA UNILIN_AS2_RP_CLT_RCV_DEA from as2chatsworthdmz.mohawkind.com # region PL ###
+### Customer try to resend files that fails someway but thiers system can not rename files properly so files goes to Schnker named in bad way
+#INC000248666
+if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+then
+        for FILE in `grep -s -l "UNILIN_AS2_RP_CLT_RCV_DEA" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+        do
+                echo "SYSTXERROR for UNILIN_AS2_RP_CLT_RCV_DEA "
+                #$1 is needed for verbose commandline parameter
+                /opt/sfw/bin/mv $1 $FILE* $SYST
+        done
+fi
+
+#######################################
+#INC000409378
+#Remove script of this issue since customer had already setup this process id
+#if [ `ls $ERDIR/SYSTXERROR*  2>/dev/null | wc -l ` -gt 0 ]
+#then
+#	for FILE in `gegrep -s -l '(SCOUT_ICCCO1_MS_|SCOUT_ICCCO1_ASN)' $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+#	do
+#	        echo "SYSTXERROR for SCOUT_ICCCO1_MS_* / SCOUT_ICCCO1_ASN*"
+#        	#$1 is needed for verbose commandline parameter
+#		/opt/sfw/bin/mv $1 $FILE* $SCOUT_ICCCO1
+#        done
+#fi
+
+

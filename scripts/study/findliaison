@@ -1,0 +1,115 @@
+#!/bin/bash
+########################################################
+# findliaison - search todays and yesterdays archive for a list of patterns provided by Liaison
+# 
+# input 	= /tmp/liaisonpattern (needs improvement, could be a command line parameter)
+# output	= list of number of identified patterns (3 types:Sender transaction IDs,  Liaison transaction IDs,  file names)
+#		  number of found patterns
+#		  number of NOT found pattern (for all three types given)
+#
+#		
+# TO DOs:
+#		clean up temporary files in /tmp
+#		improve the first grep - DONE
+#		allow parameter on the commandline to specify the pattern file
+#		allow parameter on the commandline to be able to search in different day
+# 
+#
+# last changes: 
+#		23.11.2017 LH added:	search patterns for additional Schenker branches and the search in yesterdays archive.  
+#		27.11.2017 LH added: 	search for outbound file names 
+#		27.11.2017 LH changed:  first grep (made more compact, but still requires two expressions for the different date format YYYY-MM-DD vs. DD-MM-YYYY) 
+#today
+TD_DAY=`date '+%d'`
+TD_MONTH=`date '+%m'`
+TD_YEAR=`date '+%Y'`
+
+#today's dir
+TD_DIR="./$TD_YEAR/$TD_MONTH/$TD_DAY"
+
+#yesterday
+YD_YEAR=`/opt/sfw/bin/date -d "yesterday" +%Y`
+YD_MONTH=`/opt/sfw/bin/date -d "yesterday" +%m`
+YD_DAY=`/opt/sfw/bin/date  -d "yesterday" +%d`
+
+#yesterday's directory
+YD_DIR="./$YD_YEAR/$YD_MONTH/$YD_DAY"
+
+echo
+echo "findliaison - find missing Liaison files - please contact lars.herrlein@dbschenker.com for any complains and suggestions"
+echo
+echo "compiling list of Sender transaction IDs"
+gegrep "(Kone Oyj|Valmet Transportation Gateway)" /tmp/liaisonpattern | gsed -e 's#\(^[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]\) *\([AP]M\)\{0,1\} *\(EST\)\{0,1\} *\(.*\)\(Kone Oyj.*\|Valmet Transportation Gateway.*\)#\4#' -e 's#\(^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]\) *\([AP]M\)\{0,1\} *\(EST\)\{0,1\} *\(.*\)\(Kone Oyj.*\|Valmet Transportation Gateway.*\)#\4#' -e 's#\t# #g' -e 's# ##g' -e 's#\t##g' | sort -u | tee /tmp/lpattern_Sender_transaction_IDs
+
+#old version
+#gegrep "(-$TD_YEAR|-$YD_YEAR|PM|AM|Kone Oyj)" /tmp/liaisonpattern | gsed -e 's#\t# #g' -e 's#\(.*AM EST\)\(.*\)\(Kone Oyj.*\)#\2#' -e 's#\(.*PM EST\)\(.*\)\(Kone Oyj.*\)#\2#' -e 's#\(.*AM\)\(.*\)\(Kone Oyj.*\)#\2#' -e 's#\(.*PM\)\(.*\)\(Kone Oyj.*\)#\2#' -e 's#\(.*AM EST\)\(.*\)\(Valmet Transportation Gateway.*\)#\2#' -e 's#\(.*PM EST\)\(.*\)\(Valmet Transportation Gateway.*\)#\2#' -e 's#\(.*AM\)\(.*\)\(Valmet Transportation Gateway.*\)#\2#' -e 's#\(.*PM\)\(.*\)\(Valmet Transportation Gateway.*\)#\2#'  -e 's#\t# #g' -e 's# ##g' -e 's#\t##g' | sort -u | tee /tmp/lpattern_Sender_transaction_IDs
+echo
+
+echo "Compiling list of Liaison transaction IDs"
+gegrep '(Schenker US|Schenker Tianjin DC|Schenker GK|Schenker Oy|Schenker DC Kunshan)' /tmp/liaisonpattern | gsed -e 's#\t.*##' -e 's# ##g' -e 's#\t##g' | sort -u | tee /tmp/lpattern_Liaison_transaction_IDs
+echo
+
+echo "Compiling list of inbound file names"
+grep "^Inbound filename" /tmp/liaisonpattern | gsed -e 's#Inbound filename: ##' -e 's# ##g' -e 's#\t##g' | tee  /tmp/lpattern_inbound_filenames
+echo
+
+echo "Compiling list of outbound file names"
+grep "^Outbound filename" /tmp/liaisonpattern | gsed -e 's#Outbound filename: ##' -e 's# ##g' -e 's#\t##g' | tee /tmp/lpattern_outbound_filenames
+echo 
+echo "################################################################"
+echo "searching for `wc -l /tmp/lpattern_Sender_transaction_IDs | gsed -e 's# ##g' -e 's#/tmp/lpattern_Sender_transaction_IDs##' ` Sender_transaction_ID(s) Liaison_transaction_ID(s) and inbound/outbound filename(s)"
+
+#cd into archive (used 
+cd /ext/schenker/archive/KONE/ECGFXM/IN/
+#search in both todays and yesterdays archive
+
+
+#explicitly seperated the searches into two expressions because of possible "arg list too long" issue
+
+#Sender transaction IDs
+ggrep -o -f /tmp/lpattern_Sender_transaction_IDs $TD_DIR/*.att | gsed -e 's#.*:##' > /tmp/liaisonfound_Sender_transaction_IDs
+ggrep -o -f /tmp/lpattern_Sender_transaction_IDs $YD_DIR/*.att | gsed -e 's#.*:##' >> /tmp/liaisonfound_Sender_transaction_IDs
+echo "        found `gsed -e 's#.*:##' /tmp/liaisonfound_Sender_transaction_IDs | sort -u | wc -l | gsed 's# *##g'` Sender ID(s)"
+
+#Liaison transction IDs
+ggrep -o -f /tmp/lpattern_Liaison_transaction_IDs $TD_DIR/*.att | gsed -e 's#.*:##' > /tmp/liaisonfound_Liaison_transaction_IDs
+ggrep -o -f /tmp/lpattern_Liaison_transaction_IDs $YD_DIR/*.att | gsed -e 's#.*:##' >> /tmp/liaisonfound_Liaison_transaction_IDs
+echo "        found `gsed -e 's#.*:##' /tmp/liaisonfound_Liaison_transaction_IDs | sort -u | wc -l | gsed 's# *##g'` LIASON ID(s)"
+
+#inbound file names 
+ggrep -o -f /tmp/lpattern_inbound_filenames $TD_DIR/*.att | gsed -e 's#.*:##' > /tmp/liaisonfound_inbound_filenames
+ggrep -o -f /tmp/lpattern_inbound_filenames $YD_DIR/*.att | gsed -e 's#.*:##' >> /tmp/liaisonfound_inbound_filenames
+echo "        found `gsed -e 's#.*:##' /tmp/liaisonfound_inbound_filenames | sort -u | wc -l | gsed 's# *##g'` filename(s)"
+
+#outbound file names
+ggrep -o -f /tmp/lpattern_outbound_filenames $TD_DIR/*.att | gsed -e 's#.*:##' > /tmp/liaisonfound_outbound_filenames
+ggrep -o -f /tmp/lpattern_outbound_filenames $YD_DIR/*.att | gsed -e 's#.*:##' >> /tmp/liaisonfound_outbound_filenames
+echo "        found `gsed -e 's#.*:##' /tmp/liaisonfound_outbound_filenames | sort -u | wc -l | gsed 's# *##g'`  outbound filename(s)"
+echo
+
+
+#echo "storing not found Sender_transaction_IDs into /tmp/liaison_NOT_found_Sender_transaction_ID"
+ggrep -v -f /tmp/liaisonfound_Sender_transaction_IDs /tmp/lpattern_Sender_transaction_IDs > /tmp/liaison_NOT_found_Sender_transaction_IDs
+
+#echo "storing not found Liaison_transaction_IDs into /tmp/liaison_NOT_found_Liaison_transaction_ID"
+ggrep -v -f /tmp/liaisonfound_Liaison_transaction_IDs /tmp/lpattern_Liaison_transaction_IDs > /tmp/liaison_NOT_found_Liaison_transaction_IDs
+
+#echo "storing not found filenames into /tmp/liaison_NOT_found_filename"
+ggrep -v -f /tmp/liaisonfound_inbound_filenames /tmp/lpattern_inbound_filenames > /tmp/liaison_NOT_found_inbound_filenames
+
+#echo "storing not found filenames into /tmp/liaison_NOT_found_outbound_filename"
+ggrep -v -f /tmp/liaisonfound_outbound_filenames /tmp/lpattern_outbound_filenames > /tmp/liaison_NOT_found_outbound_filenames
+
+
+echo "Sender transaction ID(s) not found:" 
+cat /tmp/liaison_NOT_found_Sender_transaction_IDs
+echo
+echo "Liaison transaction ID(s) not found:"
+cat /tmp/liaison_NOT_found_Liaison_transaction_IDs
+echo 
+echo "inbound file names not found:"
+cat /tmp/liaison_NOT_found_inbound_filenames
+echo 
+echo "outbound file names not found:"
+cat /tmp/liaison_NOT_found_outbound_filenames
+echo

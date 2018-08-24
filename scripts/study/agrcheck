@@ -1,0 +1,137 @@
+#!/bin/ksh
+# archive amtrix agreements
+#
+# GG Jan 2011
+#
+prog=`basename $0`
+nasys=`uname -n`
+
+# check user identidy
+if [ $(id|grep -c amtrix) -eq 1 ]
+then
+  Usage="Usage: $prog [-h] [-i agreementsfile | agreements..]";
+  if [ "$nasys" = "amtdess" ]
+  then
+    toldir="/progs/$nasys/tools/support/bin"
+  else
+    toldir="/opt/$nasys/tools/support/bin"
+  fi
+elif [ $(id|grep -c xib) -eq 1 ]
+then
+  Usage="Usage: $prog [-y comsys] [-h] [-i agreementsfile | agreements..]";
+  toldir=/ext/schenker/toolslocal
+else
+  echo "Unknown user (must be xib or amtrix)"
+  exit 1
+fi
+
+# load script lib
+. $toldir/script.lib
+
+comsys=''
+inputfile=''
+while getopts hy:i: o
+do      case "$o" in
+        i)      inputfile="$OPTARG";;
+        y)      comsys="$OPTARG";;
+        h)    	echo $Usage
+                exit 0;;
+        [?])    echo $Usage
+                exit 1;;
+        esac
+done
+n=`expr $OPTIND - 1`
+shift $n
+
+#
+# generate list of agreements to be processed
+#
+AGREEMENTS=$*			# arguments
+INIT_COMSYS $comsys
+if [ -n "$inputfile" ]          # input file
+then
+        if [ -f "$inputfile" ]
+        then
+          AGREEMENTS=`cat $inputfile`
+        else
+          echo "Cannot open input file $inputfile"
+          exit 2
+        fi
+elif [ -z "$AGREEMENTS" ]
+then
+        AGREEMENTS=$agreements	# all in and out agreements
+fi
+
+#
+# for each comsys
+#
+for agrdir in $agrdirs
+do
+  if [ $whoami = 'xib' ]
+  then
+    echo "$agrdir"
+  fi
+
+  # cd agreement dir:
+  cd $agrdir
+
+  #
+  # for each AGREEMENT
+  #
+  for AGREEMENT in $AGREEMENTS
+  do
+    dir=$agrdir/$AGREEMENT/
+
+    if [ -d $dir ]
+    then
+    # Determin time stamp of last data traffic by checking
+    # exp/imp directory or trf directory for MAIL agreements
+    echo $AGREEMENT | egrep -s "$inboundagrpat"
+    ret=$?
+    if [ "$ret" -eq 0 ]
+    then
+      exp=exp
+    else
+      exp=imp
+    fi
+
+    # MAIL agreement: check if trf directory is newer
+    echo $AGREEMENT | egrep -s '^MAIL'
+    ret=$?
+    if [ "$ret" -eq 0 ]
+    then
+      if [ "$dir/trf" -nt $dir$exp ]
+      then
+        exp=trf
+      fi
+    fi
+
+    last=`ls -ld $dir$exp | cut -c42-54`
+
+    tag=`echo "$last" | egrep :`
+    if [ -n "$tag" ]
+    then
+      dat=`echo "$last"| cut -c1-6`
+      tim=`echo "$last"| cut -c8-12`
+      yy=`date +%Y`		# this year
+      datnow=`date +'%b %e'`
+      if [ "$dat" != "$datnow" ]
+        then
+        echo "$dat" >/tmp/$$
+        echo "$datnow" >>/tmp/$$
+        firstdat=`cat /tmp/$$ | sort -M | head -1`
+        if [ "$firstdat" = "$datnow" ]
+        then
+          yy=`expr $yy - 1`		# last year
+        fi
+        rm /tmp/$$
+      fi
+      #echo "DAT=$dat, DATNOW=$datnow, FIRSTDAT=$firstdat, YY=$yy"
+      last="$dat  $yy $tim"
+    fi
+  
+    printf '%-40s%-10s\n' $AGREEMENT "$last"
+    fi
+  done | sort -k4n -k2M -k3 -k5
+done
+

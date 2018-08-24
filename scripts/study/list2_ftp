@@ -1,0 +1,624 @@
+#!/bin/bash
+#####################################################################################
+# list tool provides an overview about system and comsys status           
+# created by: Alexandros Cabadakis  on: 15th of May 2008                  
+# 
+# ported to xibftp: 26 July 2013 (lh)                                     
+# last change:   
+#		31.03.2016 (lh) change: PID now uses a more random number
+#		13.11.2015 (lh) change: added PID to file name containing the expanded cleandir paths to 
+#                                       prevent overwriting while another list2 is running  
+#		10.11.2015 (lh) added:  evaluating command line parameters moved to a function 
+#				added:	command line parameter -runbycron to allow list invoked by cron
+#		03.11.2015 (lh) change: the shell function expandcleandirs does no longer use the 
+#                                       global variable CLEANDIRCONFIG_RAW instead I pass it as 
+#                                       parameter $1 to it (better programming style...) 
+#		29.10.2015 (lh) change: list now normalizes the upload/download dirs by
+#					replacing all occurrences of /app/xib/progs/customer/ with /progs/customer/ 
+#					this prevents some directories from being displayed two times
+#               26.10.2015 (lh) fixed:  the last change did no longer display ANY directory 
+#                                      	that had a schedule or intervall value
+#                                      	carried over from the corresponding agreement
+#		22.10.2015 (lh) added: 	sorting by download and upload directories
+#		05.10.2015 (lh) added: 	filter for twin_line_count file
+#		27.08.2015 (lh) added: 	filter files from 2010-2014 in lslt
+#  		18.03.2015 (lh) fixed: 	NORMALIZEDDIR did find the wrong directories in the cleandir configuration
+#				       	extended now to the last three directory segments
+#               30.12.2014 (lh) fixed: 	Directories that are in fact links were not examined previously
+#		23.12.2014 (lh) added:	filtered conslog from df -h
+#               08.12.2014 (lh) added: 	stream 4, but temporary inactivated it until golive  
+#		31.10.2014 (lh) added: 	Comsys / comsysPX directories via an additional config file
+#		03.09.2014 (lh) added:	check for the age of config files                                        
+#
+# exit codes: 								
+# 0 	= successful						 
+# 1 	= configuration file gwdefxibftp.txt not found		
+# 2 	= configuration file gwvipxibftp.txt not found             
+# 3 	= configuration file gwsagxibftp.txt not found            
+# 9  	= configuration file gwfourxibftp.txt not found            
+# 4  	= configuration file amtcftp_transfer_directories not found                    
+# 5  	= can not create temporary directory
+# 6  	= STREAM 1 configuration files is older than 3 days
+# 7  	= STREAM 2 configuration files is older than 3 days
+# 8  	= STREAM 3 configuration files is older than 3 days
+# 10 	= STREAM 4 configuration files is older than 3 days
+#
+#####################################################################################
+
+DEBUG=0
+
+#default values (will be overridden if the parameter -runbycron is set)
+FILEAGEMIN_DOWNLOAD="0"
+FILEAGEMIN_UPLOAD="0"
+
+#file containing directories that are cleaned up on a regular basis
+CLEANDIRCONFIG_RAW='/opt/schenker/tools/cleandir/tables/cleandir.all'
+
+#temporary needed for commands that work only when prepending the sfw dirs
+#ToDo: find what command that is (I'm clueless)
+export TMP_PATH=$PATH
+export PATH=/opt/sfw/bin:/usr/sfw/bin:$TMP_PATH
+#reset temporary variable 
+export TMP_PATH=
+#replace non working versions of sfw tools as alias
+alias touch="/usr/bin/touch"
+alias mv="/usr/bin/mv"
+####
+
+#VAR 
+#current time in ticks
+NOW=`date +%s`
+#Size of environment in bytes (typically a little bit less than 1MiB)
+MAXENVSIZE=`getconf ARG_MAX`
+
+#this was in an earlier version the process' own PID
+#changed now to a more random number
+LIST2PID=`od -vAn -N4 -tu4 < /dev/urandom | head -1 | gsed 's#[\t ]*##'`
+
+#home dir of this script
+WORKDIR="/opt/amtcftp/tools/support/bin/"
+#data directory of this script
+DATADIR="/opt/amtcftp/tools/support/bin/list2data"
+
+#config files for this script created on stream 1-3 gateways with directories to check
+S1GWDIRS="$DATADIR/gwdefxibftp.txt"
+S2GWDIRS="$DATADIR/gwvipxibftp.txt"
+S3GWDIRS="$DATADIR/gwsagxibftp.txt"
+S4GWDIRS="$DATADIR/gwfourxibftp.txt"
+
+#the below was taken over from the old list - IMPROVE ME!!!!!!!!!!
+#some hardcoded directories
+TOO_MUCH="/progs/amtcftp/comsys/comexp_too_much/"
+#configuration file with some more hardcoded directories
+TRANSFER_DIRS="$DATADIR/amtcftp_transfer_directories"
+#Comsys directories on xibftp (need special handling, because of exchanged exp and imp directories)
+COMSYSXIBFTPDIRS="$DATADIR/comsysxibftp.txt"
+
+
+#semaphore files: IMPROVE ME !!!!!! better use a temporary filename during uploading...  IMPROVE ME !!!!!!
+#if one of the files exist, it means that script currently is not allowed to run
+#as export_agreements is currently uploading one of the gw*xibftp.txt files
+DEFSEMAPHORE="$DATADIR/gwdefsemaphore"
+VIPSEMAPHORE="$DATADIR/gwvipsemaphore"
+SAGSEMAPHORE="$DATADIR/gwsagsemaphore"
+FOURSEMAPHORE="$DATADIR/gwfoursemaphore"
+
+# temporary storage directory for list2
+TEMPDIR="/tmp/list2tmpdir"
+
+#this file later contains the directories from all three gateways 
+CUSTOMERDIRFILE="$TEMPDIR/list2_customerdirs$LIST2PID.txt" 
+#this one is for the download directories
+CUSTOMERDIRFILE_D="$TEMPDIR/list2_customerdirs_download_$LIST2PID.txt"
+#and this one for the upload directories
+CUSTOMERDIRFILE_U="$TEMPDIR/list2_customerdirs_upload_$LIST2PID.txt"
+
+#this file will contain the expanded wildcards of the cleandir config 
+CLEANDIRCONFIG="$TEMPDIR/expandedcleandircfg$LIST2PID.txt"
+
+
+LOGDIR="/app/xib/ext/support/statlog"
+
+#one more hard coded directory and file to check 
+COMSYSLOGDIR="/progs/amtcftp/comsys/log"
+COMSYSLOCKFILE="/progs/amtcftp/comsys/stop/lock.info"
+
+
+#this file is used for temporary storing ls -lt output
+LIST="$TEMPDIR/list2_filelist$LIST2PID.txt"
+#
+LSLTTEMPFILE="$TEMPDIR/list2_lslt_tempfile$LIST2PID.txt"
+
+
+
+############################################
+# New wrapper for ls -lt command to filter unwanted entries, such as
+# - the summary line of ls -l
+# - subdirectories
+# - softlinks 
+# - lastsource files
+# - local.cshrc and local.profile files
+# - files from 2010,2011,2012,2013,2014
+# - the twin_line_count file in the tWINs directory
+# - added: pre filter the list by only showing files older than FILEAGEMIN minutes (15 minutes for inbound directories, 4 days for outbound directories)
+# $1 = directory to analyze
+# $2 = minimum age in minutes (files more recent will not be listed)
+lslt () {
+        #change IFS to ignore white spaces in filenames (only temporary)
+        OLDIFS=$IFS
+        IFS=$(echo -en "\n\b")
+
+	#sub directory to analyze
+	LSLT_SUBDIR=$1
+	#only files older than FILEAGEMIN are displayed 
+	#15 = a quarter hour, 60 = one hour, 120 = two hours, 1440 = one day, 2880 = two day, 4320 = three days, 5760 = four day etc.
+	LSLT_FILEAGEMIN=$2
+	#change into the directory to save space in the resulting file (remember: the list of files MUST fit into the environment!) 	
+	pushd $LSLT_SUBDIR >/dev/null
+	#find files, pipe into temporary file which is then later sorted by time, escape spaces before outputting
+        gfind -maxdepth 1 -type f -cmin +$LSLT_FILEAGEMIN -ls 2>/dev/null | sed -e 's#.*/##' | tr -d '\\' >  $LSLTTEMPFILE 2>/dev/null
+
+	#check if size of resulting list exceeds environment size, in which case ls -lt can't be used to sort by time
+	#but this is no bug as in this case we have another issue. 
+	LSLTFILESSIZE=`wc -m $LSLTTEMPFILE | cut -d\  -f1 | sed 's# ##g'`
+        if [[ "$LSLTFILESSIZE" -le "$MAXENVSIZE" ]]
+        then
+                #echo "LSLTFILES=$LSLTFILES"
+                # only execute if directory is NOT empty
+                if [[ -s "$LSLTTEMPFILE" ]]
+                then
+                	/usr/bin/ls -lt `cat $LSLTTEMPFILE` 2>/dev/null | ggrep -v ^total | ggrep -v ^d | ggrep -v ^l | ggrep -v lastsource | ggrep -v local\.profile | ggrep -v local\.cshrc | ggrep -v local\.login | gegrep -v '(  2010 |  2011 |  2012 |  2013 |  2014 )' | ggrep -v -- '-rw-rw-rw-   1 amtrix   sftp_exchange      18 Jul 28 09:46 twin_line_count' 
+                fi
+        else
+                echo "WARNING! COULD NOT EVALUATE $LSLT_SUBDIR as it contains too many files"
+        fi
+	IFS=$OLDIFS
+        popd > /dev/null
+}
+############################################
+
+
+############################################
+#Wrapper for printing a line of hashes
+echo_hash () {
+        echo "#############################################################################################"
+}
+############################################
+
+
+############################################
+#Wrapper for printing a line of asterisks
+echo_asterisk () {
+        echo "*********************************************************************************************"
+}
+############################################
+
+
+############################################
+#expand all wildcards used in the cleandir configuration
+#This is required to search in ALL directories that cleandir looks into and does something
+#without expanding I could not just simply grep in the configuration file as I would miss most 
+#directories hidden behind the wildcard. 
+#
+#$1 = full path to cleandir configuration file
+expandcleandirs () {
+	#prevent path name extension until explicitly intended (see below)
+	set -f
+	#filter comments from file
+	cat $1 | grep -v ^#  | while read line
+	do
+		#parse it and fill some variables later used 
+		action=`echo $line | awk '{print $1}'`
+		#remove trailing slash(es) and add one defined slash
+	        path=`echo $line | awk '{print $2}'| sed -e 's#/*$##' -e 's#$#/#'`
+	        age=`echo $line | awk '{print $3}'`
+	        filemask=`echo $line | awk '{print $4}'`
+		#ignored = $5 & $6
+
+		#explicitly switch on path name extension for the below single statement
+	        set +f
+	        for directory in `echo $path`
+	        do
+			#switch path name extension off again
+	                set -f
+	                echo "$action;$directory;$age;$filemask" 
+	        done
+		#just to be sure path name extension is switched off after this iteration...
+        	set -f
+	done
+}
+############################################
+
+
+############################################
+#check if directory is cleaned up by cleandir
+#
+#$1 = directory to search for in the clean dir configuration
+echo_cleandir () {
+	#explicitly add a ; behind the path to prevent hits in longer path names
+	#such as /progs/customer/odm/to_odm also being found in /progs/customer/odm/to_odm_buerotex
+	[ "1" == "$DEBUG" ] && echo "$1;"
+	CLEANDIR=`ggrep "$1;" $CLEANDIRCONFIG 2>/dev/null`
+	
+        [ ! -z "$CLEANDIR" ] && echo "cleandir: $CLEANDIR"
+}
+############################################
+
+
+############################################
+#Evaluate list's command line and print a syntax help if there is an unknown parameter handed over
+#
+evaluate_command_line_parameters () {
+
+#default 
+NEWFEATURES=0
+DEBUG=0
+RUNBYCRON=0
+
+#evaluate command line parameters
+for ARGUMENT in "$@"
+do
+        case "$ARGUMENT" in
+                -newfeatures)
+                        NEWFEATURES=1
+                ;;
+                -debug)
+                        DEBUG=1
+                ;;
+                -runbycron)
+                        RUNBYCRON=1
+			#a quarter hour for download files
+			FILEAGEMIN_DOWNLOAD="15"
+			#four days for outbound files
+			FILEAGEMIN_UPLOAD="5760"
+                ;;
+                *|-?|--help)
+                        echo "USAGE: $0 [-runbycron|-?|--help]"
+                        echo "	-runbycron  	if list is run by cron only display files older than a defined age"
+                        echo "	-?|--help	shows this help"
+                        echo
+                        exit
+                ;;
+        esac
+done
+#Enable for testing new features implemented by you
+[ "-newfeatures" ==  "$1" ] && NEWFEATURES=1
+
+#DEBUG?
+[ "-debug" == "$1" ] && DEBUG=1
+
+}
+############################################
+
+
+############################################
+#evaluate customer inbound and outbound directories
+#moved from MAIN part of the script into a function to handle
+#inbound directories and outbound directories separately
+#$1 = list of directories to evaluate
+#$2 = only files older than this number of minutes are taken into account
+#$3 = hint for the output
+
+evaluate_customer_directories () {
+	
+	#list of directories to look into
+	EDC_DIRLISTFILE=$1
+	#FILEAGEMIN
+	EDC_MINAGE=$2
+	EDC_DIRECTION=$3
+	#echo "evaluate_customer_directories: $EDC_DIRLISTFILE $EDC_MINAGE $EDC_DIRECTION"
+
+	EDC_DIRECTORY=""
+	EDC_ROW=""
+
+	echo
+	echo_hash
+	echo "Customer directories ($EDC_DIRECTION)"
+	echo_hash
+	echo
+
+	#remember last directory to prevent double output
+	EDC_LASTDIR=""
+	####Read from dirlist.txt end loop through all directories 
+	while IFS= read -r EDC_ROW
+	do
+		#ignore lines with leading hashes = comments
+		#remove everything after the directory name
+		EDC_DIRECTORY=`echo $EDC_ROW | ggrep -v ^# | sed -e 's#;.*##'`
+
+		#remove trailing slashes and add one defined trailing slash
+		#to enable us to also search through directories that are in fact softlinks
+		EDC_DIR_WITH_TRS=`echo $EDC_DIRECTORY | sed -e 's#/*$##' -e 's#$#/#'`
+		if [ -d $EDC_DIRECTORY  -a "$EDC_DIRECTORY" != "$EDC_LASTDIR" ] >/dev/null 2>&1
+		then
+			#important, we need to use the DIR_WITH_TRS here! 
+			lslt $EDC_DIR_WITH_TRS $EDC_MINAGE > $LIST
+			if (( `cat $LIST|wc -l` > 0 ))
+			then
+				echo_asterisk
+				#DEBUG
+				#echo "CUSTOMERDIRFILE - Directory = $DIRECTORY"
+
+				#we grep for the DIRECTORY in the GLOBAL list of up/download directories!
+				gegrep "^$EDC_DIRECTORY;.*$" $CUSTOMERDIRFILE
+
+				#Is this directory contained in the list of automatically cleaned up directories? 
+				echo_cleandir $EDC_DIR_WITH_TRS
+
+				printf "%*s\n" 93 "`cat $LIST | wc -l` file(s)" 
+				#DEBUG
+				# echo "$ROW            `cat $LIST | wc -l ` file(s)"
+				#
+				echo_asterisk
+				tail -1 $LIST
+				[[ "`head -1 $LIST`" != "`tail -1 $LIST`" ]] && head -1 $LIST
+				echo_asterisk
+				echo
+			fi
+			EDC_LASTDIR=$EDC_DIRECTORY
+		fi
+	done < "$EDC_DIRLISTFILE" 
+}
+############################################
+
+
+
+
+######################################
+#
+#MAIN
+#
+#
+######################################
+
+
+#Evaluate list's command line parameters
+evaluate_command_line_parameters "$@"
+
+
+#first we have to do some initializing and checking if the script really is able to run.
+
+#create tmpdir if it doesn't exist
+[ ! -d $TEMPDIR ] && mkdir $TEMPDIR
+
+#stop if directory can not be created
+[ ! -d $TEMPDIR ] && echo "can not create temporary directory $TEMPDIR" && echo "exiting.. " && exit 5
+
+#clean up files in tmpdir older than 2 days (in case someone CTRL-C'd during runtime)
+gfind $TEMPDIR -mtime +2 -type f -exec rm {} \;
+
+
+#generate real list of cleaned up directories
+echo "Expanding cleandir paths. This may take a few seconds..."
+expandcleandirs $CLEANDIRCONFIG_RAW > $CLEANDIRCONFIG
+echo " ...done"
+
+
+# create log entry in statlog file of the current day
+echo "list2 has been started on host" $HOSTNAME "on" `date +%Y.%m.%d.` "at" `date +%H:%M:%S` >> $LOGDIR/list/log/"$HOSTNAME"_listlog_of_`date +%Y.%m.%d`
+
+# create log entry in statlog csv file of the current day
+echo $HOSTNAME";""list2;"`date +%Y.%m.%d`";"`date +%H:%M:%S`";" >> $LOGDIR/csv/"$HOSTNAME"_`date +%Y%m%d`.csv
+
+#remember current working directory and change into WORKDIR
+#so that we later can come back to that directory
+pushd $WORKDIR >/dev/null
+
+#wait for end of file upload
+while [ -e "$DEFSEMAPHORE" -o -e "$VIPSEMAPHORE" -o -e "$SAGSEMAPHORE" -o -e "$FOURSEMAPHORE" ]
+do
+	echo "One of the gateways is currently uploading a new configuration"
+	echo "waiting 5 seconds to finish ..."
+	echo "Please press <CTRL>+c if you do not have the time to wait"
+	sleep 5
+done
+
+#check if configuration files are non empty .... ! -s means: NOT "NOT ZERO SIZE"  
+[ ! -s $S1GWDIRS ] && echo "ERROR" && echo "Configuration file $S1GWDIRS is empty" && echo "Please run export_agreements on stream 1 GW" && exit 1 
+[ ! -s $S2GWDIRS ] && echo "ERROR" && echo "Configuration file $S2GWDIRS is empty" && echo "Please run export_agreements on stream 2 GW" && exit 2
+[ ! -s $S3GWDIRS ] && echo "ERROR" && echo "Configuration file $S3GWDIRS is empty" && echo "Please run export_agreements on stream 3 GW" && exit 3
+[ ! -s $S4GWDIRS ] && echo "ERROR" && echo "Configuration file $S4GWDIRS is empty" && echo "Please run export_agreements on stream 4 GW" && exit 9 
+[ ! -s $TRANSFER_DIRS ] && echo "ERROR" && echo "Configuration file $TRANSFER_DIRS is emtpy" && echo "exiting" && exit 4
+
+
+
+## check if configuration files are older than 1d 
+S1GWDIRS_DATE=`/opt/sfw/bin/stat -c %Z $S1GWDIRS`  
+S2GWDIRS_DATE=`/opt/sfw/bin/stat -c %Z $S2GWDIRS`
+S3GWDIRS_DATE=`/opt/sfw/bin/stat -c %Z $S3GWDIRS`
+S4GWDIRS_DATE=`/opt/sfw/bin/stat -c %Z $S4GWDIRS`
+
+S1GWDIRS_AGE=$(($NOW-$S1GWDIRS_DATE))
+S2GWDIRS_AGE=$(($NOW-$S2GWDIRS_DATE))
+S3GWDIRS_AGE=$(($NOW-$S3GWDIRS_DATE))
+S4GWDIRS_AGE=$(($NOW-$S4GWDIRS_DATE))
+
+#older than 1 day: WARN
+(( 86400 < $S1GWDIRS_AGE )) && echo "Warning! STREAM 1 GW Data older than 1 day"
+(( 86400 < $S2GWDIRS_AGE )) && echo "Warning! STREAM 2 GW Data older than 1 day"
+(( 86400 < $S3GWDIRS_AGE )) && echo "Warning! STREAM 3 GW Data older than 1 day"
+(( 86400 < $S4GWDIRS_AGE )) && echo "Warning! STREAM 4 GW Data older than 1 day"
+
+#older than 3 days: STOP 
+(( 259200 < $S1GWDIRS_AGE )) && echo "ERROR! STREAM 1 GW Data older than 3 days" && exit 6
+(( 259200 < $S2GWDIRS_AGE )) && echo "ERROR! STREAM 2 GW Data older than 3 days" && exit 7
+(( 259200 < $S3GWDIRS_AGE )) && echo "ERROR! STREAM 3 GW Data older than 3 days" && exit 8
+(( 259200 < $S4GWDIRS_AGE )) && echo "ERROR! STREAM 4 GW Data older than 3 days" && exit 10 
+
+#generate two files from the configuration files collected on the four gateways (normalize both to /progs/customer)
+#1. list of download directories for inbound traffic to xib
+#2. list of upload directories for outbound traffic from xib
+cat $S1GWDIRS $S2GWDIRS $S3GWDIRS $S4GWDIRS | sed 's#^/app/xib/progs/customer/#/progs/customer/#' |sort -u | grep ";download" | gegrep '(/app/xib/sftproot/|/progs/customer)' >  $CUSTOMERDIRFILE_D
+cat $S1GWDIRS $S2GWDIRS $S3GWDIRS $S4GWDIRS | sed 's#^/app/xib/progs/customer/#/progs/customer/#' |sort -u | grep ";upload" | gegrep '(/app/xib/sftproot/|/progs/customer)'>  $CUSTOMERDIRFILE_U
+
+#needed for the output of BOTH download and upload
+cat $CUSTOMERDIRFILE_D $CUSTOMERDIRFILE_U | sort -u > $CUSTOMERDIRFILE
+
+#####################################################################
+#Now we can start with the real action of listing some directories...
+#####################################################################
+echo_asterisk
+echo "*                                           list v2                                         *"
+echo "* upload   = GW 1/2/3/4 -> xibftp                                                           *"
+echo "* download = xibftp     -> GW 1/2/3/4                                                       *"
+echo "* the standard interval for COMSYS agreements = 300s                                        *"
+echo "* Please inform script maintainer (currently lars.herrlein@dbschenker.com) about any error  *"
+echo_asterisk 
+
+
+###########################
+#Print free diskspace 
+##########################
+[ "$RUNBYCRON" ] || df -h | grep -v /conslog;echo 
+
+
+#############################
+#Examine transfer directories
+#############################
+echo_hash
+echo "Some hardcoded transfer directories (e.g comsys & comsysPX)"
+echo_hash
+echo
+
+#loop, but ignore comments in file, remove all trailing slashes and add one defined slash
+#to enable us to also search through directories that are in fact softlinks 
+for DIRS in `ggrep -v ^# $TRANSFER_DIRS | sed -e 's#/*$##' -e 's#$#/#' `
+do
+        # DEBUG
+        # echo "current directory = $DIRS"
+        if [ -d $DIRS ] >/dev/null 2>&1
+        then
+                lslt $DIRS 0 > $LIST
+		#only print out if files are found (same princple in below loops)
+                if (( `cat $LIST|wc -l` > 0 ))
+                then
+                        echo_asterisk
+                        echo "$DIRS:            `cat $LIST | wc -l ` file(s)"
+                        echo_asterisk
+			#print at least one file name 
+                        tail -1 $LIST
+			#only print out second line if different from first
+                        [[ "`head -1 $LIST`" != "`tail -1 $LIST`" ]] && head -1 $LIST
+                        echo_asterisk
+                        echo
+                fi
+        fi
+done
+
+##################
+#Comsys / ComsysPX exp/imp directories on xibftp need special handling
+##################
+echo
+echo_hash
+echo "ComSys / ComSysPX  directories"
+echo_hash
+echo
+
+#remember last directory to prevent double output
+LASTDIR=""
+####Read from dirlist.txt and loop through all directories
+while IFS= read -r ROW
+do
+        #ignore lines with leading hashes = comments
+        #remove everything after the directory name
+        DIRECTORY=`echo $ROW | ggrep -v ^# | sed -e 's#;.*##'`
+
+        #remove trailing slashes and add one defined trailing slash
+        #to enable us to also search through directories that are in fact softlinks
+        DIR_WITH_TRS=`echo $DIRECTORY | sed -e 's#/*$##' -e 's#$#/#'`
+	
+        if [ -d $DIRECTORY  -a "$DIRECTORY" != "$LASTDIR" ] >/dev/null 2>&1
+        then
+		#important, we need to use the DIR_WITH_TRS here!
+                lslt $DIR_WITH_TRS "0" > $LIST
+
+                if (( `cat $LIST|wc -l` > 0 ))
+                then
+                        echo_asterisk
+			gegrep "^$DIRECTORY;.*$" $COMSYSXIBFTPDIRS
+		
+                        #Is this directory contained in the list of automatically cleaned up directories?
+                        echo_cleandir $DIR_WITH_TRS
+
+                        printf "%*s\n" 93 "`cat $LIST | wc -l` file(s)"
+                        #DEBUG
+                        # echo "$ROW            `cat $LIST | wc -l ` file(s)"
+                        #
+                        echo_asterisk
+                        tail -1 $LIST
+                        [[ "`head -1 $LIST`" != "`tail -1 $LIST`" ]] && head -1 $LIST
+                        echo_asterisk
+                        echo
+                fi
+                LASTDIR=$DIRECTORY
+        fi
+done < "$COMSYSXIBFTPDIRS"
+
+
+
+#call evaluate customer directories with separate values for minimum file age
+evaluate_customer_directories $CUSTOMERDIRFILE_D $FILEAGEMIN_DOWNLOAD "DOWNLOAD"
+evaluate_customer_directories $CUSTOMERDIRFILE_U $FILEAGEMIN_UPLOAD "UPLOAD"
+ 
+
+#TOO MUCH directory: Only print out if at least one file exists
+lslt $TOO_MUCH 0 > $LIST
+if (( `cat $LIST|wc -l` > 0 ))
+then
+        echo_hash
+        echo "\"Too much\" directory"
+        echo_hash
+        echo
+        echo_asterisk
+        echo "$TOO_MUCH:            `cat $LIST | wc -l` file(s)"
+        echo_asterisk
+        tail -1 $LIST
+        [[ "`head -1 $LIST`" != "`tail -1 $LIST`" ]] && head -1 $LIST
+        echo_asterisk
+        echo
+fi
+
+########################################################################
+
+
+echo_asterisk
+echo "Inhouse Comm Scheduler"
+OUT1=`ls -l "$COMSYSLOGDIR/log"| awk -F" " '{print $9, $6, $7, $8}'`
+echo "$OUT1"
+echo_asterisk
+
+if [ -d  $COMSYSLOCKFILE ]
+then
+	OUT1=`ls -lt "$COMSYSLOCKFILE" | awk -F" " '{print $9, $6, $7, $8}'`
+	echo "$OUT1"
+fi
+
+if [ -d "$COMSYSLOGDIR""/exception_error" ]
+then 
+	OUT1=`ls -l "$COMSYSLOGDIR""/exception_error"| awk -F" " '{print $9, $6, $7, $8}'` 
+	OUT2=`ls -l "$COMSYSLOGDIR""/exception_error"| awk -F" " '{print $5}'`
+	OUT3="$OUT1""   ""$OUT2"
+	echo "$OUT3"" byte"
+	echo_asterisk
+fi
+	  
+
+#clean TEMPDIR
+
+echo 
+#echo_asterisk
+echo "cleaning up temporary files..."
+#echo_asterisk
+
+rm $LIST
+rm $CUSTOMERDIRFILE
+rm $CUSTOMERDIRFILE_D
+rm $CUSTOMERDIRFILE_U
+rm $CLEANDIRCONFIG
+
+rmdir $TEMPDIR >/dev/null 2>&1 
+
+echo "done."
+
+#reset path...
+popd >/dev/null 2>&1

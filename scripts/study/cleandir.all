@@ -1,0 +1,219 @@
+#**********************************************************************/
+#***                         cleandir.dat                           ***/
+#**********************************************************************/
+#*** Description: The file cleandir.dat is used by the script       ***/
+#***              cleandir.scr. In the file the parameters for the  ***/ 
+#***              awk (cleandir.awk) are defined.                   ***/
+#***              Parameters:                                       ***/
+#***              $1 = A (autocompress file),                       ***/ 
+#***                   C (copy, compress and empty File,            ***/ 
+#***                      move copy to defined directory $5)        ***/ 
+#***                      and make a chown to usr/group  $6         ***/ 
+#***                   U (delete named pipe files)                  ***/
+#***                   W (copy, compress and empty File)            ***/ 
+#***                   X (delete File) Y (empty File)               ***/ 
+#***                   Z (empty File with header)                   ***/
+#***              $2 = directory of the files to be deleted         ***/ 
+#***              $3 = all files older than this date or more than  ***/ 
+#***                   this bytes (case $1=W) are deleted           ***/ 
+#***              $4 = all or special files are deleted             ***/ 
+#***                                                                ***/
+#*** ATTENTION: 'cleandir' will delete files in given directory AND ***/
+#*** ==========            subdirectories (if exist) !          === ***/
+#**********************************************************************/
+#*** Version     Datum     Name     Update-Description              ***/
+#***  1.0     09.10.1998    AG      Creation                        ***/
+#***  1.1     26.02.1999    AG      Update (empty file)             ***/
+#**********************************************************************/
+#
+A /progs/amtcftp/comsys/log/old +3 *
+A /progs/amtcftp/comsysPX/log/old +3 *
+# C /app/sftplog/ +10c sftplog.log  /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot +1c ftp_apac_workaround.log /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot +1c ftp_transfer_control.log  /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot/proftpd +1000c proftpd-sftp.access_log /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot/proftpd +1000c proftpd-tls.access_log  /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot/proftpd +1000c proftpd.access_log  /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot/proftpd +1000c proftpd_system.log  /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot/proftpd +1000c proftpd_tls.log  /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot/proftpd +1000c xferlog /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot/proftpd +1000c xferlog-sftp /progs/adm_sav amtrix:amtrix
+C /app/xib/ext/schenker/prot/proftpd +1000c xferlog-tls /progs/adm_sav amtrix:amtrix
+C /ext/schenker/prot +10c comsysPX-restart.log /progs/adm_sav amtrix:amtrix
+C /ext/schenker/prot +10c ftp_rename_workaround.log /progs/adm_sav amtrix:amtrix
+C /opt/schenker/prot +1c crontab.log /opt/schenker/prot/archive amtrix:amtrix
+C /opt/schenker/tools/autcheck/prot +10c dell_logs.txt /progs/adm_sav amtrix:amtrix
+C /var/adm +1000c auth  /progs/adm_sav amtrix:amtrix
+C /var/adm +1000c wtmp  /progs/adm_sav amtrix:amtrix
+C /var/adm +1000c wtmpx /progs/adm_sav amtrix:amtrix
+W /opt/schenker/tools/autcheck/prot +500000c autcheck.log
+W /opt/schenker/tools/eschenker/prot +500000c ttctrl.log
+X /app/xib/sftproot/*/*/TEMP +1 *
+X /app/xib/sftproot/*/*/TMP +1 *
+X /app/xib/sftproot/*/*/temp +1 *
+X /app/xib/sftproot/*/*/tmp +1 *
+X /app/xib/sftproot/*/TEMP +1 *
+X /app/xib/sftproot/*/TMP +1 *
+X /app/xib/sftproot/*/temp +1 *
+X /app/xib/sftproot/*/tmp +1 *
+X /app/xib/sftproot/GE/to_GE +7 ZGEJ_REP_OUT*.csv
+X /app/xib/sftproot/arriva/to_arriva/ +0 *_response.xml
+X /app/xib/sftproot/d2l_sftp/to_d2l_sftp +7 *
+X /app/xib/sftproot/fassbtf/from_fassbtf +14 *
+X /app/xib/sftproot/fassbtf/to_fassbtf +14 *
+X /app/xib/sftproot/fasssaab/from_fasssaab +14 *
+X /app/xib/sftproot/fasssaab/to_fasssaab +14 *
+X /app/xib/sftproot/hella/to_hella +7 *
+X /app/xib/sftproot/elpartssftp/to_elpartssftp +7 *
+X /app/xib/sftproot/cgi/to_cgiBUH +7 *
+X /app/xib/sftproot/ironmwini/to_ironmwini/ +6 *
+X /app/xib/sftproot/ironskodm/to_ironskodm/ +6 *
+X /app/xib/sftproot/monier/backup +7 *
+X /app/xib/sftproot/mtu/to_mtu/error/ +30 *
+X /app/xib/sftproot/odmficheros/from_odmficheros +0 SK_IronMountainSK*.txt
+X /app/xib/sftproot/odmvodafone/to_odmvodafone +7 *
+X /app/xib/sftproot/enercon/to_enercon +7 *
+X /app/xib/sftproot/tupperware/to_tupperware/processed +7 *
+X /ext/schenker/SYSTWAS +5 *
+X /opt/schenker/prot/archive +7 *
+X /opt/schenker/tools/autcheck/prot +14 aut_daemon_ptk_*
+X /progs/adm_sav +28 *
+X /progs/amtcftp/archive/comexp_too_much +10 *
+X /progs/amtcftp/archive/resend +15 *
+X /progs/amtcftp/comsys/agr/*/prot +30 *
+X /progs/amtcftp/comsys/agr/PRT_DEBUMSXM_exp/prot +7 log.detail.soap.*
+X /progs/amtcftp/comsys/custom/wyse/inbound4wyse +14 *.tmp
+X /progs/amtcftp/comsys/log +90 supervisor.*
+X /progs/amtcftp/comsys/log/old +60 *
+X /progs/amtcftp/comsysPX/agr/*/prot +30 *
+X /progs/amtcftp/comsysPX/log +90 supervisor.*
+X /progs/amtcftp/comsysPX/log/old +30 *
+X /progs/amtcftp/split/not_send +30 *
+X /progs/customer/*/from_*/ +0 *.tmp
+X /progs/customer/*/to_*/ +0 *.tmp
+X /progs/customer/*/*/TEMP +1 *
+X /progs/customer/*/*/TMP +1 *
+X /progs/customer/*/*/temp +1 *
+X /progs/customer/*/*/tmp +1 *
+X /progs/customer/*/TEMP +1 *
+X /progs/customer/*/TMP +1 *
+X /progs/customer/*/temp +1 *
+X /progs/customer/*/tmp +1 *
+X /progs/customer/Clorox/CLRX/OutfromSCL/All +14 *
+X /progs/customer/Mattson/to_Mattson +15 *
+X /progs/customer/NZEuroCoP/to_NZEuroCoP +7 *
+X /progs/customer/LNP-UYSIMV/to_LNP-UYSIMV +7 *
+X /progs/customer/QuinPicardie/to_QuinPicardie +7 REPORT*
+X /progs/customer/SAB_N0012S/from_SAB_N0012S/SAB_finished/ +14 *
+X /progs/customer/Verwey/to_Verwey +7 *
+X /progs/customer/adveo/to_adveo +2 *
+X /progs/customer/apl/imp +28 *
+X /progs/customer/auschitzky/to_auschitzky +2 *
+X /progs/customer/bafa/to_bafa +7 *
+X /progs/customer/baxglobal/from_baxglobal/Integration +14 *
+X /progs/customer/baxglobal/from_baxglobal/Test_Agent +14 *
+X /progs/customer/baxglobal/from_baxglobal/Test_Integration +14 *
+X /progs/customer/bechtel/outFromSCL/APLNG/IAH_PO +28 *
+X /progs/customer/bechtel/outFromSCL/GLNG/IAH_PO +28 *
+X /progs/customer/bestway/to_bestway +2 *
+X /progs/customer/birambeau/to_birambeau +3 *
+X /progs/customer/bledina/to_bledina +2 *
+X /progs/customer/bruker/to_bruker/bkup +28 *
+X /progs/customer/casado/to_casado +2 *
+X /progs/customer/codimas/to_codimas/ +3 *
+X /progs/customer/colart/to_colart +15 JOY*
+X /progs/customer/colart/to_colart +3 *
+X /progs/customer/creaction/to_creaction +7 *
+X /progs/customer/dell/from_dell/BIN/  +7 *
+X /progs/customer/dell/from_dell/CIN/  +7 *
+X /progs/customer/deltasa/to_deltasa +2 *
+X /progs/customer/descours/to_descours +3 *
+X /progs/customer/embraer/FROM/DOUANE/Bon +15 *
+X /progs/customer/embraer/FROM/DOUANE/Notif +15 *
+X /progs/customer/embraer/FROM/DOUANE/Sans_Notif +15 *
+X /progs/customer/embraer/FROM/LEG2/Bon +15 *
+X /progs/customer/embraer/FROM/LEG2/Notif +15 *
+X /progs/customer/embraer/FROM/LEG2/Sans_Notif +15 *
+X /progs/customer/embraer/FROM/LEG4/Bon +15 *
+X /progs/customer/embraer/FROM/LEG4/Notif +15 *
+X /progs/customer/embraer/FROM/LEG4/Sans_Notif +15 *
+X /progs/customer/embraer/FROM/Tracking +15 *
+X /progs/customer/emcmitwplprd/to_emcmitwplprd +14 *
+X /progs/customer/emcmitwplprd/to_emcmitwplprd/arch +28 *
+X /progs/customer/estelle/to_estelle +3 *
+X /progs/customer/euromasterfi/archive +1 *
+X /progs/customer/euromasterfi/to_euromasterfi +2 *
+X /progs/customer/exide/to_exide +2 *
+X /progs/customer/ftpgep/from_gep/history +14 *
+X /progs/customer/ftpgep/to_gep/history +14 *
+X /progs/customer/galardi/to_galardi +3 *
+X /progs/customer/getip/from_getip +28 *
+X /progs/customer/gmgo/incoming +28 *
+X /progs/customer/hexappro/to_hexappro +2 *
+X /progs/customer/logtimum/to_logtimum +2 *
+X /progs/customer/logtimum/to_logtimum_arthusbertrand +2 *
+X /progs/customer/logtimum/to_logtimum_denjean +2 *
+X /progs/customer/map/from_map/archive +28 *
+X /progs/customer/map/to_map/archive +14 *
+X /progs/customer/mdp/to_mdp +3 *
+X /progs/customer/miidex/to_miidex/ +3 *
+X /progs/customer/mor_furniture/to_mor_furniture +30 *
+X /progs/customer/ocd/to_ocd +5 *
+X /progs/customer/orexad/to_orexad/ +3 *
+X /progs/customer/pace/FromPace +7 TitleTransferACK_*
+X /progs/customer/pakettikauppa/to_pakettikauppa +7 *
+X /progs/customer/papstar/to_papstar +2 *
+X /progs/customer/pharmalog/to_pharmalog +15 JOY*
+X /progs/customer/rotho/from_rotho +0 *.CHK
+X /progs/customer/incom/from_incom +0 *.tmp
+X /progs/customer/ppga/for_schenker/tmp +2 *
+X /progs/customer/prevost/to_prevost +3 *
+X /progs/customer/quai77/to_quai77 +2 *
+X /progs/customer/rp_malf/RP_MALF/OutfromSCL/All +7 *
+X /progs/customer/samsungfi/out +7 *
+X /progs/customer/sap_to_sedom/test +14 *
+X /progs/customer/sap_to_sedom/tmp +14 *
+X /progs/customer/scar/to_scar +3 *
+X /progs/customer/sgen/to_sgen +3 *
+X /progs/customer/sill/to_sill +1 *
+X /progs/customer/slcep/CISCO/INBOUND/*/Archive +30 *
+X /progs/customer/sonovente/to_sonovente +2 *
+X /progs/customer/sorelec/to_sorelec +2 *
+X /progs/customer/syncreon/from_syncreon_airtest +14 *
+X /progs/customer/tdi/to_tdi +5 *
+X /progs/customer/linefriendsprd/to_linefriendsprd/bak +3 *
+X /progs/customer/tetrosyl/to_tetrosyl/ +3 *
+X /progs/customer/torontopanam2015/to_torontopanam2015/processed +28 *
+X /progs/customer/toshiba/to_toshiba/bak +30 *
+X /progs/customer/transmar/out/archive +30 *
+X /progs/customer/transmar/out/errors +30 *
+X /progs/customer/tremco/to_tremco +5 *
+X /progs/customer/vim/to_vim/ +4 *
+X /progs/customer/virtualbureau/to_virtualbureau/ +3 *
+X /progs/customer/vkauppa/to_vkauppa +7 *
+X /progs/customer/webbisivut/to_webbisivut +7 *
+X /progs/customer/wms_bsh/EDI_INBOUND/BSH/832IN +28 *
+X /progs/customer/wms_bsh/EDI_INBOUND/BSH/864IN +28 *
+X /progs/customer/wms_bsh/EDI_INBOUND/BSH/940HISTORY +14 *
+X /progs/customer/wms_bsh/EDI_INBOUND/BSH/940REJECT +28 *
+X /progs/customer/wms_bsh/EDI_INBOUND/BSH/943HISTORY +14 *
+X /progs/customer/wms_bsh/EDI_OUTBOUND/BSH/944HISTORY +14 *
+X /progs/customer/wms_bsh/EDI_OUTBOUND/BSH/945HISTORY +14 *
+X /progs/customer/wms_dei/EDI_INBOUND/DEI/940ERROR +28 *
+X /progs/customer/wms_dei/EDI_INBOUND/DEI/940HISTORY +14 *
+X /progs/customer/wms_dei/EDI_OUTBOUND/DEI/945HISTORY +14 *
+X /progs/customer_large/*/from_*/ +7 *
+X /progs/customer_large/*/to_*/ +7 *
+X /progs/customer_large/*/work/BDID +7 *
+X /progs/xib/ediint_neu/sword_umids +14 *
+X /tmp +2 sh*
+X /var/log/rootxterm/xtermlog +14 *
+X /var/tmp +7 stm*
+Z /opt/schenker/tools/locctrl/prot +0 locctrl.log
+X /app/xib/progs/customer/LNP-CYSILC/to_LNP-CYSILC/ +7 *
+X /app/xib/progs/customer/LNP-ECSIQT/to_LNP-ECSIQT/ +7 *
+X /app/xib/progs/customer/LNP-LKSICM/to_LNP-LKSICM/ +7 *
+X /app/xib/progs/customer/itgov/to_itgov/ +7 *
+X /app/xib/sftproot/pakettiksftp/to_pakettiksftp +7 *
+X /app/xib/progs/customer/auxicom/to_auxicom +3 *
+X /app/xib/progs/customer/leaderfit/to_leaderfit +3 *

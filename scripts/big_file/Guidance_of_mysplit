@@ -1,0 +1,28 @@
+Guidance of mysplit.sh
+1.Name
+mysplit.sh
+
+2.Path
+/ext/schenker/support/allen/big_file on every gateway server
+
+3.Usage
+Deal with big files on gateway server
+
+4.How to use
+1)Copy big file to /ext/schenker/support/allen/big_file from error folder
+2)Excute script by using command "./mysplit.sh <filename>"
+3)Check output lines start with "[Check]"
+4)Input the size you want to split big file into, a number will be recommended by the script(60% of maxsize)
+5)Check result of splitting, press "Enter" to move them to comexp_ok folder
+6)Check the log grabbed by script
+7)HK the file in error folder
+
+*)Press "Ctrl + C" to interrupt if anything is wrong
+
+5.Exceptions cause popup
+1)No big file name input
+2)No file found according to the input information
+3)Agreement path not found according to agreement id from filename
+4)The split size manually input is bigger than maxsize or smaller than 10% of maxsize or not a number at all
+5)Only one file generated after msplit
+6)One or more files bigger than maxsize after excuting msplit

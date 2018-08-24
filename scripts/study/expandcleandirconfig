@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# expandcleandirpaths - print list of actual directories 
+#                       and their clean dir configuration 
+#			by expanding all directory wildcards
+#                     
+# (c) by Lars Herrlein 11/2015
+#
+
+#file containing directories that are cleaned up on a regular basis
+CLEANDIRCONFIG_RAW='/opt/schenker/tools/cleandir/tables/cleandir.all'
+#prevent path name extension until explicitly intended (see below)
+set -f
+#filter comments from file
+cat $CLEANDIRCONFIG_RAW | grep -v ^#  | while read line
+do
+	#parse it and fill some variables later used
+	action=`echo $line | awk '{print $1}'`
+	path=`echo $line | awk '{print $2}'| sed -e 's#/*$##' -e 's#$#/#' `
+	age=`echo $line | awk '{print $3}'`
+	filemask=`echo $line | awk '{print $4}'`
+	#ignored = $5 & $6
+	
+	#explicitly switch on path name extension for the below single statement
+	set +f
+	for directory in `echo $path`
+	do
+		#switch path name extension off again
+		set -f
+		echo "$action;$directory;$age;$filemask"
+	done
+	#just to be sure path name extension is switched off after this iteration...
+	set -f
+done | sort -u 
+
