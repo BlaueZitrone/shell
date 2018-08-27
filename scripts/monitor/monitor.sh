@@ -3,7 +3,19 @@
 function checkAndBeep()
 {
     if [[ ${needBeep} == true ]];then
-        /usr/bin/ssh -o StrictHostKeyChecking=no $1 'if [[ $(ls /ext/schenker/data/error | wc -l | bc) != 0 ]];then for i in $(/opt/sfw/bin/seq 1 5);  do echo -en "\a"; /usr/local/bin/usleep 600000 ; done; fi' 2>/dev/null;
+        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} 'if [[ $(ls /ext/schenker/data/error | wc -l | bc) != 0 ]];then for i in $(/opt/sfw/bin/seq 1 5);  do echo -en "\a"; /usr/local/bin/usleep 600000 ; done; fi' 2>/dev/null;
+    fi
+}
+
+function cleanUpRemoteServer()
+{
+    if [[ ${REPLY} != '' ]];then
+        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} 'echo > /tmp/clean.tmp; cd /ext/schenker/data/error; if [[ $(ls | wc -l | bc) != 0 ]];then ls -la | grep -v "MassFilter" > /tmp/clean.tmp ;/ext/schenker/toolslocal/clean_up2 -v | tee -a /tmp/clean.tmp; fi' 2>/dev/null;
+        /usr/bin/scp -o StrictHostKeyChecking=no xib@${remoteHostName}:/tmp/clean.tmp ${logPath} 2>/dev/null;
+        printNow >> ${logPath}/${cleanLogFile};
+        echo "${server}:" >> ${logPath}/${cleanLogFile};
+        cat ${logPath}/clean.tmp >> ${logPath}/${cleanLogFile};
+        rm ${logPath}/clean.tmp;
     fi
 }
 
@@ -18,7 +30,8 @@ function checkApp()
         echo -en "Massfilter:"; ls /ext/schenker/data/error | grep 'MassFilter' | grep -c '.att$'; ls /ext/schenker/data/error | grep 'MassFilter' | grep '.att$' | cut -d\. -f2 | sort | uniq -c;\
         echo -en "Error:"; ls /ext/schenker/data/error | grep -v 'MassFilter' | grep -c '.att$'; ls /ext/schenker/data/error | grep -v 'MassFilter' | grep '.att$' | cut -d\. -f1 | sort | uniq -c;\
         ' 2>/dev/null;
-        checkAndBeep ${remoteHostName};
+        checkAndBeep;
+        cleanUpRemoteServer;
         printLine;
     done
 }
@@ -44,6 +57,7 @@ function checkGw()
                     ;;
         esac
         checkAndBeep ${remoteHostName};
+        cleanUpRemoteServer ${remoteHostName};
         printLine;
     done
 }
@@ -61,6 +75,8 @@ function init()
     willCheckOldFile=false;
     isLoopCheck=false;
     needBeep=false;
+    logPath="./log/$(date "+%Y/%m/%d")";
+    cleanLogFile="clean.log"
 
     while getopts "f:t:obh" arg
     do
@@ -91,6 +107,7 @@ function init()
     if [[ -z "${configFile}" ]]; then
         configFile="monitor.cfg";
     fi
+    mkdir -p ${logPath};
 }
 
 function printNow()
@@ -135,7 +152,9 @@ function main()
                     checkApp;
                     checkGw;
                     checkFtp;
-                    sleep ${gap};
+                    REPLY='';
+                    echo -e "Next check will be ${gap} seconds later.\nPress Enter to check again immediately.\nInput anything to check and run clean_up2 immediately.";
+                    read -t ${gap};
                 done
                 ;;
     esac
