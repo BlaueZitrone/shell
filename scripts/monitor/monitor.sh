@@ -10,7 +10,7 @@ function checkAndBeep()
 function cleanUpRemoteServer()
 {
     if [[ ${REPLY} != '' ]];then
-        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} 'echo > /tmp/clean.tmp; cd /ext/schenker/data/error; if [[ $(ls | wc -l | bc) != 0 ]];then ls -la | grep -v "MassFilter" > /tmp/clean.tmp ;/ext/schenker/toolslocal/clean_up2 -v | tee -a /tmp/clean.tmp; fi' 2>/dev/null;
+        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} 'PATH=/ext/schenker/toolslocal:$PATH; echo > /tmp/clean.tmp; cd /ext/schenker/data/error; if [[ $(ls | wc -l | bc) != 0 ]];then ls -la | grep -v "MassFilter" > /tmp/clean.tmp ;/ext/schenker/toolslocal/clean_up2 -v | tee -a /tmp/clean.tmp; fi' 2>/dev/null;
         /usr/bin/scp -o StrictHostKeyChecking=no xib@${remoteHostName}:/tmp/clean.tmp ${logPath} 2>/dev/null;
         printNow >> ${logPath}/${cleanLogFile};
         echo "${server}:" >> ${logPath}/${cleanLogFile};
@@ -46,18 +46,20 @@ function checkGw()
         case ${willCheckOldFile} in
             true)
                     /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} '\
+                    PATH=/ext/schenker/toolslocal:$PATH;\
                     echo -en "Error:"; ls /ext/schenker/data/error | wc -l; ls /ext/schenker/data/error | cut -d\. -f1 | sort | uniq -c;\
                     echo "Old file checking:"; /ext/schenker/toolslocal/list2 -fileagemin=30;\
                     ' 2>/dev/null;
                     ;;
             false)
                     /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} '\
+                    PATH=/ext/schenker/toolslocal:$PATH;\
                     echo -en "Error:"; ls /ext/schenker/data/error | wc -l; ls /ext/schenker/data/error | cut -d\. -f1 | sort | uniq -c;\
                     ' 2>/dev/null;
                     ;;
         esac
-        checkAndBeep ${remoteHostName};
-        cleanUpRemoteServer ${remoteHostName};
+        checkAndBeep;
+        cleanUpRemoteServer;
         printLine;
     done
 }
@@ -153,7 +155,7 @@ function main()
                     checkGw;
                     checkFtp;
                     REPLY='';
-                    echo -e "Next check will be ${gap} seconds later.\nPress Enter to check again immediately.\nInput anything to check and run clean_up2 immediately.";
+                    echo -e "Next check will be executed ${gap} seconds later.\nPress Enter to check again immediately.\nInput anything to check and run clean_up2 immediately.";
                     read -t ${gap};
                 done
                 ;;
