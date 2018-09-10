@@ -7,15 +7,24 @@ function checkAndBeep()
     fi
 }
 
-function cleanUpRemoteServer()
+function cleanUpRemoteApp()
 {
     if [[ ${REPLY} != '' ]];then
-        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} 'PATH=/ext/schenker/toolslocal:$PATH; echo > /tmp/clean.tmp; cd /ext/schenker/data/error; if [[ $(ls | wc -l | bc) != 0 ]];then ls -la | grep -v "MassFilter" > /tmp/clean.tmp ;/ext/schenker/toolslocal/clean_up2 -v | tee -a /tmp/clean.tmp; fi' 2>/dev/null;
-        /usr/bin/scp -o StrictHostKeyChecking=no xib@${remoteHostName}:/tmp/clean.tmp ${logPath} 2>/dev/null;
-        printNow >> ${logPath}/${cleanLogFile};
-        echo "${server}:" >> ${logPath}/${cleanLogFile};
-        cat ${logPath}/clean.tmp >> ${logPath}/${cleanLogFile};
-        rm ${logPath}/clean.tmp;
+        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} "PATH=/ext/schenker/toolslocal:/opt/sfw/bin:\$PATH;\
+        echo > /tmp/errorlist.tmp;\
+        cd /ext/schenker/data/error;\
+        ls -l | /usr/bin/awk '{print \$6\" \"\$7\" \"\$8\",\"\$9}' > /tmp/errorlist.tmp;\
+        if [[ \$(ls | /usr/bin/wc -l | /usr/bin/bc) != 0 ]]; then\
+            echo -e \"\033[1;32;5mRunning clean_up2, please mark relevant error message as manually corrected on Message Log according to below info:\033[39;49;0m\";\
+            for file in \$(/ext/schenker/toolslocal/clean_up2 -v | /usr/bin/cut -d\' -f1 | /usr/sfw/bin/ggrep -oe \"[A-Z_0-9]\{10\}\.logger_.*\.arc\.arc\"); do /usr/sfw/bin/ggrep \$file /tmp/errorlist.tmp; done;\
+        fi" 2>/dev/null;
+    fi
+}
+
+function cleanUpRemoteGw()
+{
+    if [[ ${REPLY} != '' ]];then
+        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} 'PATH=/ext/schenker/toolslocal:/opt/sfw/bin:$PATH; cd /ext/schenker/data/error; if [[ $(ls | wc -l | bc) != 0 ]]; then /ext/schenker/toolslocal/clean_up2 -v; fi' 2>/dev/null;
     fi
 }
 
@@ -31,7 +40,7 @@ function checkApp()
         echo -en "Error:"; ls /ext/schenker/data/error | grep -v 'MassFilter' | grep -c '.att$'; ls /ext/schenker/data/error | grep -v 'MassFilter' | grep '.att$' | cut -d\. -f1 | sort | uniq -c;\
         ' 2>/dev/null;
         checkAndBeep;
-        cleanUpRemoteServer;
+        cleanUpRemoteApp;
         printLine;
     done
 }
@@ -46,20 +55,20 @@ function checkGw()
         case ${willCheckOldFile} in
             true)
                     /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} '\
-                    PATH=/ext/schenker/toolslocal:$PATH;\
+                    PATH=/ext/schenker/toolslocal:/opt/sfw/bin:$PATH;\
                     echo -en "Error:"; ls /ext/schenker/data/error | wc -l; ls /ext/schenker/data/error | cut -d\. -f1 | sort | uniq -c;\
                     echo "Old file checking:"; /ext/schenker/toolslocal/list2 -fileagemin=30;\
                     ' 2>/dev/null;
                     ;;
             false)
                     /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} '\
-                    PATH=/ext/schenker/toolslocal:$PATH;\
+                    PATH=/ext/schenker/toolslocal:/opt/sfw/bin:$PATH;\
                     echo -en "Error:"; ls /ext/schenker/data/error | wc -l; ls /ext/schenker/data/error | cut -d\. -f1 | sort | uniq -c;\
                     ' 2>/dev/null;
                     ;;
         esac
         checkAndBeep;
-        cleanUpRemoteServer;
+        cleanUpRemoteGw;
         printLine;
     done
 }
@@ -77,8 +86,6 @@ function init()
     willCheckOldFile=false;
     isLoopCheck=false;
     needBeep=false;
-    logPath="./log/$(date "+%Y/%m/%d")";
-    cleanLogFile="clean.log"
 
     while getopts "f:t:obh" arg
     do
@@ -109,7 +116,6 @@ function init()
     if [[ -z "${configFile}" ]]; then
         configFile="monitor.cfg";
     fi
-    mkdir -p ${logPath};
 }
 
 function printNow()
@@ -144,7 +150,7 @@ function main()
                 printNow;
                 checkApp;
                 checkGw;
-                checkFtp;
+                #checkFtp;
                 ;;
         true)
                 while true
@@ -153,7 +159,7 @@ function main()
                     printNow;
                     checkApp;
                     checkGw;
-                    checkFtp;
+                    #checkFtp;
                     REPLY='';
                     echo -e "Next check will be executed ${gap} seconds later.\nPress Enter to check again immediately.\nInput anything to check and run clean_up2 immediately.";
                     read -t ${gap};
