@@ -79,6 +79,27 @@ function checkFtp()
     #TODO
 }
 
+function autoConfig()
+{
+    echo "APP1-APP4:1-4|GW1-GW4:5-8.";
+    echo -n "Please input sequence number(s) of the server(s) you want to monitor:";
+    read -t 30 serverSequenceNumbers;
+    if [[ -z ${serverSequenceNumbers} ]];then
+        configFile="monitor.cfg";
+    else
+        mkdir tmpConfig 2>/dev/null;
+        gfind tmpConfig/ -type f -mtime +3 -exec rm {} \;
+        configFile="tmpConfig/$(date "+%Y%m%d_%H%M%S")";
+        for lineNum in $(seq 1 $(cat monitor.cfg | wc -l))
+        do
+            echo ${serverSequenceNumbers} | grep ${lineNum} > /dev/null;
+            if [[ $? == 0 ]];then
+                sed -n ${lineNum}p monitor.cfg >> ${configFile};
+            fi
+        done
+    fi
+}
+
 function init()
 {
     LD_LIBRARY_PATH="";
@@ -114,7 +135,7 @@ function init()
         esac
     done
     if [[ -z "${configFile}" ]]; then
-        configFile="monitor.cfg";
+        autoConfig;
     fi
 }
 

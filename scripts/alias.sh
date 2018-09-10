@@ -63,6 +63,16 @@ function checkDEA()
     /ext/schenker/toolslocal/PassportTool/ppt -s"$1" -sd -i "$2";
 }
 
+function statByTime()
+{
+    ls -ltr | awk '{print $8}' | uniq -c | grep ':'
+}
+
+function statByAgrOrPID()
+{
+    ls | cut -d\. -f1 | sort | uniq -c | sort -nr
+}
+
 function info()
 {
     echo "alias:";
@@ -70,7 +80,7 @@ function info()
     echo "values:";
     echo "houseKeepPath|downloadPath|allen";
     echo "functions:";
-    echo "info|getBDID|massinfo|download|downloadError|monitor|catError|checkDEA";
+    echo "info|getBDID|massinfo|download|downloadError|monitor|catError|checkDEA|statByTime|statByAgrOrPID";
 }
 
 
