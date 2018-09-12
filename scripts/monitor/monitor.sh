@@ -139,6 +139,14 @@ function init()
     fi
 }
 
+function checkLocation()
+{
+    if [[ "." != $(dirname $0) ]];then
+        echo "Please execute in the same folder where the script is."
+        exit -1;
+    fi
+}
+
 function printNow()
 {
     echo "=======================$(date "+%Y-%m-%d %H:%M:%S")=========================";
@@ -165,6 +173,7 @@ function printHelp()
 
 function main()
 {
+    checkLocation;
     init $@;
     case ${isLoopCheck} in
         false)

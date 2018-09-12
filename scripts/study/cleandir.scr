@@ -1,0 +1,120 @@
+#!/bin/ksh
+#**********************************************************************/
+#***                          cleandir.scr                          ***/
+#**********************************************************************/
+#*** Description: The script cleandir.scr calls the awk script      ***/ 
+#***              cleandir.awk and uses the initialisation files    ***/
+#***              cleandir.dat, cleandir.local or cleandir.all.     ***/
+#***              The script cleandir.scr deletes all files which   ***/
+#***		  are older than a fixed date and makes some        ***/
+#***              special files empty.                              ***/
+#***              The logging is made in the file cleandir.ptk.     ***/
+#***                                                                ***/
+#***              The compress command can be configured in         ***/
+#***              cleandir.ccmd, if not existing it takes first     ***/
+#***              compress and if this command doesn't exist gzip   ***/
+#**********************************************************************/
+#*** Version     Datum     Name     Update-Description              ***/
+#***  1.0       09.10.98    AG      Creation                        ***/
+#***  1.1       08.07.99    AG      Update (empty files)            ***/
+#**********************************************************************/
+# ***     Definition of variables                                   ***/
+#**********************************************************************/
+#
+DNDIR=`echo $0 | awk 'BEGIN {FS="/"} {
+               for (i=2; i<NF-1; i++)
+                   printf "/%s", $i
+               }'`
+export DNDIR
+#
+FNLOG=$DNDIR/prot/cleandir.ptk
+export FNLOG
+FNHEL=$DNDIR/bin/cleanhelp.scr
+export FNHEL
+FNDAT=$DNDIR/bin/emptydate
+export FNDAT
+#
+DTLOG=`date '+%Y%m%d %T'`
+export DTLOG
+FLBEF=$DNDIR/prot/cleandir_start.flg
+export FLBEF
+FLAFT=$DNDIR/prot/cleandir_end.flg
+export FLAFT
+FLAUT=$DNDIR/prot/autcheck.flg
+export FLAUT
+#
+# *** AWK / NAWK
+#
+if [ `uname -a | awk '{print $1}'` = "SunOS" ]
+then
+   AWK=nawk                      # for using awk with special options
+else
+   AWK=awk                       # for using awk with special options
+fi
+#
+#
+# *** Set cleandir start flag
+#
+touch $FLBEF
+#
+# remove Autcheck flag
+#
+if [ -f $FLAUT ]
+then
+   rm $FLAUT
+fi
+#
+echo $DTLOG " cleared by cleandir" > $FNDAT
+#
+echo $DTLOG " start cleandir.scr" >> $FNLOG
+#
+# start awk script
+#
+#**************************************************************************
+# check which cleandir.tab in ../tables must be taken    
+# cleandir.dat   => if exists
+# cleandir.all   => no cleandir.dat and directory in cleandir.dg exists
+# cleandir.local => no cleandir.dat and directory in cleandir.dg not exists
+#**************************************************************************
+#
+# if compress exists and is executable take compress otherwise take gzip as default
+if [ -x /usr/bin/compress ]
+then
+   COMPCOMMAND=compress
+else
+   COMPCOMMAND=gzip
+fi
+
+
+# if config file for compress command exists take command out of this file
+if [ -f $DNDIR/tables/cleandir.ccmd ]
+then
+   COMPCOMMAND=`grep -v "^#" $DNDIR/tables/cleandir.ccmd | tail -1`
+fi
+
+if [ -f $DNDIR/tables/cleandir.dat ]
+then
+   $AWK -f $DNDIR/bin/cleandir.awk -v datum=$FNDAT -v compcommand=$COMPCOMMAND $DNDIR/tables/cleandir.dat $FNLOG >> $FNHEL
+#
+else
+   if [ -d `cat $DNDIR/tables/cleandir.dg` ]
+   then
+      $AWK -f $DNDIR/bin/cleandir.awk -v datum=$FNDAT -v compcommand=$COMPCOMMAND $DNDIR/tables/cleandir.all $FNLOG >> $FNHEL
+   else
+      $AWK -f $DNDIR/bin/cleandir.awk -v datum=$FNDAT -v compcommand=$COMPCOMMAND $DNDIR/tables/cleandir.local $FNLOG >> $FNHEL
+   fi
+fi
+#
+# execution of the operation system commandos of the helpfile
+#
+$FNHEL >> $FNLOG
+#
+echo $DTLOG " stop cleandir.scr" >> $FNLOG
+#
+# Set cleandir end flag
+#
+touch $FLAFT
+#
+# make helpfile empty
+#
+> $FNHEL
