@@ -73,6 +73,24 @@ function statByAgrOrPID()
     ls | cut -d\. -f1 | sort | uniq -c | sort -nr
 }
 
+function sameFile()
+{
+    oldREF=${REF};
+    REF='';
+
+    gfind . -type f -exec md5sum {} \; | awk '{print $1}' | sort | uniq -c | while read rec
+    do
+        if [[ $(echo ${rec} | awk '{print $1}' | bc) -gt 1 ]];then
+            MD5=$(echo ${rec} | awk '{print $2}');
+            echo "MD5: ${MD5}";
+            gfind . -type f -exec md5sum {} \; | grep ${MD5} | awk '{print $2}';
+            echo;
+        fi
+    done
+
+    REF=${oldREF};
+}
+
 function info()
 {
     echo "alias:";
@@ -80,7 +98,7 @@ function info()
     echo "values:";
     echo "houseKeepPath|downloadPath|allen";
     echo "functions:";
-    echo "info|getBDID|massinfo|download|downloadError|monitor|catError|checkDEA|statByTime|statByAgrOrPID";
+    echo "info|getBDID|massinfo|download|downloadError|monitor|catError|checkDEA|statByTime|statByAgrOrPID|sameFile";
 }
 
 
