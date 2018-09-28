@@ -8,11 +8,13 @@ alias new='ls -lt | head';
 alias old='ls -lt | tail';
 alias grep='ggrep --color=auto';
 alias vi='vim';
+alias xfb='cd /ext/schenker/logarchive/';
 
 #values
 houseKeepPath=$sup/error/$(date "+%Y/%m/");
-downloadPath=$sup/allen/download/$(date "+%Y%m%d")
+downloadPath=$sup/allen/download/$(date "+%Y%m%d");
 allen=${sup}/allen;
+ftpLog="/ext/schenker/prot/proftpd/proftpd.access_log";
 
 mkdir -p ${downloadPath};
 chmod 777 ${downloadPath};
@@ -91,14 +93,47 @@ function sameFile()
     REF=${oldREF};
 }
 
+function hk()
+{
+    if [[ $1 != '' ]]; then
+        processID=$1;
+        ls -l | grep ${processID};
+        abr ${processID};
+        echo "mv ${processID}* ${houseKeepPath}";
+        read;
+        mv ${processID}* ${houseKeepPath};
+    fi
+}
+
+function clean()
+{
+    err;
+    echo "============$(date "+%Y-%m-%d %H:%M:%S")==============" >> ${sup}/allen/clean.log;
+    clean_up2 -v | tee -a ${sup}/allen/clean.log;
+}
+
+function loop()
+{
+    cd $sup/allen;
+    ./check_error.sh;
+}
+
+function oldFile()
+{
+    scan_out="$sup/allen/old_file_scan_record/$(date "+%Y%m")/old_file_scan_$(date "+%Y%m%d_%H%M%S")_$(hostname)";
+    mkdir -p $sup/allen/old_file_scan_record/$(date "+%Y%m")/;
+    chmod 777 $sup/allen/old_file_scan_record/$(date "+%Y%m");
+    list2 -fileagemin=30 | tee ${scan_out}; chmod 666 ${scan_out};
+}
+
 function info()
 {
     echo "alias:";
-    echo "..|...|ll|l|allen|new|old|grep|vi";
+    echo "..|...|ll|l|allen|new|old|grep|vi|xfb";
     echo "values:";
-    echo "houseKeepPath|downloadPath|allen";
+    echo "houseKeepPath|downloadPath|allen|ftpLog";
     echo "functions:";
-    echo "info|getBDID|massinfo|download|downloadError|monitor|catError|checkDEA|statByTime|statByAgrOrPID|sameFile";
+    echo "info|getBDID|massinfo|download|downloadError|monitor|catError|checkDEA|statByTime|statByAgrOrPID|sameFile|hk|clean|loop|oldFile";
 }
 
 
