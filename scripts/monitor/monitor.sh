@@ -81,7 +81,7 @@ function checkFtp()
 
 function autoConfig()
 {
-    echo "APP1:1|APP2:2|APP3:3|APP4:4|GW1:1|GW2:2|GW3:3|GW4:8.";
+    echo -e "APP1:1|GW1:5\nAPP2:2|GW2:6\nAPP3:3|GW3:7\nAPP4:4|GW4:8";
     echo -n "Please input sequence number(s) of the server(s) you want to monitor:";
     read -t 30 serverSequenceNumbers;
     if [[ -z ${serverSequenceNumbers} ]];then
