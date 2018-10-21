@@ -37,6 +37,11 @@ function massinfo()
     ls -l | grep $1 | head;
 }
 
+function massclean()
+{
+    echo "TODO";
+}
+
 function download()
 {
     cp $@ ${downloadPath};
@@ -51,7 +56,7 @@ function downloadError()
 
 function monitor()
 {
-    cd $sup/allen/monitor;
+    cd $sup/monitor;
     ./monitor.sh $@;
 }
 
@@ -98,10 +103,8 @@ function hk()
     if [[ $1 != '' ]]; then
         processID=$1;
         ls -l | grep ${processID};
-        abr ${processID};
-        echo "mv ${processID}* ${houseKeepPath}";
-        read;
-        mv ${processID}* ${houseKeepPath};
+        ref ${processID};
+        /opt/sfw/bin/mv -v ${processID}* ${houseKeepPath};
     fi
 }
 
@@ -126,6 +129,56 @@ function oldFile()
     list2 -fileagemin=30 | tee ${scan_out}; chmod 666 ${scan_out};
 }
 
+function catAgr()
+{
+    if [[ $1 != '' ]]; then
+        cat /ext/comsys*/agr/$1/$1_dump.xml;
+    fi
+}
+
+function cdAgr()
+{
+    if [[ $1 != '' ]]; then
+        cd /ext/comsys*/agr/$1/;
+    fi
+}
+
+function ref()
+{
+    for file in $(ls /ext/schenker/data/error/*$1*.att)
+    do
+        echo; basename ${file};
+        transaction=$(ggrep -A1 -E 'TransactionAttribute' ${file} | sed -n '2p');
+        echo "Date/Time : $(echo ${transaction} | ggrep -Eo "[0-9]{4}-[a-zA-Z]{3}-[0-9]{2} [0-9:]{8}") CET";
+        echo "TRID : $(ggrep -A1 -E 'TRID' ${file} | sed -n '2p')";
+        BDIDRefValues=$(ggrep -A1 -E 'BDIDRefValues' ${file} | sed -n '2p');
+        if [[ ${BDIDRefValues} != '' ]];then
+            echo ${BDIDRefValues} | awk -F\" '{print "BDID : "$2}';
+            echo "BDIDRefValues : ";
+            echo $BDIDRefValues | grep -Eo "\{[^\{\}]*\}" | awk -F\" '{print $2" : "$4}'
+        fi
+        echo "TransactionAttribute : ";
+        echo "${transaction}";
+    done
+    echo;
+}
+
+function checkResend()
+{
+    cd /ext/comsys0009/archive/scheduler/CISCUCEOUT_inbound/2018/10/08;
+    for file in $(gfind . -size 0);
+    do
+        ori=$(echo $file | cut -d\. -f4-);
+        count=$(gfind . -name "*$ori" -size +0 | wc -l | bc);
+        echo -n "$ori;";
+    if [[ $count == 0 ]];then
+        echo NO;
+    else
+        echo OK;
+    fi
+    done
+}
+
 function info()
 {
     echo "alias:";
@@ -133,7 +186,7 @@ function info()
     echo "values:";
     echo "houseKeepPath|downloadPath|allen|ftpLog";
     echo "functions:";
-    echo "info|getBDID|massinfo|download|downloadError|monitor|catError|checkDEA|statByTime|statByAgrOrPID|sameFile|hk|clean|loop|oldFile";
+    echo "info|getBDID|massinfo|download|downloadError|monitor|catError|checkDEA|statByTime|statByAgrOrPID|sameFile|hk|clean|loop|oldFile|catAgr|cdAgr|ref";
 }
 
 
