@@ -1,0 +1,38 @@
+#!/bin/bash
+
+INPRA='/ext/schenker/support/APPLEINPRA/';
+EWCS='/ext/schenker/support/APPLE2EWCS/';
+INPRA_md5sums='/ext/schenker/support/data/APPLEINPRA_md5sums';
+EWCS_md5sums='/ext/schenker/support/data/APPLE2EWCS_md5sums';
+logfile='/ext/schenker/support/resend_APPLEINPRA_APPLE2EWCS.log';
+
+while true
+do
+    cd ${INPRA};
+    for file in $(ls -1 | grep .arc | sed 's#.arc$##')
+    do
+        md5=$(md5sum "${file}.arc" | sed 's# .*##');
+        grep ${md5} ${INPRA_md5sums} >/dev/null;
+        if [[ $? != 0 ]];then
+            cp "${file}.att" "${file}.arc" /ext/schenker/data/resend_inbound;
+            echo "${md5} ${file}.arc" >> ${logfile};
+            echo ${md5} >> ${INPRA_md5sums};
+        fi
+        mv "${file}.att" "${file}.arc" resent;
+    done
+
+    cd ${EWCS};
+    for file in $(ls -1 | grep .arc | sed 's#.arc$##')
+    do
+        md5=$(md5sum "${file}.arc" | sed 's# .*##');
+        grep ${md5} ${EWCS_md5sums} >/dev/null;
+        if [[ $? != 0 ]];then
+            cp "${file}.att" "${file}.arc" /ext/schenker/data/resend_inbound;
+            echo "${md5} ${file}.arc" >> ${logfile};
+            echo ${md5} >> ${EWCS_md5sums};
+        fi
+        mv "${file}.att" "${file}.arc" resent;
+    done
+
+    sleep 300;
+done

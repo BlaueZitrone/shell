@@ -1,0 +1,30 @@
+catlist
+
+
+xib@sword-166d:/ext/comsys0002/catlist $ cat SAG_EALLIT_QLH2_EUR_DB_outbound.65447870.catlist
+SAG_EALLIT_QLH2_EUR_DB_outbound.65447870.sjctlv.trk
+xib@sword-166d:/ext/comsys0002/catlist $ ..   
+xib@sword-166d:/ext/comsys0002 $ cd log
+xib@sword-166d:/ext/comsys0002/log $ ls
+agr.log            in                 log.2018-10-17.gz  log.2018-10-20.gz  log.2018-10-23.gz  log.2018-10-26.gz  log.2018-10-29.gz  log.2018-11-01     nohup.out          reload_agr.14354   reload_agr.22441
+exception_error    in.save            log.2018-10-18.gz  log.2018-10-21.gz  log.2018-10-24.gz  log.2018-10-27.gz  log.2018-10-30     logcomsys          old                reload_agr.18145   sftplog
+hibernate.log      log                log.2018-10-19.gz  log.2018-10-22.gz  log.2018-10-25.gz  log.2018-10-28.gz  log.2018-10-31     maria              reload_agr.12660   reload_agr.20261   wrk
+xib@sword-166d:/ext/comsys0002/log $ grep SAG_EALLIT_QLH2_EUR_DB_outbound.65447870.sjctlv.trk log.2018-10-31 
+2018-10-31 17:32.02,248#3##scheduler:main###Import file found: SAG_EALLIT_QLH2_EUR_DB_outbound.65447870.sjctlv.trk (1145 bytes)#
+2018-10-31 17:32.02,248#3#C0000#scheduler:comm:6#SAG_EALLIT_QLH2_EUR_DB_outbound#65447870#ImportFileTask: processing /ext/comsys0002/impwork/SAG_EALLIT_QLH2_EUR_DB_outbound.65447870.sjctlv.trk#
+2018-10-31 17:32.02,260#3##scheduler:comm:6###Catted file SAG_EALLIT_QLH2_EUR_DB_outbound.65447870.sjctlv.trk (1145 bytes) to SAG_EALLIT_QLH2_EUR_DB_outbound.65447870.sjctlv.trk (1145 bytes).#
+2018-10-31 17:36.15,594#3##scheduler:comm:0###Catted file SAG_EALLIT_QLH2_EUR_DB_outbound.65447870.sjctlv.trk (1145 bytes) to SAG_EALLIT_QLH2_EUR_DB_outbound.65451575.sjctlv.trk (2650 bytes).#
+2018-10-31 17:37.26,298#3#C1000#scheduler:events:2#SAG_EALLIT_QLH2_EUR_DB_outbound#65451575#Removing input file: SAG_EALLIT_QLH2_EUR_DB_outbound.65447870.sjctlv.trk#
+
+
+xib@sword-166d:/ext/comsys0002/log $ cat ../catlist/SAG_EALLIT_QLH2_EUR_DB_outbound.66126034.catlist
+SAG_EALLIT_QLH2_EUR_DB_outbound.66126034.sjctlv.trk
+xib@sword-166d:/ext/comsys0002/log $ 
+xib@sword-166d:/ext/comsys0002/log $ grep SAG_EALLIT_QLH2_EUR_DB_outbound.66126034.sjctlv.trk log.2018-11-01 
+2018-11-01 07:47.38,652#3##scheduler:main###Import file found: SAG_EALLIT_QLH2_EUR_DB_outbound.66126034.sjctlv.trk (499 bytes)#
+2018-11-01 07:47.38,655#3#C0000#scheduler:comm:1#SAG_EALLIT_QLH2_EUR_DB_outbound#66126034#ImportFileTask: processing /ext/comsys0002/impwork/SAG_EALLIT_QLH2_EUR_DB_outbound.66126034.sjctlv.trk#
+2018-11-01 07:47.38,665#3##scheduler:comm:1###Catted file SAG_EALLIT_QLH2_EUR_DB_outbound.66126034.sjctlv.trk (499 bytes) to SAG_EALLIT_QLH2_EUR_DB_outbound.66126034.sjctlv.trk (499 bytes).#
+2018-11-01 07:56.48,959#3##scheduler:comm:8###Catted file SAG_EALLIT_QLH2_EUR_DB_outbound.66126034.sjctlv.trk (499 bytes) to SAG_EALLIT_QLH2_EUR_DB_outbound.66138340.sjctlv.trk (1497 bytes).#
+2018-11-01 07:57.23,374#3#C1000#scheduler:events:7#SAG_EALLIT_QLH2_EUR_DB_outbound#66138340#Removing input file: SAG_EALLIT_QLH2_EUR_DB_outbound.66126034.sjctlv.trk#
+
+

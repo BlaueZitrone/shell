@@ -1,0 +1,22 @@
+#!/bin/bash
+
+INPRA='/ext/schenker/support/APPLEINPRA/'
+EWCS='/ext/schenker/support/APPLE2EWCS/'
+
+cd /ext/schenker/data/error/
+
+while true
+do 
+	for file in `gfind /ext/schenker/data/error/ -iname MassFilter.APPLEINPRA\*`
+	do 
+		mv $file "$INPRA"
+	done
+
+	for file in `gfind /ext/schenker/data/error/ -iname MassFilter.APPLE2EWCS\*`
+	do 
+		mv $file "$EWCS"
+	done
+
+	sleep 60
+done	
+
