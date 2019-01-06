@@ -138,7 +138,7 @@ function hk()
         err;
         processID=$1;
         hkTmpFile="/tmp/hk_${processID}_$(date "+%Y%m%d%H%M%S").tmp";
-        gfind /tmp/ -mtime +1 -name "hk_*.tmp" -exec rm {} \; 2>/dev/null;
+        gfind /tmp/ -mtime +1 -name "hk_*.tmp" -exec /usr/bin/rm {} \; 2>/dev/null;
         if [[ $(ls /tmp/hk_${processID}_*.tmp 2>/dev/null | wc -l | bc) != 0 ]];then
             echo "TMP file found for process ${processID} in /tmp as below";
             ls /tmp/hk_${processID}_*.tmp;
@@ -163,7 +163,7 @@ function hk()
             do
                 /opt/sfw/bin/mv -v ${file}* ${houseKeepPath};
             done
-            rm ${hkTmpFile};
+            /usr/bin/rm ${hkTmpFile};
         fi
     else
         echo "Please input a valid processID as parameter.";
@@ -320,11 +320,11 @@ function checkRemote()
 function hint()
 {
     if [[ "" == $1 ]];then
-        echo "alias:";
+        echo "alias(use alias to view the shortcuts):";
         echo "..|...|ll|l|allen|new|old|grep|vi|xfb|a1|a2|a3|a4|g1|g2|g3|g4|FTP";
-        echo "values:";
+        echo "values(use echo to check the content):";
         echo "houseKeepPath|downloadPath|allen|ftpLog";
-        echo "functions:";
+        echo "functions(use hint to read the instruction):";
         echo "hint|hk|ref|0byte|runmass|monitor|checkDEA|massinfo|sameFile|catError|clean|oldFile|catAgr|cdAgr|grepAgr|cdArchive_G|cdArchive_A|countByTime|countByAgrOrPID|download|downloadError|getBDID";
     else
         case $1 in
