@@ -1,54 +1,81 @@
 #!/bin/bash
 
-#some predefined destination directories
-BAXTK='/ext/schenker/support/error/BAXGEVISTK/'
-BAYR='/ext/schenker/support/error/BAYRE2AEIM/'
-BOSCA='/ext/schenker/support/error/BOSCE2AEDA/'
-BOSCB='/ext/schenker/support/error/BOSCE2BEIM/'
-BURB='/ext/schenker/support/error/BURBE2SOXM/'
-ERDIR='/ext/schenker/data/error/'
-EUCA='/ext/schenker/support/error/EUCAEALLIN/'
-DESCUSTAIN='/ext/schenker/support/error/DESCUSTAIN/'
-HMSE='/ext/schenker/support/error/HMSEE2POXM/'
-INTL12O='/ext/schenker/support/error/INTLE3B12O/'
-MALFCGENIN='/ext/schenker/support/error/MALFCGENIN/'
-MANHUM='/ext/schenker/support/error/MAHUESCIOF/'
-MWM='/ext/schenker/support/error/MWM_EPRTOF/'
-NOKI12I='/ext/schenker/support/error/NOKIE3B12I/'
-NOKI12O='/ext/schenker/support/error/NOKIE3B12O/'
-NOKI14I='/ext/schenker/support/error/NOKIE3B14I/'
-NOKI14O='/ext/schenker/support/error/NOKIE3B14O/'
-NOKI18I='/ext/schenker/support/error/NOKIE3B18I/'
-NOKI18O='/ext/schenker/support/error/NOKIE3B18O/'
-ODM='/ext/schenker/support/error/ODM/'
-ODMXM='/ext/schenker/support/error/ODM_ETPRXM/'
-SEMC='/ext/schenker/support/error/SEMCEB18RN/'
-SENL='/ext/schenker/support/error/SENLESDTXX/'
-SIEMCI='/ext/schenker/support/error/SIEMECISPO/'
-SYST='/ext/schenker/support/error/SYSTXERROR/'
-TANGO='/ext/schenker/support/error/SAG_ETGOBL/'
-TMP='/ext/schenker/tmp/'
-TRIP='/ext/schenker/support/roundtrip/'
-WBIMB='/ext/schenker/support/error/WBIMB_ERROR/'
-CISCACOR18='/ext/schenker/support/error/CISCACOR18/'
-SCXXEEMIED='/ext/schenker/support/error/SCXXEEMIED/'
-FERGCFFPOC='/ext/schenker/support/error/FERGCFFPOC/'
-### GTNXE315CE='/ext/schenker/support/error/GTNXE315CE/' - solved in INC000245253
-MORIE2XMCV='/ext/schenker/support/error/MORIE2XMCV/'
-ECRMAPANAIN='/ext/schenker/data/E_CR_Mapanain/'
-ECRMAPANAINERR='/ext/schenker/support/error/E_CR_Mapanain/'
-PRGBUWFMIN='/ext/schenker/support/error/PRGBUWFMIN'
-SCOUT_ICCCO1='/ext/schenker/support/error/SCOUT_ICCCO1/'
-ICM_ESPOBE='/ext/schenker/support/error/MassFilter.ICM_ESPOBE/'
-OBI_SYSTXERROR='/ext/schenker/support/error/OBI_SYSTXERROR/'
-DELL='/ext/schenker/support/error/DELL/'
-AESYE2ELAE='/ext/schenker/support/error/AESYE2ELAE/'
-AMERUFX2AE='/ext/schenker/support/error/AMERUFX2AE/'
-HPSBA856E2='/ext/schenker/support/error/HPSBA856E2/'
-MYMIE2XMTT='/ext/schenker/support/error/MYMIE2XMTT/'
-WOHNSZKOMM='/ext/schenker/support/error/WOHNSZKOMM/'
+function check_param()
+{
+    if [[ "" != "$1" ]];then
+        if [[ "-v" == "$1" ]];then
+            echo "*********************************************************";
+            echo "clean_up2 - verbose mode - show what's being (re-)moved. ";
+            echo "*********************************************************";
+        else
+            echo "syntax: $0 [-v]";
+            echo "   -v: verbose. print what will be (re)moved";
+            exit 1;
+        fi
+    fi
+}
 
-if [[ "-v" == "$1" ]];then
+function directories_init()
+{
+    #some predefined destination directories
+    BAXTK='/ext/schenker/support/error/BAXGEVISTK/';
+    BAYR='/ext/schenker/support/error/BAYRE2AEIM/';
+    BOSCA='/ext/schenker/support/error/BOSCE2AEDA/';
+    BOSCB='/ext/schenker/support/error/BOSCE2BEIM/';
+    BURB='/ext/schenker/support/error/BURBE2SOXM/';
+    ERDIR='/ext/schenker/data/error/';
+    EUCA='/ext/schenker/support/error/EUCAEALLIN/';
+    DESCUSTAIN='/ext/schenker/support/error/DESCUSTAIN/';
+    HMSE='/ext/schenker/support/error/HMSEE2POXM/';
+    INTL12O='/ext/schenker/support/error/INTLE3B12O/';
+    MALFCGENIN='/ext/schenker/support/error/MALFCGENIN/';
+    MANHUM='/ext/schenker/support/error/MAHUESCIOF/';
+    MWM='/ext/schenker/support/error/MWM_EPRTOF/';
+    NOKI12I='/ext/schenker/support/error/NOKIE3B12I/';
+    NOKI12O='/ext/schenker/support/error/NOKIE3B12O/';
+    NOKI14I='/ext/schenker/support/error/NOKIE3B14I/';
+    NOKI14O='/ext/schenker/support/error/NOKIE3B14O/';
+    NOKI18I='/ext/schenker/support/error/NOKIE3B18I/';
+    NOKI18O='/ext/schenker/support/error/NOKIE3B18O/';
+    ODM='/ext/schenker/support/error/ODM/';
+    ODMXM='/ext/schenker/support/error/ODM_ETPRXM/';
+    SEMC='/ext/schenker/support/error/SEMCEB18RN/';
+    SENL='/ext/schenker/support/error/SENLESDTXX/';
+    SIEMCI='/ext/schenker/support/error/SIEMECISPO/';
+    SYST='/ext/schenker/support/error/SYSTXERROR/';
+    TANGO='/ext/schenker/support/error/SAG_ETGOBL/';
+    TMP='/ext/schenker/tmp/';
+    TRIP='/ext/schenker/support/roundtrip/';
+    WBIMB='/ext/schenker/support/error/WBIMB_ERROR/';
+    CISCACOR18='/ext/schenker/support/error/CISCACOR18/';
+    SCXXEEMIED='/ext/schenker/support/error/SCXXEEMIED/';
+    FERGCFFPOC='/ext/schenker/support/error/FERGCFFPOC/';
+    ### GTNXE315CE='/ext/schenker/support/error/GTNXE315CE/'; - solved in INC000245253
+    MORIE2XMCV='/ext/schenker/support/error/MORIE2XMCV/';
+    ECRMAPANAIN='/ext/schenker/data/E_CR_Mapanain/';
+    ECRMAPANAINERR='/ext/schenker/support/error/E_CR_Mapanain/';
+    PRGBUWFMIN='/ext/schenker/support/error/PRGBUWFMIN';
+    SCOUT_ICCCO1='/ext/schenker/support/error/SCOUT_ICCCO1/';
+    ICM_ESPOBE='/ext/schenker/support/error/MassFilter.ICM_ESPOBE/';
+    OBI_SYSTXERROR='/ext/schenker/support/error/OBI_SYSTXERROR/';
+    DELL='/ext/schenker/support/error/DELL/';
+    AESYE2ELAE='/ext/schenker/support/error/AESYE2ELAE/';
+    AMERUFX2AE='/ext/schenker/support/error/AMERUFX2AE/';
+    HPSBA856E2='/ext/schenker/support/error/HPSBA856E2/';
+    MYMIE2XMTT='/ext/schenker/support/error/MYMIE2XMTT/';
+    WOHNSZKOMM='/ext/schenker/support/error/WOHNSZKOMM/';
+}
 
-fi
+function extra_case()
+{
+    find "$TMP" -name "CR_S*" -atime +1 -exec /opt/sfw/bin/rm $1 {} \;
+}
 
+function main()
+{
+    check_param $@;
+    directories_init;
+    extra_case;
+}
+
+main;
