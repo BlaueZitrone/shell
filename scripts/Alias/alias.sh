@@ -119,16 +119,20 @@ function sameFile()
     oldREF=${REF};
     REF='';
 
-    gfind . -type f -exec md5sum {} \; | awk '{print $1}' | sort | uniq -c | while read rec
+    md5TmpFile="/tmp/md5_$(date "+%Y%m%d%H%M%S").tmp";
+    gfind /tmp/ -mtime +1 -name "md5_*.tmp" -exec /usr/bin/rm {} \; 2>/dev/null;
+    gfind . -maxdepth 1 -type f -exec md5sum {} \; > ${md5TmpFile};
+    cat ${md5TmpFile} | cut -c-32 | sort | uniq -c | while read rec
     do
         if [[ $(echo ${rec} | awk '{print $1}' | bc) -gt 1 ]];then
             MD5=$(echo ${rec} | awk '{print $2}');
             echo "MD5: ${MD5}";
-            gfind . -type f -exec md5sum {} \; | grep ${MD5} | awk '{print $2}';
+            grep ${MD5} ${md5TmpFile} | awk '{print $2}';
             echo;
         fi
     done
 
+    /usr/bin/rm ${md5TmpFile};
     REF=${oldREF};
 }
 
