@@ -6,6 +6,7 @@ alias l='ls -l';
 alias cp='cp -i';
 alias mv='mv -i';
 alias rm='rm -i';
+alias frm='/usr/bin/rm';
 alias l.='ls -d .* --color=auto';
 alias allen='cd $sup/allen';
 alias new='ls -lt | grep -v "^total" | head';
