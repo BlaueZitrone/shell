@@ -308,19 +308,16 @@ function mysplit()
     bigFile=$1;
     if [[ ! -f /ext/schenker/support/big_file/mysplit.sh ]];then
         echo "Script /ext/schenker/support/big_file/mysplit.sh not found.";
-        exit;
     elif [[ "" == ${bigFile} ]];then
         hint mysplit;
-        exit;
     elif [[ ! -f ${bigFile} ]];then
         echo "Big file not found.";
-        exit;
     else
         cp ${bigFile} /ext/schenker/support/big_file/;
         mv ${bigFile} ${houseKeepPath};
         cd /ext/schenker/support/big_file/;
         fileName=$(basename ${bigFile});
-        ./mysplit ${fileName};
+        ./mysplit.sh ${fileName};
     fi
 }
 
