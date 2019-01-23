@@ -1,0 +1,218 @@
+#!/bin/bash
+##########################################################################
+#
+#  comsys script that runs an agreement
+#
+##########################################################################
+# $Revision:: 70441                                                      $
+# $LastChangedDate:: 2015-11-17 11:39:01 +0100 (Di, 17 Nov 2015)         $
+# $Author:: oliver.rogowski                                              $
+##########################################################################
+#set -x
+. /ext/schenker/tools/ScriptFunctions
+
+mach_check gateway
+#echo $1 $2 $3 $4 $5 $6 $7 $8 >>/tmp/$$
+
+. /ext/schenker/config/database.profile
+
+interactive=`tty`
+# set for DEBUG
+#interactive="not a tty"
+if [[ $interactive = "not a tty" || $interactive = "Kein tty" ]];then
+  AgreementName=$1;shift
+  XLevel=$1;shift
+  Instance=$1;shift
+  user=$1;shift
+  timestamp=$1;shift  
+  
+  ComSysInstance=`grep -l $Instance /ext/comsys*/config/global|awk -F"/"  '{ print $3 }'`
+  if [[ $ComSysInstance = "" ]];then
+    echo "<b><font color="red">ERROR:<br> Comsys-Instance \"$Instance\" not found</b></font>"
+    run_result="run failed, instance not found"
+    sqlInsertLogHistory AGR_$AgreementName-$XLevel $run_result $timestamp $user
+    exit
+  fi
+  AgreementFound=`ls -d /ext/$ComSysInstance/agr/$AgreementName 2>>/dev/null`
+  if [[ $AgreementFound = "" ]];then
+    echo "<b><font color="red">ERROR:<br>Agreement \"/ext/$ComSysInstance/agr/$AgreementName\" not found!</b></font><br>Try reload first?"
+    run_result="run failed, agreement not found"
+     sqlInsertLogHistory AGR_$AgreementName-$XLevel "$run_result" $timestamp $user
+    exit
+  fi
+
+  cd /ext/$ComSysInstance/
+  if [[ -s /ext/$ComSysInstance/log/exception_error ]];then
+    cp -p /ext/$ComSysInstance/log/exception_error /ext/$ComSysInstance/log/old/exception_error.$$
+    >/ext/$ComSysInstance/log/exception_error
+  fi
+  bin/supervisor -cmd run $AgreementName >>/ext/schenker/tmp/$$.run
+  
+  if grep "\+OK" /ext/schenker/tmp/$$.run >>/dev/null 2>>/dev/null;then
+  
+    ComSysGotCommand=`grep "Got command" /ext/$ComSysInstance/log/log|grep "run $AgreementName"|tail -1`
+    ComSysGotCommandTimeStamp=`echo $ComSysGotCommand|awk -F"," '{ print $1 }'`
+    ComSysGotCommand=`echo $ComSysGotCommand|awk -F"#" '{ print $7 }'`
+  
+    ComSysCheckingTable=`grep "socket" /ext/$ComSysInstance/log/log|grep "Checking table"|tail -1` 
+    ComSysCheckingTableTimeStamp=`echo $ComSysCheckingTable|awk -F"," '{ print $1 }'`
+    ComSysCheckingTable=`echo $ComSysCheckingTable|awk -F"#" '{ print $7 }'`
+  
+    ComSysExit=`grep "Got command" /ext/$ComSysInstance/log/log|grep "exit"|tail -1` 
+    ComSysExitTimeStamp=`echo $ComSysExit|awk -F"," '{ print $1 }'`
+    ComSysExit=`echo $ComSysExit|awk -F"#" '{ print $7 }'`
+  
+    ComSysLogEntry="$ComSysGotCommandTimeStamp $ComSysGotCommand <br> $ComSysCheckingTableTimeStamp $ComSysCheckingTable <br> $ComSysExitTimeStamp $ComSysExit"
+    
+    echo "Success: <br>Scheduler ran Agreement \"$AgreementName\" successfully! <br><br> ComSysLogEntry: <br> $ComSysLogEntry" 
+    run_result="run successful"
+     sqlInsertLogHistory AGR_$AgreementName-$XLevel "$run_result" $timestamp $user
+    rm /ext/schenker/tmp/$$.run
+    sleep 1
+    if  [[ `grep $AgreementName /ext/$ComSysInstance/log/log|tail -1` = *"Connection successful, no files found"* ]];then
+      echo "<br>Last run successful, but no files found for processing.<br>"
+    else
+      cd /ext/$ComSysInstance/agr/$AgreementName/prot/
+      LastPTKFile=`ls -tr *|tail -1`
+      echo "<br>AgreementLogEntry:"
+      echo "<pre>"
+      cat $LastPTKFile
+      echo "</pre>"
+    fi
+  elif grep "\-ERR" /ext/schenker/tmp/$$.run >>/dev/null 2>>/dev/null;then
+      echo "<b><font color="red">ERROR:</b></font><br>"
+      cat /ext/schenker/tmp/$$.run
+      run_result=`cat /ext/schenker/tmp/$$.run`
+      rm /ext/schenker/tmp/$$.run
+      strings /ext/$ComSysInstance/log/exception_error
+      run_result="run failed: $run_result"
+       sqlInsertLogHistory AGR_$AgreementName-$XLevel "$run_result" $timestamp $user
+  fi
+  rm /ext/schenker/tmp/$$.run 2>>/dev/null
+  exit #exit the NON-interactive part
+fi  
+
+usage_help () {
+    echo
+    echo "  Usage: run [AgrID]"
+    echo
+}
+
+set_comsys_env() {
+      # 1st comsys instance always is "1"
+      C=0
+
+      echo "
+
+      Following Comsys-Instance found:
+      --------------------------------"
+      for i in `ls -1d /ext/comsys*`
+      do
+         C=`expr $C + 1`
+
+         DIR[$C]=$i
+         echo "      "$C - ${DIR[$C]}
+
+      done
+
+
+      if [ $C -eq 1 ]
+      then
+          echo "
+      Only one instance of Comsys found. Try to execute command directly..."
+          echo
+          SCHEDULER_ROOT=${DIR[$C]}
+          SCHEDULER_PORT=`grep ^Port $SCHEDULER_ROOT/config/global|awk -F"=" '{ print $2 }'`
+      elif [ $C -gt 1 ]
+      then
+          echo
+          echo -ne "      Please make your choice [1-$C]: \c"
+          read INST
+
+          if [ $INST -gt 0 -a $INST -le $C ]
+          then
+             SCHEDULER_ROOT=${DIR[$INST]}
+             SCHEDULER_PORT=`grep ^Port $SCHEDULER_ROOT/config/global|awk -F"=" '{ print $2 }'`
+          else
+             echo
+             echo "<b><font color="red">ERROR:<br> No valid Comsys instance!</b></font>"
+             echo
+             exit 1
+          fi
+      fi
+
+      echo
+      echo
+      #echo $SCHEDULER_ROOT
+      #echo $SCHEDULER_PORT
+}
+
+check_except_log () {
+
+      if [ -s $SCHEDULER_ROOT/log/exception_error ]
+      then
+          echo
+          echo "The 'exception_error' is complaining about unsolved issues!"
+          echo "Might be that the entry there was caused by your 'run'-operation - PLEASE CHECK!!!"
+          echo
+          echo "In the next step, the contents of 'exception_error' are displayed with 'view' (use ':q' to leave 'view')"
+          echo "(Any key to continue)"
+          echo
+          read ENTER
+
+          view $SCHEDULER_ROOT/log/exception_error
+
+          echo
+          echo "Just now you had a look to the contents of 'exception_error'-logfile. If you found out that the log entries"
+          echo "belong to your executed command, you can clean this file now"
+          echo
+          echo "Do you want to flush the 'exception_error' ? (y/n)"
+
+          read FREE
+
+          while [ "$FREE" != "y" -a "$FREE" != "n" ]
+          do
+            echo "Do you want to flush the 'exception_error' ? (y/n)"
+            read FREE
+          done
+
+          if [ "$FREE" = "y" ]
+          then
+            echo "Copying '$SCHEDULER_ROOT/log/exception_error' to '$SCHEDULER_ROOT/log/old/exception_error.$$'..."
+             cp -p $SCHEDULER_ROOT/log/exception_error $SCHEDULER_ROOT/log/old/exception_error.$$
+            echo "Done!"
+            echo "Flushing '$SCHEDULER_ROOT/log/exception_error'..."
+             >$SCHEDULER_ROOT/log/exception_error
+            echo "Done!"
+             ls -l $SCHEDULER_ROOT/log/exception_error
+             ls -l $SCHEDULER_ROOT/log/old/exception_error.$$
+            echo
+          else
+             ls -l $SCHEDULER_ROOT/log/exception_error
+            echo
+            echo "Please inform Support-Team about that there are unprocessed log entries in 'exception_error' !"
+            echo
+          fi
+
+      fi
+
+}
+
+AGR=$1
+if [ "$AGR" ];then
+    set_comsys_env
+   
+    if [ -d $SCHEDULER_ROOT/agr/$AGR ]
+    then
+        telnet localhost $SCHEDULER_PORT <<!EOF
+        run $AGR
+        exit
+!EOF
+        check_except_log
+    else
+        echo "ERROR:<br> Agreement does not exist! (No such directory $SCHEDULER_ROOT/agr/$AGR)" 
+        echo
+    fi
+else
+    usage_help
+fi

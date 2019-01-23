@@ -303,6 +303,27 @@ function 0byte()
     done
 }
 
+function mysplit()
+{
+    bigFile=$1;
+    if [[ ! -f /ext/schenker/support/big_file/mysplit.sh ]];then
+        echo "Script /ext/schenker/support/big_file/mysplit.sh not found.";
+        exit;
+    elif [[ "" == ${bigFile} ]];then
+        hint mysplit;
+        exit;
+    elif [[ ! -f ${bigFile} ]];then
+        echo "Big file not found.";
+        exit;
+    else
+        cp ${bigFile} /ext/schenker/support/big_file/;
+        mv ${bigFile} ${houseKeepPath};
+        cd /ext/schenker/support/big_file/;
+        fileName=$(basename ${bigFile});
+        ./mysplit ${fileName};
+    fi
+}
+
 function catlist()
 {
     echo "TODO";
@@ -329,7 +350,7 @@ function hint()
         echo "values(use echo to check the content):";
         echo "houseKeepPath|downloadPath|allen|ftpLog";
         echo "functions(use hint to read the instruction):";
-        echo "hint|hk|ref|0byte|runmass|monitor|checkDEA|massinfo|sameFile|catError|clean|oldFile|catAgr|cdAgr|grepAgr|cdArchive_G|cdArchive_A|countByTime|countByAgrOrPID|download|downloadError|getBDID";
+        echo "hint|hk|ref|0byte|runmass|mysplit|monitor|checkDEA|massinfo|sameFile|catError|clean|oldFile|catAgr|cdAgr|grepAgr|cdArchive_G|cdArchive_A|countByTime|countByAgrOrPID|download|downloadError|getBDID";
     else
         case $1 in
             hint)
@@ -414,6 +435,10 @@ function hint()
                 echo "Short description: Goto archive folder of a process on an app server.";
                 echo "Usage: cdArchive_A {processID} to go to the archive for today.";
                 echo "Usage: cdArchive_A {processID} {date(YYYYMMDD)} to go to the archive folder for a certain date.";
+            ;;
+            mysplit)
+                echo "Short description: split big file and resend.";
+                echo "Usage: mysplit {filename}."
             ;;
             *)
                 echo "Please input a valid function name."
