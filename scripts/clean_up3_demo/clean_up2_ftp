@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# clean_up2
+#
+# Purpose: do house keeping on command line
+# optional parameter -v tells script to verbosely print out what is being (re-)moved
+#
+# Author:	Lars Herrlein (lars.herrlein@dbschenker.com)
+# Date:         November 2013
+# Last change:  13.11.2013
+#
+
+#check if verbose mode is requested 
+
+[ "-v" == "$1" ] && VERBOSE=1
+
+#check if parameter 1 is either emtpy or -v If not -> print help and quit
+if [ -n "$1" ]
+then
+        if [ "-v" != "$1" ]
+        then
+                echo "syntax: $0 [-v]"
+                echo "   -v: verbose. print what will be (re)moved"
+                exit 1
+        fi
+fi
+#from this point on $1 is either empty or -v
+
+if [ $VERBOSE ]
+then
+        echo "*********************************************************"
+        echo "clean_up2 - verbose mode - show what's being (re-)moved. "
+        echo "*********************************************************"
+fi
+
+# create log entry in statlog file of the current day
+echo "clean_up has been started on host" $HOSTNAME "on" `date +%Y.%m.%d.` "at" `date +%H:%M:%S` >> /opt/amtcftp/tools/support/bin/statlog/"$HOSTNAME"_clean_up_log_of_`date +%Y.%m.%d`
+
+# create log entry in statlog csv file of the current day
+echo $HOSTNAME";""clean_up;"`date +%Y.%m.%d`";"`date +%H:%M:%S`";" >> /opt/amtcftp/tools/support/bin/statlog/"$HOSTNAME"_`date +%Y%m%d`.csv
+
+
+#####################
+#start to move files 
+#####################
+
+
+#GSD #1536698
+#move away zero byte temp files older than 1 hour
+#
+for FILE in `/opt/sfw/bin/gfind /progs/customer/hm_se/from_hm_se/ -maxdepth 1 -type f -cmin +60 -iname PackingList_temp_\* -size 0 2>/dev/null`
+do
+	[ $VERBOSE ] && echo "$FILE --> /app/xib/ext/support/from_hm_se/"
+	mv "$FILE" /app/xib/ext/support/from_hm_se/
+done

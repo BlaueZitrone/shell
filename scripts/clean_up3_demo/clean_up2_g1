@@ -1,0 +1,293 @@
+#!/bin/bash
+# 
+# clean_up2	
+#
+# Purpose: do house keeping on command line
+# optional parameter -v tells script to verbosely print out what is being (re-)moved
+# optional parameter -d deletes core dumps in error directory
+# original version by 		DB Schenker SWORD Application Operation Team 
+# revised version: 		Lars Herrlein (lars.herrlein@dbschenker.com) 
+# Date: 			August 2013 
+
+# Last change:			20.12.2018 LH changed   handling of commandline parameters	
+#				31.01.2018 LH removed   disabled code that was no longer used. 
+#				07.07.2016 LH added  	new function housekeeping_outbound_files to move away files from OUTBOUND agreements where 
+#							the external server is no longer available. 
+#				08.12.2015 LH added 	some entries for INC000001049672 
+#					      removed 	code that is either deprecated or already moved to cleanup_comsys
+#				05.09.2014 LS removed 	the hk for zero byte file from ENERETSDXM_inbound	
+#				04.09.2014 LS added 	remove zero byte files ENERETSDXM_inbound - looping remote side
+# 			        27.08.2014 LH added 	on request of SMF: move SEMCE2SECV_inbound* zero byte files away
+#				17.04.2014 LH moved 	"move zero byte files" to before longer loop 
+#					   		for reasons of "faster script respose to the user"
+#				04.04.2014 LH changed 	deprecation time for tmp files to 5 minutes	
+#				26.03.2014 LH rewrote 	loops to prevent arglist too long
+# 				24.03.2014 LH add 	deletion of core dumps
+
+ERR="/ext/schenker/data/error"
+COMSYSIMPTMP="/ext/comsys/archive/imptmp"
+SUP="/ext/schenker/support"
+SUPERR="/ext/schenker/support/error"
+CAT="/ext/comsys/catlist"
+SUPCAT="/ext/schenker/support/comsys/catlist"
+COS_UCOSAN="/ext/schenker/support/error/COS_UCOSAN_outbound/"
+LOGERR="/ext/schenker/support/error/sftplogerrors/"
+REMOVECOREDUMP=0
+
+for ARGUMENT in "$@"
+do
+	case "$ARGUMENT" in
+                -v)
+                         VERBOSE=1
+                ;;
+                -c)
+                        REMOVECOREDUMP=1
+                ;;
+                *|-?|--help)
+                	echo "USAGE: $0 [-v|-c|-?|--help]"
+                        echo "-v	        Verbose. Show what's been deleted"
+                        echo "-c           	remove Core files in $ERR"
+                        echo "-?|--help		show this help"
+                        echo
+                        exit
+                ;;
+          esac
+done
+
+
+####################################
+#
+# move_zero_byte_files ()
+#
+# $1 = directory to search in 
+# $2 = files to move
+# $3 = directory to move files into
+####################################
+move_zero_byte_files () {
+	
+	for FILE in `gfind $1 -maxdepth 1 -name "$2" -size 0c -type f`
+	do
+		[ $VERBOSE ] && echo "$FILE ---> $3"
+		mv $FILE $3
+	done	
+}
+
+
+####################################
+#
+# move_erroneous_sftp_logfiles ()
+#
+# $1 = directory to search in
+# $2 = name of affected agreement
+# $3 = directory to move files into
+###################################
+move_erroneous_sftp_logfiles () {
+
+	for FILE in `gfind $1 -maxdepth 1 -name "$2" -type f`
+       	do
+	    	[ $VERBOSE ] && echo "$FILE ---> $3"
+           	 mv $FILE $3
+      	done
+}
+
+####################################
+
+
+####################################
+
+#
+# housekeeping_outbound_files ()
+# clean up files from the given agreement, the related comsys/archive/imptmp and also 
+# from the comsys/impwork directory
+#
+# $1 = comsys instance (e.g. comsys0002) 
+# $2 = agreement (e.g. JORWE2JWCE_outbound)
+#
+#
+# ATTENTION USE WITH CARE
+# THIS WILL MOVE AWAY FILES FROM COMMON COMSYS DIRECTORIES!!!!!
+#
+#
+#####################################
+housekeeping_outbound_files () {
+
+        #move files from comsys/agreement/imp/ into support folder
+        AGREEMENTTARGETDIR="$SUP/$1/$2/imp"
+        for FILE in `gfind "/ext/$1/agr/$2/imp/" -maxdepth 1 -name "$2*" -type f` 
+        do
+                [ $VERBOSE ] && echo "mv $FILE ---> $AGREEMENTTARGETDIR/"
+                mv "$FILE" "$AGREEMENTTARGETDIR/"
+        done
+
+        #move files from comsys/archive/imptmp into support folder
+        ARCHIVEIMPTMPTARGETDIR="$SUP/$1/archive/imptmp"
+        for FILE in `gfind "/ext/$1/archive/imptmp/" -maxdepth 1 -name "$2*" -type f`
+        do
+                [ $VERBOSE ] && echo "mv $FILE ---> $ARCHIVEIMPTMPTARGETDIR/"
+                mv "$FILE" "$ARCHIVEIMPTMPTARGETDIR/"
+        done
+
+        #move files from comsys/impwork into support folder
+        IMPWORKTARGETDIR="$SUP/$1/impwork"
+        for FILE in `gfind "/ext/$1/impwork/" -maxdepth 1 -name "$2*" -type f`
+        do
+                [ $VERBOSE ] && echo "mv $FILE ---> $IMPWORKTARGETDIR/"
+                mv "$FILE" "$IMPWORKTARGETDIR/"
+        done
+}
+
+
+
+# create log entry in statlog file of the current day
+echo "clean_up2 has been started on host" $HOSTNAME "on" `date +%Y.%m.%d.` "at" `date +%H:%M:%S` >> /ext/schenker/support/statlog/clean_up/log/"$HOSTNAME"_clean_up_log_of_`date +%Y.%m.%d`
+
+# create log entry in statlog csv file of the current day
+echo $HOSTNAME";""clean_up2;"`date +%Y.%m.%d`";"`date +%H:%M:%S`";" >> /ext/schenker/support/statlog/csv/"$HOSTNAME"_`date +%Y%m%d`.csv
+
+
+if [ $VERBOSE ]
+then 
+	echo "*********************************************************" 
+	echo "clean_up2 - verbose mode - show what's being (re-)moved. " 
+	echo "*********************************************************"
+fi	
+
+#remove core dumps
+if [ $REMOVECOREDUMP ] 
+then 
+	for COREDUMP in `gfind $ERR -maxdepth 1 -type f -iname "core.[0-9]*"` 
+	do
+		[ $VERBOSE ] && echo "remove $COREDUMP"
+		rm $COREDUMP
+	done
+fi
+
+#remove 0 byte SILTESAGPF_MUC_outbound files
+move_zero_byte_files "$ERR" "SILTESAGPF_MUC_outbound*" "$SUPERR/SILTESAGPF/"
+
+#remove 0 byte KJV_ESCTXM_inbound files
+move_zero_byte_files "$ERR" "KJV_ESCTXM_inbound*" "$SUPERR/KJV_ESCTXM/"
+
+#remove 0 byte SCXXEP9SAN_inbound files
+move_zero_byte_files "$ERR" "SCXXEP9SAN_inbound*" "$SUPERR/SCXXEP9SAN/"
+
+#remove 0 byte SCXXEP09EV_inbound files
+move_zero_byte_files "$ERR" "SCXXEP09EV_inbound*" "$SUPERR/SCXXEP09EV/"
+
+#remove 0 byte SYSTEACKEV_inbound files
+move_zero_byte_files "$ERR" "SYSTEACKEV_inbound*" "$SUPERR/SYSTEACKEV/"
+
+#remove 0 byte DESCUSTAIN_inbound files 
+move_zero_byte_files "$ERR" "DESCUSTAIN_inbound*" "$SUPERR/DESCUSTAIN/"
+
+#remove 0 byte EMBRWI4BFL_inbound.*.200026373.pdf
+move_zero_byte_files "$ERR" "EMBRWI4BFL_inbound.*.200026373.pdf" "$SUPERR/EMBRWI4BFL/"
+
+#GSD 1471007
+move_zero_byte_files "$ERR" "D2L_UR4010_997_inbound*" "$SUPERR/D2L_UR4010/"
+
+#GSD #1640686
+move_zero_byte_files "$ERR" "MIELE2MIID_inbound*" "$SUPERR/MIELE2MIID/"
+
+#GSD 2000693
+move_zero_byte_files "$ERR" "SEMCE2SECV_inbound*" "$SUPERR/SEMCE2SECV/"
+
+#GSD 2122032
+move_zero_byte_files "$ERR" "GTNXCDI315_inbound*" "$SUPERR/GTNXCDI315_inbound/"
+
+#GSD 2124191
+move_zero_byte_files "$ERR" "NABLE2XMFP_inbound*" "$SUPERR/NABLE2XMFP_inbound/"
+
+#INC000000736799
+move_zero_byte_files "$ERR" "CCMPESICPR_EUR_DB_inbound*" "$SUPERR/CCMPESICPR_EUR_DB_inbound/"
+
+#INC000387806
+move_zero_byte_files "$ERR" "ACO_T_STATUS_SEND_outbound*" "$SUPERR/ACO_T_STATUS_SEND_outbound/"
+
+#INC000001049672
+move_zero_byte_files "$ERR" "BRIGSB07XM_inbound*" "$SUPERR/BRIGSB07XM_inbound/"
+move_zero_byte_files "$ERR" "BRIGSB08XM_inbound*" "$SUPERR/BRIGSB08XM_inbound/"
+move_zero_byte_files "$ERR" "BRIGSB09XM_inbound*" "$SUPERR/BRIGSB09XM_inbound/"
+move_zero_byte_files "$ERR" "BRIGSB10XM_inbound*" "$SUPERR/BRIGSB10XM_inbound/"
+move_zero_byte_files "$ERR" "BRIGSB11XM_inbound*" "$SUPERR/BRIGSB11XM_inbound/"
+move_zero_byte_files "$ERR" "BRIGSB12CP_inbound*" "$SUPERR/BRIGSB12CP_inbound/"
+move_zero_byte_files "$ERR" "BRIGSB13CP_inbound*" "$SUPERR/BRIGSB13CP_inbound/"
+move_zero_byte_files "$ERR" "BRIGSB16XM_inbound*" "$SUPERR/BRIGSB16XM_inbound/"
+
+move_zero_byte_files "$ERR" "POLAND_STATUS_ATMT_outbound*" "$SUPERR/POLAND_STATUS_ATMT_outbound/"
+
+#INC000268808
+move_zero_byte_files "$ERR" "MEKATSAXFT_inbound*" "$SUPERR/MEKATSAXFT_inbound/"
+
+#INC000342283, INC000293623, INC000311957, INC000341508
+move_zero_byte_files "$ERR" "BMW_ACETRK_inbound*" "$SUPERR/BMW_ACETRK_inbound/"
+
+#INC000532798
+move_zero_byte_files "$ERR" "SCFRWIEDCS_HEXA_HEXAPPRO_inbound*" "$SUPERR/SCFRWIEDCS_HEXA_HEXAPPRO_inbound"
+
+#INC000553482
+move_zero_byte_files "$ERR" "BLOOT2SGXM_inbound*" "$SUPERR/BLOOT2SGXM_inbound"
+
+#INC000689682
+move_zero_byte_files "$ERR" "BURBE2ORXM_inbound*" "$SUPERR/BURBE2ORXM_inbound/"
+
+#INC000693094
+move_zero_byte_files "$ERR" "PEPSARECON_inbound*ReconcileReport*" "$SUPERR/PEPSARECON_inbound/"
+
+#INC000674238
+move_zero_byte_files "$ERR" "COD_E2SQCV_TPS_inbound*" "$SUPERR/COD_E2SQCV_TPS_inbound/"
+
+#INC000614964
+move_zero_byte_files "$ERR" "SCNOTIM2FM_102_inbound*" "$SUPERR/SCNOTIM2FM_102_inbound/"
+move_zero_byte_files "$ERR" "SCNOTFT2CE_inbound*" "$SUPERR/SCNOTFT2CE_inbound/"
+
+#INC000723691
+move_zero_byte_files "$ERR" "TNT_T_ROUT_inbound*" "$SUPERR/TNT_T_ROUT_inbound/"
+
+#INC000812889
+move_zero_byte_files "$ERR" "BIZETFM2S1_inbound*" "$SUPERR/BIZETFM2S1_inbound/*"
+
+#INC000830132 
+move_zero_byte_files "$ERR" "SCSEEFTTEV_inbound*" "$SUPERR/SCSEEFTTEV_inbound/"
+
+
+#REQ000001373577 & INC001195390
+move_zero_byte_files "$ERR" "ZEUSEDLSCV_inbound*ExportRodgau_*" "$SUPERR/ZEUSEDLSCV_inbound/"
+
+#INC001352842
+move_zero_byte_files "$ERR" "TOYOAIPASS_inbound*.txt" "$SUPERR/TOYOAIPASS_inbound"
+
+#INC000916856
+#move_zero_byte_files "$ERR" "ABBTAOANI1_inbound*" "$SUPERR/ABBTAOANI1_inbound/"
+
+#To add zero byte files from multiple agreements, simply copy ONE agreement name into this file
+#mark the area with <ESC>v using the cursor keys to enlarge/reduce the area (you must be in the setupao environment for cursor keys to work in vim) 
+#press <ESC> to enter the command mode and copy the following into vim's command line: s#\(.*\)#move_zero_byte_files "$ERR" "\1*" "$SUPERR/\1/"
+#finally press <RETURN> to replace the agreement name with a complete "move_zero_byte_files" line as seen above
+
+##########################################################################################################################
+
+#INC000892126
+move_erroneous_sftp_logfiles "$ERR" "log.ftp.*DAIMTTIATT_inbound*.nofiles" "$LOGERR"
+move_erroneous_sftp_logfiles "$ERR" "log.ftp.*DAIMTNAFTT_inbound*.nofiles" "$LOGERR"
+#INC001387941
+move_erroneous_sftp_logfiles "$ERR" "log.ftp.*PORSEBORVM_BOS_N_inbound*.nofiles" "$LOGERR"
+move_erroneous_sftp_logfiles "$ERR" "log.ftp.*PORSEBORVN_BOS_N_inbound*.nofiles" "$LOGERR"
+move_erroneous_sftp_logfiles "$ERR" "log.ftp.*PORSEBORVK_BOS_N_inbound*.nofiles" "$LOGERR"
+
+move_erroneous_sftp_logfiles "$ERR" "log.ftp.*SCDELFWMJD_MATMAS_outbound*.nofiles" "$LOGERR"
+
+move_erroneous_sftp_logfiles "$ERR" "log.ftp.*FEDXWRTKFL_inbound*.nofiles" "$LOGERR"
+
+
+#INC000001436056 / INC000001436165 / INC000001715215 / INC000001804991  / INC000002057050 
+housekeeping_outbound_files comsys JORWE2JWCE_outbound
+housekeeping_outbound_files comsys MWM_EMALOH_outbound 
+housekeeping_outbound_files comsys WABCE2COIM_outbound
+housekeeping_outbound_files comsys WABCE2DEIM_outbound
+housekeeping_outbound_files comsys0008 DELLAGLF_JP_outbound
+housekeeping_outbound_files comsys SCDKEBUTFL_outbound
+housekeeping_outbound_files comsys0008 SIACAIXXXX_SH_outbound
+
+#INC001611937
+housekeeping_outbound_files comsys DELLE2DKZI_outbound

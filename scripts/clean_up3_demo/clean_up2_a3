@@ -1,0 +1,118 @@
+#!/bin/bash
+#
+# clean_up: (re)move FILEs from known issues
+# use optional -v to let mv and rm print what they do
+#
+#
+# return code = 1 if parameter 1 isn't "-v"
+# this script does not check whether or not files are to be
+# removed, it simply moves all files and disregards error messages
+
+# Defined variables:
+ERDIR="/ext/schenker/data/error"
+SUPERR="/ext/schenker/support/error"
+SYST="/ext/schenker/support/error/SYSTXERROR"
+TANGO="/ext/schenker/support/error/SAG_ETGOBL"
+ODMXM="/ext/schenker/support/error/ODM_ETPRXM/"
+TANGOAW95="/ext/schenker/support/error/SAG_ETGOAW/"
+REDHEADTTSL="/ext/schenker/support/error/SAG_EXBPET/"
+BMW_EGXDAW="/ext/schenker/support/error/BMW_EGXDAW/"
+
+[ "-v" == "$1" ] && VERBOSE=1
+
+#check if parameter 1 is either emtpy or -v. If not -> print help and quit
+if [ -n "$1" ]
+then
+	if [ "-v" != "$1" ]
+	then
+		echo "syntax: $0 [-v]"
+		echo "   -v: verbose. print what will be (re)moved"
+		exit 1
+	fi
+fi
+#from this point on $1 is either empty or -v
+
+
+if [ $VERBOSE ]
+then
+        echo "*********************************************************"
+        echo "clean_up2 - verbose mode - show what's being (re-)moved. "
+        echo "*********************************************************"
+fi
+
+
+
+# create log entry in statlog file of the current day
+echo "clean_up2 has been started on host" $HOSTNAME "on" `date +%Y.%m.%d.` "at" `date +%H:%M:%S` >> /ext/schenker/support/statlog/clean_up/log/"$HOSTNAME"_clean_up_log_of_`date +%Y.%m.%d`
+
+# create log entry in statlog csv file of the current day
+echo $HOSTNAME";""clean_up2;"`date +%Y.%m.%d`";"`date +%H:%M:%S`";" >> /ext/schenker/support/statlog/csv/"$HOSTNAME"_`date +%Y%m%d`.csv
+
+### Tango Testfiles
+##LH - 13.08.2013 commented mv - unclear if needed any longer :) 
+##mv $ERDIR/SAG_ETGOBL* $TANGO >>/dev/null 2>>/dev/null
+
+### SYSTXERROR files that are received due to corrupt customer configuration
+
+if [  `ls $ERDIR/SYSTXERROR* 2>/dev/null | wc -l ` -gt 0 ]
+then
+	for i in `grep -l "_COLL.CSV" $ERDIR/SYSTXERROR*att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+   	do
+  
+  		/opt/sfw/bin/mv $1 $i* $SYST
+	done
+fi
+
+
+### ODM_ETPRXM messages with wrong WRONGROOTELEMENT
+if [ `ls $ERDIR/ODM_ETPRXM*  2>/dev/null | wc -l ` -gt 0 ]
+then
+        for FILE in `grep -s -l omResponse $ERDIR/ODM_ETPRXM*arc |awk -F"." '{print $1"."$2"."$3"."$4}'`
+        do
+		/opt/sfw/bin/mv $1 $FILE* $ODMXM
+	done
+fi
+
+### ODM_EFPRXM messages with wrong WRONGROOTELEMENT
+if [ `ls $ERDIR/ODM_EFPRXM*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `grep -s -l omResponse $ERDIR/ODM_EFPRXM*arc |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		/opt/sfw/bin/mv $1 $FILE* $ODMXM
+	done
+fi
+
+### Tango AW missing AW95 record INC000002057551
+# only move files that DO NOT contain AW95 records
+if [ `ls $ERDIR/SAG_ETGOAW*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `ls -1 $ERDIR/SAG_ETGOAW* |awk -F"." '{print $1"."$2"."$3"."$4}'`
+        do	
+		#use -q to force return code being 0
+		/usr/sfw/bin/ggrep -s -q AW95 $FILE.arc.arc
+		[[ $? -eq 1 ]] && /opt/sfw/bin/mv $1 $FILE* $TANGOAW95
+        done
+fi
+
+#INC000981463 removed below rule: 
+### Redhead ETT data with TTSL records
+#if [ `ls $ERDIR/SAG_EXBPET*  2>/dev/null | wc -l ` -gt 0 ]
+#then
+#	for FILE in `grep -s -l SAG_ERGBET_inbound $ERDIR/SAG_EXBPET*.att |awk -F"." '{print $1"."$2"."$3"."$4}'`
+#	do
+#		/opt/sfw/bin/mv $1 $FILE* $REDHEADTTSL
+#	done
+#fi
+
+#INC000513653
+#proposed by Dean on 07.03.2018
+if [ `ls $ERDIR/BMW_EGXDAW*  2>/dev/null | wc -l ` -gt 0 ]
+then
+	for FILE in `ls -1 $ERDIR/BMW_EGXDAW* |awk -F"." '{print $1"."$2"."$3"."$4}'`
+	do
+		#check if AW30XRFDON field does NOT exist 
+		#use -q to force return code being 0
+		/usr/sfw/bin/ggrep -s -q "^AW30XRFDON" "$FILE.arc.arc"
+		[[ $? -eq 1 ]] && /opt/sfw/bin/mv $1 "$FILE.arc.arc" "$FILE.arc.att" $BMW_EGXDAW
+	done
+fi	

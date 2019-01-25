@@ -15,15 +15,10 @@ function check_param()
     fi
 }
 
-function extra_case()
-{
-    find "$TMP" -name "CR_S*" -atime +1 -exec /opt/sfw/bin/rm $1 {} \;
-}
-
 function main()
 {
     check_param $@;
-    extra_case;
+    ./clean_up3_ex_a1.sh;
 }
 
 main;

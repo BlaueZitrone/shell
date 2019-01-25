@@ -1,0 +1,125 @@
+#!/bin/bash
+#
+# clean_up2
+#
+# Purpose: do house keeping on command line
+# optional parameter -v tells script to verbosely print out what is being (re-)moved
+# optional parameter -d deletes core dumps in error directory
+#
+# original version by           DB Schenker SWORD Application Operation Team
+# revised version:              Lars Herrlein (lars.herrlein@dbschenker.com)
+# Date:                         August 2013
+# Last change:			06.12.2016 added housekeeping_outbound_files function 
+#		          	11.04.2014 remove tmp files older than 0 minutes        
+#				04.04.2014 temporary move away tmp files older than 7 minutes  
+#				26.03.2014 rewrote loops to prevent arglist too long
+
+ERR="/ext/schenker/data/error"
+SUPERR="/ext/schenker/support/error"
+CAT="/ext/comsys/catlist"
+SUP="/ext/schenker/support"
+SUPCAT="/ext/schenker/support/comsys/catlist"
+[ "-v" == "$1" ] && VERBOSE=1
+[ "-d" == "$2" ] && DEBUG=1
+
+
+#check if parameter 1 is either emtpy or -v If not -> print help and quit
+if [ -n "$1" ]
+then
+        if [ "-v" != "$1" ]
+        then
+                echo "syntax: $0 [-v]"
+                echo "   -v: verbose. print what will be (re)moved"
+                exit 1
+        fi
+fi
+
+#from this point on $1 is either empty or -v
+# create log entry in statlog file of the current day
+echo "clean_up2 has been started on host" $HOSTNAME "on" `date +%Y.%m.%d.` "at" `date +%H:%M:%S` >> /ext/schenker/support/statlog/clean_up/log/"$HOSTNAME"_clean_up_log_of_`date +%Y.%m.%d`
+
+# create log entry in statlog csv file of the current day
+echo $HOSTNAME";""clean_up2;"`date +%Y.%m.%d`";"`date +%H:%M:%S`";" >> /ext/schenker/support/statlog/csv/"$HOSTNAME"_`date +%Y%m%d`.csv
+
+if [ $VERBOSE ]
+then
+        echo "*********************************************************"
+        echo "clean_up2 - verbose mode - show what's being (re-)moved. "
+        echo "*********************************************************"
+fi
+
+####################################
+#
+# move_zero_byte_files ()
+#
+# $1 = directory to search in
+# $2 = files to move
+# $3 = directory to move files into
+####################################
+move_zero_byte_files () {
+        for FILE in `gfind $1 -maxdepth 1 -name "$2" -size 0c -type f`
+        do
+                [ $VERBOSE ] && echo "$FILE ---> $3"
+                mv $FILE $3
+        done
+}
+
+####################################
+#
+# housekeeping_outbound_files ()
+# clean up files from the given agreement imp/, the related comsys/archive/imptmp and also
+# from the comsys/impwork directory
+#
+# $1 = comsys instance (e.g. comsys1002)
+# $2 = agreement (e.g. APPL_AUS_D_outbound)
+#
+# Please create the $sup/$1/$2/imp directory before adding the new function!
+
+# ATTENTION USE WITH CARE
+# THIS WILL MOVE AWAY FILES FROM COMMON COMSYS DIRECTORIES!!!!!
+#
+#
+#####################################
+housekeeping_outbound_files () {
+
+        #move files from comsys/agreement/imp/ into support folder
+        AGREEMENTTARGETDIR="$SUP/$1/$2/imp"
+        for FILE in `gfind "/ext/$1/agr/$2/imp/" -maxdepth 1 -name "$2*" -type f`
+        do
+                [ $VERBOSE ] && echo "mv $FILE ---> $AGREEMENTTARGETDIR/"
+                mv "$FILE" "$AGREEMENTTARGETDIR/"
+        done
+
+        #move files from comsys/archive/imptmp into support folder
+        ARCHIVEIMPTMPTARGETDIR="$SUP/$1/archive/imptmp"
+        for FILE in `gfind "/ext/$1/archive/imptmp/" -maxdepth 1 -name "$2*" -type f`
+        do
+                [ $VERBOSE ] && echo "mv $FILE ---> $ARCHIVEIMPTMPTARGETDIR/"
+                mv "$FILE" "$ARCHIVEIMPTMPTARGETDIR/"
+        done
+
+        #move files from comsys/impwork into support folder
+        IMPWORKTARGETDIR="$SUP/$1/impwork"
+        for FILE in `gfind "/ext/$1/impwork/" -maxdepth 1 -name "$2*" -type f`
+        do
+                [ $VERBOSE ] && echo "mv $FILE ---> $IMPWORKTARGETDIR/"
+                mv "$FILE" "$IMPWORKTARGETDIR/"
+        done
+}
+
+
+#GSD#2089979 temporary workaround 24.10.2014 LH - should be deleted after process was properly set up 
+move_zero_byte_files "$ERR" "FORDUAESOT_inbound*" "$SUPERR/FORDUAESOT_inbound/"
+
+#INC000690891
+move_zero_byte_files "$ERR" "HPSBAOFOXC_SHA_inbound*852_CQ_WHFXN_*TXT" "$SUPERR/HPSBAOFOXC_SHA_inbound"
+
+#IINC000001791256
+housekeeping_outbound_files comsys1002 APPL_AUS_D_outbound
+
+
+#INC001008948
+move_zero_byte_files "$ERR" "HPSBAOFOXC_inbound*852_SZ_SZFOX_*.TXT" "$SUPERR/HPSBAOFOXC_inbound"
+
+#INC001661511
+move_zero_byte_files "$ERR" "APPLAO8581_SFTP_SYD_inbound*" "$SUPERR/APPLAO8581_SFTP_SYD_inbound"

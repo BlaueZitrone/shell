@@ -1,0 +1,118 @@
+#!/bin/bash
+#
+# clean_up2
+#
+# Purpose: do house keeping on command line
+# optional parameter -v tells script to verbosely print out what is being (re-)moved
+#
+# original version by           DB Schenker SWORD Application Operation Team
+# revised version:              Lars Herrlein (lars.herrlein@dbschenker.com)
+# Date:                         August 2013
+# Last change:                  04.04.2014 change deprecation time for tmp files to 5 minutes
+# 				26.03.2014 rewrote loops to prevent arglist too long
+
+# Defined variables:
+ERR="/ext/schenker/data/error/"
+SUPERR="/ext/schenker/support/error/"
+CAT="/ext/comsys/catlist/"
+SUPCAT="/ext/schenker/support/comsys/catlist/"
+#verbose mode on?
+[ "-v" == "$1" ] || [ "-v" == "$2" ] && VERBOSE=1
+#delete core dumps?
+[ "-c" == "$1" ] || [ "-c" == "$2" ] && REMOVECOREDUMP=1
+
+####################################
+#
+# move_zero_byte_files
+#
+# $1 = directory to search in
+# $2 = files to move
+# $3 = directory to move files into
+####################################
+move_zero_byte_files () {
+        for FILE in `gfind $1 -maxdepth 1 -name "$2" -size 0c -type f`
+        do
+                [ $VERBOSE ] && echo "$FILE ---> $3"
+                mv $FILE $3
+        done
+}
+
+
+#check if parameter 1 is either emtpy or -v If not -> print help and quit
+if [ -n "$1" ]
+then
+        if [ "-v" != "$1" ]
+        then
+                echo "syntax: $0 [-v]"
+                echo "   -v: verbose. print what will be (re)moved"
+                exit 1
+        fi
+fi
+#from this point on $1 is either empty or -v
+
+if [ $VERBOSE ]
+then
+        echo "*********************************************************"
+        echo "clean_up2 - verbose mode - show what's being (re-)moved. "
+        echo "*********************************************************"
+fi
+
+# create log entry in statlog file of the current day
+echo "clean_up2 has been started on host" $HOSTNAME "on" `date +%Y.%m.%d.` "at" `date +%H:%M:%S` >> /ext/schenker/support/statlog/clean_up/log/"$HOSTNAME"_clean_up_log_of_`date +%Y.%m.%d`
+
+# create log entry in statlog csv file of the current day
+echo $HOSTNAME";""clean_up2;"`date +%Y.%m.%d`";"`date +%H:%M:%S`";" >> /ext/schenker/support/statlog/csv/"$HOSTNAME"_`date +%Y%m%d`.csv
+
+
+##############################################################################
+# move zero byte files
+
+
+#GSD#1853544 - SAG_EFCREV_inbound files
+move_zero_byte_files "$ERR" "SAG_EFCREV_inbound*" "$SUPERR/SAG_EFCREV/"
+
+
+#to add a set of files just add:
+#move_zero_byte_files "<source_dir>" "<file_pattern>*" "<destination_dir>"
+#But do not forget to create a separate folder for those files in the support directory!!
+
+##############################################################################
+
+#inform user that the next things can take a little longer
+echo "cleaning agreements, please stand by..."
+
+#clean temporary files from agreements older than one day
+for COM in `gfind /ext/ -maxdepth 1 -type d -iname "comsys*" | sed 's#/ext/##'`
+do
+        for AGR in `gfind /ext/$COM/agr/ -type d -iname "*_outbound" 2>/dev/null`
+        do
+                if [ -d "$AGR""/imp" ] >/dev/null 2>&1
+                then
+			# !!!!!!!!!!!! change me !!!!!!!!!!!!!!!!!!
+			for FILE in `gfind  "$AGR/imp" -type f -regextype sed -regex ".*\.\(rename.tmp\|tmp\|ptk\)" -size 0c -mmin +5 2>/dev/null`
+			# for FILE in `gfind "$AGR/imp" -type f -name "*[\.rename\.tmp|\.tmp|\.ptk]" -size 0c -mmin +5 2>/dev/null`
+                        do
+                                [ $VERBOSE ] && echo "rm $FILE"
+                                rm $FILE
+                        done
+                fi
+        done
+done
+
+#move inbound files that stuck in an agreement for a day to comexp_ok
+for COM in `gfind /ext/ -maxdepth 1 -type d -iname "comsys*" | sed 's#/ext/##'`
+do
+        #for AGR in `ls -d /ext/$COM/agr/*_inbound`
+        for AGR in `gfind /ext/$COM/agr/ -type d -iname "*_inbound" 2>/dev/null`
+        do
+                if [ -d "$AGR""/exp" ] >/dev/null 2>&1
+                then
+                        for FILE in `gfind "$AGR""/exp" -type f -mmin +1440`
+                        do
+                                [ $VERBOSE ] && echo "moving "$FILE" to /ext/"$COM"/comexp_ok"
+                                mv $FILE "/ext/"$COM"/comexp_ok"
+                        done
+                fi
+        done
+done
+
