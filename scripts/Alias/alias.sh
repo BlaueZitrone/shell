@@ -77,6 +77,11 @@ function runmass()
     fi
 }
 
+function remafi2()
+{
+
+}
+
 function download()
 {
     cp $@ ${downloadPath};

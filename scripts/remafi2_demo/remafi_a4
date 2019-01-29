@@ -1,0 +1,175 @@
+#!/bin/bash
+##################################################################################################################
+#
+# remafi v2 - Resend massfilter files from /ext/schenker/data/error to /ext/schenker/data/resend_inbound/
+# extended and rewritten by Lars Herrlein 2014-2015
+#
+# last change   24.08.2018: changed     allow sub 1s intervals by using the Sun Freeware sleep
+#                                       remove error message if sleep time is below 1s
+#               12.06.2017: changed     directory for log files
+#               06.03.2017: fixed       redirected error messages of below clean up into nirvana (as gfind is
+#                                       confused about not having acces to everything...
+#                  03/2017: added       clean up of old remafi*.tmp files in /tmp/
+#               04.11.2015: fixed       list of files to resend is now again sorted by last modification time
+#               07.09.2015: changed     log directory and added output of error message into log file.
+#               31.08.2015: changed     check for COD_ESCACV to prevent resending
+#               25.08.2015: fixed       check for "to be resend files"
+#               24.08.2015: added       check for COD_ESCACV to only allow >90s resend intervall
+#               29.07.2015: rewrote remafi to only handle ONE Process ID together with a defined sleep time
+#
+# SYNTAX: remafi <PROCESS_ID> <seconds_to_sleep>
+#
+# possible error codes:
+# 1 = PROCESS_ID is empty
+# 2 = seconds_to_sleep is empty
+# 3 = seconds_to_sleep is <0 or >= 300
+# 4 = Lock file exists
+# 5 = no mass filter files for given process found
+# 6 = could not create temporary file name
+# 7 = invalid sleep time for Process COD_ESCACV
+# 8 = files must not be resend
+# 9 = could create log file
+##################################################################################################################
+
+#check command line arguments (if empty -> exit)
+[ "" == "$1" ] && echo "SYNTAX: remafi <PROCESS_ID> <seconds_to_sleep>" && echo "allowed values for seconds_to_sleep = 1-300" && exit 1
+[ "" == "$2" ] && echo "SYNTAX: remafi <PROCESS_ID> <seconds_to_sleep>" && echo "allowed values for seconds_to_sleep = 1-300" && exit 2
+
+#initialize variables with command line arguments
+PROCESS_ID="$1"
+#time to sleep
+TTS="$2"
+
+
+#check if time to sleep is within the limits of 1-300s. (if not -> exit)
+#[[ "$TTS" -lt 1 || "$TTS" -gt 300 ]] && echo "SYNTAX: remafi <PROCESS_ID> <seconds_to_sleep>" && echo "allowed values for seconds_to_sleep = 1-300" && exit 3
+
+#inline quick and dirty solution for COD_ESCACV
+#old version
+#[ "$PROCESS_ID" == "COD_ESCACV" ] && [[ "$TTS" -lt 90 ]] && echo && echo "ERROR: Files for process COD_ESCACV must not be resend with an interval of less than 90 seconds" && exit 7
+[ "$PROCESS_ID" == "COD_ESCACV" ] && echo && echo "ERROR: Files for process COD_ESCACV must not be resend at all! Please just do house keeping" && exit 8
+
+#some constant values
+ERRORDIRECTORY='/ext/schenker/data/error'
+NOW=`date +%H:%M:%S`
+TODAY=`date +%Y%m%d`
+LOGFILE="/ext/schenker/prot/remafilog/remafi_"$TODAY"_"$PROCESS_ID"_"$TTS".log"
+
+#NEW: create a lockfile containing the process id
+LOCKFILE="/tmp/remafi_$PROCESS_ID.lck"
+
+#if lock file exist -> exit
+if [ -e "$LOCKFILE" ]
+then
+        echo "Lockfile $LOCKFILE exists!"
+        echo "Possible root cause: Someone else is already resending messages for $PROCESS_ID right now!!!"
+        echo "Please check with your colleagues."
+        echo "Only remove the file if no one else is running remafi (please check with ps -efa | grep remafi | grep -v grep) and try again."
+        exit 4
+fi
+
+
+#remove remafi tmp files older than one day
+gfind /tmp/ -mtime +1 -iname "remafi_*.tmp" -exec rm {} \; 2>/dev/null
+
+
+#temporary file name for list of massfilter files
+FILES_TO_RESEND="/tmp/remafi_$PROCESS_ID`/opt/sfw/bin/date +%Y%m%d%H%M%S`.tmp"
+
+#check if write access to temporary file is allowed:
+/usr/bin/touch $FILES_TO_RESEND
+
+#if tempfile wasn't created -> exit with error message
+[ ! -e $FILES_TO_RESEND ] && echo "ERROR - could not create $FILES_TO_RESEND - please check access rights" && exit 6
+
+#try to write into log file:
+/usr/bin/touch $LOGFILE
+
+[ ! -e $LOGFILE ] && echo "ERROR - could not create $LOGFILE - please check access rights" && exit 9
+
+
+#search for mass filter files for given process.
+gfind $ERRORDIRECTORY  -maxdepth 1 -type f -name "MassFilter\.$PROCESS_ID\.*.att" -printf "%T@ %p\n" |  sort -k1n > $FILES_TO_RESEND
+
+#check if remafi needs to do something
+if [[ `wc -l $FILES_TO_RESEND | sed -e 's#^ *##g' -e 's# .*##' ` -eq 0 ]]
+then
+        echo "No massfilter files found for $PROCESS_ID"
+        exit 5
+fi
+
+#create lockfile to prevent parallel remafis
+touch $LOCKFILE
+
+#DEBUG
+#echo "Lockfile = $LOCKFILE"
+#echo "tempfile = $FILES_TO_RESEND"
+
+#create log entries
+echo "Massfilter messages have been resent on host $HOSTNAME by usage of remafi "$PROCESS_ID" "$TTS" on $TODAY at $NOW" >> /ext/schenker/support/statlog/MassFilter/log/"$HOSTNAME"_remafi_"$TODAY"
+echo "$HOSTNAME;remafi $PROCESS_ID $TTS;$TODAY;$NOW;" >> /ext/schenker/support/statlog/csv/"$HOSTNAME"_"$TODAY".csv
+
+#clean the backup directory
+echo "Cleaning up backup directory for $PROCESS_ID. Please stand by ..."
+gfind /ext/schenker/support/MassFilter/inbound/ -type f -name "MassFilter\.$PROCESS_ID\.*" -exec rm {} \;  >/dev/null 2>&1
+echo "... done."
+#number of files to resend
+NOOFFILESTORESEND=`cat $FILES_TO_RESEND| wc -l | sed 's# ##g'`
+
+#inform user about no. of files
+echo "Resending $NOOFFILESTORESEND file(s) now" && echo
+
+#counter for remaining files in below loop
+REMAINING_FILES=$NOOFFILESTORESEND
+
+for MASSFILTERFILE in `cat $FILES_TO_RESEND | sed -e 's#.*/##' -e 's#.att$##'`
+do
+        echo "$ERRORDIRECTORY/$MASSFILTERFILE.arc" >> /ext/schenker/support/statlog/MassFilter/history/"$PROCESS_ID"_"$TODAY"
+
+        #copy files to backup directory
+        /usr/bin/cp -p $ERRORDIRECTORY/$MASSFILTERFILE.att $ERRORDIRECTORY/$MASSFILTERFILE.arc /ext/schenker/support/MassFilter/inbound/
+
+        #move files into resend_inbound. First the .att file, then the .arc file
+        echo "mv $ERRORDIRECTORY/$MASSFILTERFILE.att -> /ext/schenker/data/resend_inbound/" | tee -a $LOGFILE
+        ERRORWHENMOVEATTFILE=`/usr/bin/mv $ERRORDIRECTORY/$MASSFILTERFILE.att /ext/schenker/data/resend_inbound/ 2>&1`
+
+        #did an error happen? -> log
+        if [ "" != "$ERRORWHENMOVEATTFILE" ]
+        then
+                echo "`date +%Y%m%d %H:%M:%S` - ERROR moving $ERRORDIRECTORY/$MASSFILTERFILE.att: $ERRORWHENMOVEATTFILE" | tee -a $LOGFILE
+        fi
+
+        echo "mv $ERRORDIRECTORY/$MASSFILTERFILE.arc -> /ext/schenker/data/resend_inbound/" | tee -a $LOGFILE
+        ERRORWHENMOVEARCFILE=`/usr/bin/mv $ERRORDIRECTORY/$MASSFILTERFILE.arc /ext/schenker/data/resend_inbound/ 2>&1`
+
+        #did an error happen? -> log
+        if [ "" != "$ERRORWHENMOVEARCFILE" ]
+        then
+                echo "`date +%Y%m%d %H:%M:%S` - ERROR moving $ERRORDIRECTORY/$MASSFILTERFILE.arc: $ERRORWHENMOVEARCFILE" | tee -a $LOGFILE
+        fi
+
+        #NEW approach
+        #decrease number of remaning files
+        let "REMAINING_FILES -= 1"
+
+        #old (SLOW!) version
+        #REMAINING_FILES=`gfind $ERRORDIRECTORY  -maxdepth 1 -type f -name "MassFilter\.$PROCESS_ID\.*.att" |wc -l | sed 's# ##g'`
+
+        #inform about no. of remaining files
+        echo "$REMAINING_FILES file(s) remaining"
+        #only sleep if files need to be moved
+        [ "$REMAINING_FILES" -gt "0" ] && /opt/sfw/bin/sleep $TTS
+
+done
+
+banner  "done!"
+
+#output timestamp
+/opt/sfw/bin/date +'%Y%m%d:%H.%M.%S.000 %Z'
+
+#remove temporary and lock file
+[ ! -e $FILES_TO_RESEND ] && echo "clean up WARNING - could not find temporary file $FILES_TO_RESEND"
+rm $FILES_TO_RESEND > /dev/null 2>&1
+[ ! -e $LOCKFILE ] && echo "clean up WARNING - could not find lock file $LOCKFILE"
+rm $LOCKFILE > /dev/null 2>&1
+
