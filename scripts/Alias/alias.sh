@@ -273,6 +273,25 @@ function ref()
     done
 }
 
+function deepRef()
+{
+    if [[ $1 != '' ]]; then
+        fileName=$1;
+        echo "Please choose one reference category from below, or press Enter to check all details";
+        grep -E "^[^{]" ${fileName};
+        read refCate;
+        if [[ ${refCate} == '' ]];then
+            for refCate in $(grep -E "^[^{]" $1)
+            do
+                echo -e "\n${refCate}";
+                grep -h -A1 ${refCate} ${fileName} | grep -v "^${refCate}" | head -1 | grep -Eo "\{[^{}]*\}";
+            done
+        else
+            grep -h -A1 ${refCate} ${fileName} | grep -v "^${refCate}" | head -1 | grep -Eo "\{[^{}]*\}";
+        fi
+    fi
+}
+
 function 0byte()
 {
     for emptyFile in $(gfind $err -size 0 -name "*$1*" -type f)
@@ -283,6 +302,8 @@ function 0byte()
         archiveFolder="/ext/comsys*/archive/scheduler/${agrName}/";
         echo "===0 byte file name==="
         echo "${emptyFile}";
+        echo -e "\n===Agreement parameters of ${agrName}===";
+        catAgr ${agrName};
         echo -e "\n===checking file with the same name in archive folder(${archiveFolder})===";
         echo "0 byte file received : ";
         gfind ${archiveFolder} -name "*${oriName}" -size 0 -type f -exec ls -l {} \;;
