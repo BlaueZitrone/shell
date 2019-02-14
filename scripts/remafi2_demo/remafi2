@@ -4,6 +4,11 @@ if [[ $1 != '' && $(echo $1 | grep -Eo [A-Z_0-9]{10}) == $1 ]]; then
     PROCESS_ID=$1;
 else
     echo "Please input a valid processID as parameter.";
+    exit;
 fi
 
+if [[ $2 == '' ]]; then
+    TTS="auto";
+elif [[]]; then
 
+fi

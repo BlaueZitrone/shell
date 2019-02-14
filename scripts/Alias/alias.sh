@@ -79,7 +79,7 @@ function runmass()
 
 function remafi2()
 {
-
+    echo "TODO";
 }
 
 function download()
@@ -266,7 +266,7 @@ function ref()
         BDIDRefValues=$(ggrep -A1 -E '^BDIDRefValues$' ${file} | grep -v "^BDIDRefValues$" | head -1);
         if [[ ${BDIDRefValues} != '' ]];then
             echo ${BDIDRefValues:0:99} | awk -F\" '{print "BDID : "$2}';
-            echo $BDIDRefValues | grep -Eo "\{[^\{\}]*\}" | awk -F\" '{print $2" : "$4}'
+            echo $BDIDRefValues | grep -Eo "\{[^{}]*\}" | awk -F\" '{print $2" : "$4}'
         fi
         echo "TransactionAttribute : ";
         echo -e "${transaction}\n";
@@ -275,13 +275,14 @@ function ref()
 
 function 0byte()
 {
-    for emptyFile in $(gfind $err -size 0 -name "*$1*" -type f -exec basename {} \;)
+    for emptyFile in $(gfind $err -size 0 -name "*$1*" -type f)
     do
         fileName=$(basename ${emptyFile});
         agrName=$(echo ${fileName} | cut -d\. -f1);
         oriName=$(echo ${fileName} | cut -d\. -f3-);
         archiveFolder="/ext/comsys*/archive/scheduler/${agrName}/";
-        echo "0 byte file name : ${fileName}";
+        echo "===0 byte file name==="
+        echo "${emptyFile}";
         echo -e "\n===checking file with the same name in archive folder(${archiveFolder})===";
         echo "0 byte file received : ";
         gfind ${archiveFolder} -name "*${oriName}" -size 0 -type f -exec ls -l {} \;;
@@ -293,7 +294,8 @@ function 0byte()
         echo -e "\n===checking comsys log===";
         grep ${oriName} ${comsysLogFile} ${comsysLogFileYesterday};
 
-        if [[ "xibftp" == $(grep '<RemoteHost>' /ext/comsys*/agr/${agrName}/${agrName}_dump.xml | sed "s/<[^<>]*>//g") ]];then
+        remoteHost=$(grep '<RemoteHost>' /ext/comsys*/agr/${agrName}/${agrName}_dump.xml | sed "s/<[^<>]*>//g")
+        if [[ "xibftp" == ${remoteHost} || "xibftprd" == ${remoteHost} ]];then
             protocol=$(grep '<Protocol>' /ext/comsys*/agr/${agrName}/${agrName}_dump.xml | sed "s/<[^<>]*>//g");
             if [[ "ftp" == ${protocol} ]];then
                 echo -e "\n===checking ftp access log===";
@@ -306,6 +308,7 @@ function 0byte()
                 ssh -o StrictHostKeyChecking=no amtrix@xibftprd1.dc.signintra.com "/opt/amtcftp/tools/support/bin/ggrep ${oriName} /ext/schenker/prot/proftpd/proftpd-tls.access_log; /usr/bin/zcat \$(ls -rt /progs/adm_sav/proftpd-tls.access_log_* | tail -1) | /opt/amtcftp/tools/support/bin/ggrep ${oriName}";
             fi
         fi
+        echo "=====================================================";
     done
 }
 
