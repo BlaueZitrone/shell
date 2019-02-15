@@ -377,7 +377,7 @@ function hint()
         echo "values(use echo to check the content):";
         echo "houseKeepPath|downloadPath|allen|ftpLog";
         echo "functions(use hint to read the instruction):";
-        echo "hint|hk|ref|0byte|runmass|mysplit|monitor|checkDEA|massinfo|sameFile|catError|clean|oldFile|catAgr|cdAgr|grepAgr|cdArchive_G|cdArchive_A|countByTime|countByAgrOrPID|download|downloadError|getBDID";
+        echo "hint|hk|ref|deepRef|0byte|runmass|mysplit|monitor|checkDEA|massinfo|sameFile|catError|clean|oldFile|catAgr|cdAgr|grepAgr|cdArchive_G|cdArchive_A|countByTime|countByAgrOrPID|download|downloadError|getBDID";
     else
         case $1 in
             hint)
@@ -449,6 +449,10 @@ function hint()
             ref)
                 echo "Short description: Fetch some file info like timestamp, BDID, TRID...";
                 echo "Usage: ref {processID}.";
+            ;;
+            deepRef)
+                echo "Short description: Fetch some more info from att file.";
+                echo "Usage: ref {filename}.";
             ;;
             0byte)
                 echo "Short description: When there is/are empty file(s) in error folder. Check archive folder, comsys log, FTP/FTPS/SFTP log according to the xml parameter.";
