@@ -77,11 +77,6 @@ function runmass()
     fi
 }
 
-function remafi2()
-{
-    echo "TODO";
-}
-
 function download()
 {
     cp $@ ${downloadPath};
