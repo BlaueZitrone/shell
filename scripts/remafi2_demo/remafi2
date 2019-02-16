@@ -1,14 +1,109 @@
 #!/bin/bash
 
-if [[ $1 != '' && $(echo $1 | grep -Eo [A-Z_0-9]{10}) == $1 ]]; then
+function Debug()
+{
+    echo -en "\033[1;34m[Debug]$*\033[0m";
+}
+
+###check arguments
+if [[ $1 != '' && $(echo $1 | /usr/sfw/bin/ggrep -Eo [A-Z_0-9]{10}) == $1 ]]; then
     PROCESS_ID=$1;
+    [[ "$PROCESS_ID" == "COD_ESCACV" ]] && echo && echo "ERROR: Files for process COD_ESCACV must not be resend at all! Please just do house keeping" && exit
 else
     echo "Please input a valid processID as parameter.";
     exit;
 fi
 
-if [[ $2 == '' ]]; then
-    TTS="auto";
-elif [[]]; then
+###fetch process info from database
+SQLResult=$(echo $(sqlplus -s $ORACLE_CONNECT/$ORACLE_PASSWD@$ORACLE_SERVER << EOF
+    set wrap off
+    set feedback off
+    set serveroutput off
+    set pagesize 0
+    set verify off
+    set linesize 5000
+    set term off
+    set colsep ,
+    set trimspool on
 
+    select MAX_NUMBER_OF_FILES,MAX_NUMBER_OF_BYTES,INTERVAL_TO_CHECK from XIB_PROCESSIDPROPERTIES where PROCESSIDCODE = '${PROCESS_ID}' and ACTIVEFLAG = 'Y';
+EOF
+) | sed -e 's#, #,#g' -e 's# ,#,#g');
+
+
+Debug "SQLResult:${SQLResult}\n"
+
+MAX_NUMBER_OF_FILES=$(echo ${SQLResult} | cut -d, -f1);
+MAX_NUMBER_OF_BYTES=$(echo ${SQLResult} | cut -d, -f2);
+INTERVAL_TO_CHECK=$(echo ${SQLResult} | cut -d, -f3);
+
+Debug "MAX_NUMBER_OF_FILES|MAX_NUMBER_OF_BYTES|INTERVAL_TO_CHECK\n"
+Debug "${MAX_NUMBER_OF_FILES}|${MAX_NUMBER_OF_BYTES}|${INTERVAL_TO_CHECK}\n"
+
+###calc the expected file incoming speed by number/byte
+EXPECTED_FILES_INCOME_SPEED=$(echo "${MAX_NUMBER_OF_FILES}/${INTERVAL_TO_CHECK}/60" | bc -l);
+EXPECTED_BYTES_INCOME_SPEED=$(echo "${MAX_NUMBER_OF_BYTES}/${INTERVAL_TO_CHECK}/60" | bc -l);
+EXPECTED_INCOME_FILE_SIZE=$(echo "${MAX_NUMBER_OF_BYTES}/${MAX_NUMBER_OF_FILES}" | bc -l);
+
+Debug "EXPECTED_FILES_INCOME_SPEED|EXPECTED_BYTES_INCOME_SPEED\n"
+Debug "${EXPECTED_FILES_INCOME_SPEED}|${EXPECTED_BYTES_INCOME_SPEED}\n"
+
+#NEW: create a lockfile containing the process id
+LOCKFILE="/tmp/remafi_${PROCESS_ID}.lck"
+
+#if lock file exist -> exit
+if [[ -e "${LOCKFILE}" ]]; then
+    echo "Lockfile $LOCKFILE exists!";
+    echo "Possible root cause: Someone else is already resending messages for ${PROCESS_ID} right now!!!";
+    echo "Please check with your colleagues.";
+    echo "Only remove the file if no one else is running remafi (please check with ps -efa | grep remafi | grep -v grep) and try again.";
+    exit;
 fi
+
+#some constant values
+ERRORDIRECTORY='/ext/schenker/data/error';
+NOW=$(date +%H:%M:%S);
+TODAY=$(date +%Y%m%d);
+LOGFILE="/ext/schenker/prot/remafilog/remafi2_"${TODAY}"_"${PROCESS_ID}".log";
+
+#remove remafi tmp files older than one day
+gfind /tmp/ -mtime +1 -iname "remafi_*.tmp" -exec rm {} \; 2>/dev/null;
+
+#temporary file name for list of massfilter files
+FILES_TO_RESEND="/tmp/remafi_$PROCESS_ID$(/opt/sfw/bin/date +%Y%m%d%H%M%S).tmp";
+
+#check if write access to temporary file is allowed:
+/usr/bin/touch ${FILES_TO_RESEND};
+[[ ! -e ${FILES_TO_RESEND} ]] && echo "ERROR - could not create ${FILES_TO_RESEND} - please check access rights" && exit;
+
+#try to write into log file:
+/usr/bin/touch ${LOGFILE};
+[[ ! -e ${LOGFILE} ]] && echo "ERROR - could not create ${LOGFILE} - please check access rights" && exit;
+
+#search for mass filter files for given process.
+gfind ${ERRORDIRECTORY}  -maxdepth 1 -type f -name "MassFilter\.${PROCESS_ID}\.*.att" -printf "%T@ %p\n" |  sort -k1n > ${FILES_TO_RESEND};
+
+#check if remafi needs to do something
+if [[ $(wc -l $FILES_TO_RESEND | sed -e 's#^ *##g' -e 's# .*##') -eq 0 ]]; then
+    echo "No massfilter files found for $PROCESS_ID";
+    exit;
+fi
+
+#create lockfile to prevent parallel remafis
+touch ${LOCKFILE};
+
+#create log entries
+echo "Massfilter messages have been resent on host $HOSTNAME by usage of remafi2 "${PROCESS_ID}" on $TODAY at $NOW" >> /ext/schenker/support/statlog/MassFilter/log/"$HOSTNAME"_remafi2_"$TODAY"
+echo "$HOSTNAME;remafi2 ${PROCESS_ID};${TODAY};$NOW;" >> /ext/schenker/support/statlog/csv/"$HOSTNAME"_"$TODAY".csv
+
+#clean the backup directory for the process and files older than 42 days
+echo "Cleaning up backup directory for ${PROCESS_ID}. Please stand by ..."
+gfind /ext/schenker/support/MassFilter/inbound/ -type f -name "MassFilter\.${PROCESS_ID}\.*" -exec rm {} \; >/dev/null 2>&1;
+gfind /ext/schenker/support/MassFilter/inbound/ -type f -mtime +42 -exec rm {} \; >/dev/null 2>&1;
+echo "... done."
+
+
+
+
+
+
