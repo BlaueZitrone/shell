@@ -61,3 +61,19 @@ NOBYTES
 FILTER_REACHED
 
 
+
+sqlplus -s $ORACLE_CONNECT/$ORACLE_PASSWD@$ORACLE_SERVER << EOF
+    
+    set wrap off
+    set feedback off
+    set serveroutput off
+    set pagesize 0
+    set verify off
+    set linesize 5000
+    set term off
+    set colsep ,
+    set trimspool on
+    
+    select MAX_NUMBER_OF_FILES from XIB_PROCESSIDPROPERTIES where PROCESSIDCODE = 'SCNOTIM2FM' and ACTIVEFLAG = 'Y';
+EOF
+

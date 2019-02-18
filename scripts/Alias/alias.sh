@@ -60,19 +60,31 @@ function runmass()
 {
     . $FRAME_ROOT/tools/ScriptFunctions;
     if [[ $1 != '' ]]; then
-        massinfo $1;
-        INTEGRATIONTYPE=$(SQLselect INTEGRATIONTYPE XIB_PROCESSIDPROPERTIES PROCESSIDCODE $1 | sed 's#^.* ##');
-        echo "Integration type : ${INTEGRATIONTYPE}";
-        if [[ "${INTEGRATIONTYPE}" == "Parallel" ]];then
-            echo -e "\n>>>deletemassfilterflag $1";
-            echo | deletemassfilterflag $1;
-            echo -e "\n>>>remafi $1 2";
-            remafi $1 2;
-        elif [[ "${INTEGRATIONTYPE}" == "Serial" ]]; then
-            echo -e "\n>>>remafi $1 7";
-            remafi $1 7;
-            echo -e "\n>>>deletemassfilterflag $1";
-            echo | deletemassfilterflag $1;
+        if [[ -e "/tmp/remafi_$1.lck" ]];then
+            echo "Remafi lock for $1(/tmp/remafi_$1.lck) already exist, check below info to confirm if someone is running remafi."
+            for deviceid in $(finger| grep -v "^Login" | awk '{print $3}')
+            do
+                count=$(ps -ef | grep -w ${deviceid} | grep -v "grep" | grep -c "remafi");
+                if [[ ${count} != 0 ]]; then
+                    finger | grep -w ${deviceid};
+                    ps -ef | grep -w ${deviceid} | grep -v "grep" | grep "remafi";
+                fi
+            done
+        else
+            massinfo $1;
+            INTEGRATIONTYPE=$(SQLselect INTEGRATIONTYPE XIB_PROCESSIDPROPERTIES PROCESSIDCODE $1 | sed 's#^.* ##');
+            echo "Integration type : ${INTEGRATIONTYPE}";
+            if [[ "${INTEGRATIONTYPE}" == "Parallel" ]];then
+                echo -e "\n>>>deletemassfilterflag $1";
+                echo | deletemassfilterflag $1;
+                echo -e "\n>>>remafi $1 2";
+                remafi $1 2;
+            elif [[ "${INTEGRATIONTYPE}" == "Serial" ]]; then
+                echo -e "\n>>>remafi $1 7";
+                remafi $1 7;
+                echo -e "\n>>>deletemassfilterflag $1";
+                echo | deletemassfilterflag $1;
+            fi
         fi
     fi
 }
