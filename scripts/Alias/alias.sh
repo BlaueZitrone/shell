@@ -273,7 +273,7 @@ function ref()
         BDIDRefValues=$(ggrep -A1 -E '^BDIDRefValues$' ${file} | grep -v "^BDIDRefValues$" | head -1);
         if [[ ${BDIDRefValues} != '' ]];then
             echo ${BDIDRefValues:0:99} | awk -F\" '{print "BDID : "$2}';
-            echo $BDIDRefValues | grep -Eo "\{[^{}]*\}" | awk -F\" '{print $2" : "$4}'
+            echo $BDIDRefValues | grep -Eo "\{[^{}]+\}" | awk -F\" '{print $2" : "$4}'
         fi
         echo "TransactionAttribute : ";
         echo -e "${transaction}\n";
@@ -291,10 +291,10 @@ function deepRef()
             for refCate in $(grep -E "^[^{]" $1)
             do
                 echo -e "\n${refCate}";
-                grep -h -A1 ${refCate} ${fileName} | grep -v "^${refCate}" | head -1 | grep -Eo "\{[^{}]*\}";
+                grep -h -A1 ${refCate} ${fileName} | grep -v "^${refCate}" | head -1 | grep -Eo "\{[^{}]+\}";
             done
         else
-            grep -h -A1 ${refCate} ${fileName} | grep -v "^${refCate}" | head -1 | grep -Eo "\{[^{}]*\}";
+            grep -h -A1 ${refCate} ${fileName} | grep -v "^${refCate}" | head -1 | grep -Eo "\{[^{}]+\}";
         fi
     fi
 }
@@ -459,7 +459,7 @@ function hint()
             ;;
             deepRef)
                 echo "Short description: Fetch some more info from att file.";
-                echo "Usage: ref {filename}.";
+                echo "Usage: ref {att file name}.";
             ;;
             0byte)
                 echo "Short description: When there is/are empty file(s) in error folder. Check archive folder, comsys log, FTP/FTPS/SFTP log according to the xml parameter.";
