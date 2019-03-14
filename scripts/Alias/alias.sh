@@ -358,6 +358,22 @@ function mysplit()
     fi
 }
 
+function age()
+{
+    keyword="$1.*";
+    currentSec=$(/opt/sfw/bin/date '+%s');
+    for record in $(/opt/sfw/bin/ls -l --time-style='+%s' | grep -v "^total" | grep "${keyword}" | awk '{print $6"|"$7}')
+    do
+        fileName=$(echo ${record} | cut -d \| -f2);
+        fileSec=$(echo ${record} | cut -d \| -f1);
+        deltaSec=$(echo "${currentSec} - ${fileSec}" | bc);
+        deltaMin=$(echo "scale=2;${deltaSec} / 60" | bc);
+        deltaHr=$(echo "scale=2;${deltaSec} / 3600" | bc);
+        deltaDay=$(echo "scale=2;${deltaSec} / 86400" | bc);
+        echo "${fileName}:${deltaSec}(secs)|${deltaMin}(mins)|${deltaHr}(hrs)|${deltaDay}(days)";
+    done
+}
+
 function catlist()
 {
     echo "TODO";
