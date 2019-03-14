@@ -400,7 +400,7 @@ function hint()
         echo "values(use echo to check the content):";
         echo "houseKeepPath|downloadPath|allen|ftpLog";
         echo "functions(use hint to read the instruction):";
-        echo "hint|hk|ref|deepRef|0byte|runmass|mysplit|monitor|checkDEA|massinfo|sameFile|catError|clean|oldFile|catAgr|cdAgr|grepAgr|cdArchive_G|cdArchive_A|countByTime|countByAgrOrPID|download|downloadError|getBDID";
+        echo "hint|hk|ref|deepRef|0byte|runmass|mysplit|monitor|checkDEA|massinfo|sameFile|age|catError|clean|oldFile|catAgr|cdAgr|grepAgr|cdArchive_G|cdArchive_A|countByTime|countByAgrOrPID|download|downloadError|getBDID";
     else
         case $1 in
             hint)
@@ -492,10 +492,15 @@ function hint()
             ;;
             mysplit)
                 echo "Short description: split big file and resend.";
-                echo "Usage: mysplit {filename}."
+                echo "Usage: mysplit {filename}.";
+            ;;
+            age)
+                echo "Short description: output the age of file or folder.";
+                echo "Usage: age to output the duration of file or folder under current directory since last update.";
+                echo "Usage: age {keyword} to output the duration of file or folder which fit the keyword under current directory since last update.";
             ;;
             *)
-                echo "Please input a valid function name."
+                echo "Please input a valid function name.";
             ;;
         esac
     fi
