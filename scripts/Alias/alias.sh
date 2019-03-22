@@ -374,6 +374,21 @@ function age()
     done
 }
 
+function hkOutboundFile()
+{
+    if [[ -e $1 ]]; then
+        fileName=$(basename $1);
+        agrName=$(echo ${fileName} | cut -d\. -f1);
+        counter=$(echo ${fileName} | cut -d\. -f2);
+        comsysName=$(echo /ext/comsys*/agr/${agrName} | grep -Eo "comsys[0-9]*");
+        /opt/sfw/bin/mv -v /ext/${comsysName}/impwork/${agrName}.${counter}* ${sup}/${comsysName}/impwork/;
+        /opt/sfw/bin/mv -v /ext/${comsysName}/archive/imptmp/${agrName}.${counter}* ${sup}/${comsysName}/archive/imptmp/;
+        /opt/sfw/bin/mv -v /ext/${comsysName}/agr/${agrName}/imp/${agrName}.${counter}* ${sup}/${comsysName}/${agrName}/imp/;
+    else
+        echo "Cannot find file $1";
+    fi
+}
+
 function catlist()
 {
     echo "TODO";
@@ -400,7 +415,7 @@ function hint()
         echo "values(use echo to check the content):";
         echo "houseKeepPath|downloadPath|allen|ftpLog";
         echo "functions(use hint to read the instruction):";
-        echo "hint|hk|ref|deepRef|0byte|runmass|mysplit|monitor|checkDEA|massinfo|sameFile|age|catError|clean|oldFile|catAgr|cdAgr|grepAgr|cdArchive_G|cdArchive_A|countByTime|countByAgrOrPID|download|downloadError|getBDID";
+        echo "hint|hk|hkOutboundFile|ref|deepRef|0byte|runmass|mysplit|monitor|checkDEA|massinfo|sameFile|age|catError|clean|oldFile|catAgr|cdAgr|grepAgr|cdArchive_G|cdArchive_A|countByTime|countByAgrOrPID|download|downloadError|getBDID";
     else
         case $1 in
             hint)
@@ -498,6 +513,10 @@ function hint()
                 echo "Short description: output the age of file or folder.";
                 echo "Usage: age to output the duration of file or folder under current directory since last update.";
                 echo "Usage: age {keyword} to output the duration of file or folder which fit the keyword under current directory since last update.";
+            ;;
+            hkOutboundFile)
+                echo "Short description: Housekeeping the outbound file.";
+                echo "Usage: hkOutboundFile {filename} to move the outbound file(impwork/imptmp/imp) to housekeeping folder.";
             ;;
             *)
                 echo "Please input a valid function name.";
