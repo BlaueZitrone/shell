@@ -151,6 +151,7 @@ function sameFile()
 
 function hk()
 {
+    clean;
     if [[ $1 != '' && $(echo $1 | grep -Eo [A-Z_0-9]{10}) == $1 ]]; then
         err;
         processID=$1;
