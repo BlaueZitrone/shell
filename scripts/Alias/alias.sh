@@ -151,9 +151,8 @@ function sameFile()
 
 function hk()
 {
-    clean;
     if [[ $1 != '' && $(echo $1 | grep -Eo [A-Z_0-9]{10}) == $1 ]]; then
-        err;
+        err; clean; echo;
         processID=$1;
         hkTmpFile="/tmp/hk_${processID}_$(date "+%Y%m%d%H%M%S").tmp";
         gfind /tmp/ -mtime +1 -name "hk_*.tmp" -exec /usr/bin/rm {} \; 2>/dev/null;
