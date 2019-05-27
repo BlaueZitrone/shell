@@ -2,9 +2,10 @@
 
 function connectionDetect()
 {
-    for URL in $(cat "${connectionURLTmpFile}")
+    for URL in $(cat "${connectionURLTmpFile}" | sort | uniq)
     do
         echo -n "${URL} ";
+        echo -n "[$(date)]:" >> "${logFile}";
         echo "${URL}" >> "${logFile}";
         curl "${URL}" --connect-timeout "${timeOutSec}" >> "${logFile}" 2>&1;
         if [[ $(echo $?) == '0' ]];then
@@ -47,8 +48,6 @@ function main()
             echo "${agreementName}|${url}" >> "${agreementURLMap}";
         fi
     done
-    #remove duplicate connection URLs
-    cat "${connectionURLTmpFile}" | sort | uniq > "${connectionURLTmpFile}";
     connectionDetect;
     /usr/bin/rm "${connectionURLTmpFile}";
     /usr/bin/rm "${agreementURLMap}";
