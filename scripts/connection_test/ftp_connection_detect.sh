@@ -49,8 +49,8 @@ function main()
         fi
     done
     connectionDetect;
-    /usr/bin/rm "${connectionURLTmpFile}";
-    /usr/bin/rm "${agreementURLMap}";
+    rm "${connectionURLTmpFile}";
+    rm "${agreementURLMap}";
 }
 
 main
