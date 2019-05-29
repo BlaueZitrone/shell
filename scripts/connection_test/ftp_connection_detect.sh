@@ -27,14 +27,10 @@ function init()
     connectionURLTmpFile="/tmp/connectionURL_$(date "+%Y%m%d%H%M%S").tmp";
     agreementURLMap="/tmp/agreementURL_$(date "+%Y%m%d%H%M%S").map";
     logFile="$(dirname $0)/log.$(date "+%Y%m%d")";
-    find "/tmp/" -mtime +1 -name "connectionURL_*.tmp" -exec /usr/bin/rm {} \; 2>/dev/null;
-    find "/tmp/" -mtime +1 -name "agreementURL_*.map" -exec /usr/bin/rm {} \; 2>/dev/null;
-    find "$(dirname $0)/" -mtime +10 -name "log.*" -exec /usr/bin/rm {} \; 2>/dev/null;
 }
 
-function main()
+function scan()
 {
-    init;
     for agreementConfigFile in $(ls /app/sword/schenker/comsys/COMSYS*/agr/*/*_dump.xml)
     do
         protocol=$(grep '<Protocol>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
@@ -48,9 +44,48 @@ function main()
             echo "${agreementName}|${url}" >> "${agreementURLMap}";
         fi
     done
-    connectionDetect;
-    rm "${connectionURLTmpFile}";
-    rm "${agreementURLMap}";
 }
 
-main
+function clean()
+{
+    find "/tmp/" -mtime +1 -name "connectionURL_*.tmp" -exec /usr/bin/rm {} \; 2>/dev/null;
+    find "/tmp/" -mtime +1 -name "agreementURL_*.map" -exec /usr/bin/rm {} \; 2>/dev/null;
+    find "$(dirname $0)/" -mtime +10 -name "log.*" -exec /usr/bin/rm {} \; 2>/dev/null;
+}
+
+function printHelp()
+{
+    echo;
+    echo "-h : Print help info.";
+    echo "-f <URLFile> : Check connections in specific file.";
+    echo;
+}
+
+function main()
+{
+    init;
+    while getopts "f:h" arg
+    do
+        case ${arg} in
+            f)
+                connectionURLTmpFile=${OPTARG};
+                agreementURLMap="/dev/null";
+                connectionDetect;
+                exit;
+                ;;
+            h)
+                printHelp;
+                exit;
+                ;;
+            *)
+                printHelp;
+                exit;
+                ;;
+        esac
+    done
+    scan;
+    connectionDetect;
+    clean;
+}
+
+main $@;
