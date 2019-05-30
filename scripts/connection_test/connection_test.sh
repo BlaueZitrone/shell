@@ -31,7 +31,7 @@ function init()
 
 function scan()
 {
-    for agreementConfigFile in $(ls /app/sword/schenker/comsys/COMSYS*/agr/*/*_dump.xml)
+    for agreementConfigFile in $(ls /ext/comsys*/agr/*/*_dump.xml)
     do
         protocol=$(grep '<Protocol>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
         agreementName=$(grep '<AgrID>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
@@ -39,7 +39,7 @@ function scan()
             hostname=$(grep '<RemoteHost>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
             user=$(grep '<User>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
             passwd=$(grep '<Password>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
-            IPaddr=$(grep -w ${hostname} /etc/hosts | head -1 | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}");
+            IPaddr=$(grep -w ${hostname} /etc/hosts | head -1 | /usr/sfw/bin/ggrep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}");
             if [[ ${IPaddr} != "" ]]; then
                 url="ftp://${user}:${passwd}@${IPaddr}";
             else
@@ -53,9 +53,9 @@ function scan()
 
 function clean()
 {
-    find "/tmp/" -mtime +1 -name "connectionURL_*.tmp" -exec /usr/bin/rm {} \; 2>/dev/null;
-    find "/tmp/" -mtime +1 -name "agreementURL_*.map" -exec /usr/bin/rm {} \; 2>/dev/null;
-    find "$(dirname $0)/" -mtime +10 -name "log.*" -exec /usr/bin/rm {} \; 2>/dev/null;
+    gfind "/tmp/" -mtime +1 -name "connectionURL_*.tmp" -exec /usr/bin/rm {} \; 2>/dev/null;
+    gfind "/tmp/" -mtime +1 -name "agreementURL_*.map" -exec /usr/bin/rm {} \; 2>/dev/null;
+    gfind "$(dirname $0)/" -mtime +10 -name "log.*" -exec /usr/bin/rm {} \; 2>/dev/null;
 }
 
 function printHelp()
@@ -70,7 +70,7 @@ function printHelp()
 function main()
 {
     init;
-    while getopts "f:h" arg
+    while getopts "f:hs" arg
     do
         case ${arg} in
             f)
@@ -81,6 +81,8 @@ function main()
                 ;;
             s)
                 scan;
+                echo "${connectionURLTmpFile}";
+                echo "${agreementURLMap}";
                 exit;
                 ;;
             h)
