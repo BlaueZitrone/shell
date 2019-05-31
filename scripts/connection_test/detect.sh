@@ -26,7 +26,7 @@ server=$1;
 timeOutSec=5;
 logFile="$(dirname $0)/log.${server}.$(date "+%Y%m%d%H%M%S")";
 resultFile="${server}.csv";
-echo > ${resultFile};
+echo "FTP_URL;Result;RetCode;Agreement" > ${resultFile};
 connectionURLTmpFile="${server}.url";
 agreementURLMap="${server}.map"
 connectionDetect;
