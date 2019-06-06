@@ -2,17 +2,17 @@
 
 function connectionDetect()
 {
-    for URL in $(cat "${connectionURLTmpFile}" | sort | uniq)
+    cat "${connectionURLTmpFile}" | sort | uniq | while read URL
     do
         echo -n "${URL};" >> "${resultFile}";
         echo -n "[$(date)] : " | tee -a "${logFile}";
         echo "${URL}" | tee -a "${logFile}";
-        sleep 1 | /opt/sfw/bin/curl "${URL}" --connect-timeout "${timeOutSec}" | tee -a "${logFile}" 2>&1;
+        ${URL} >> "${logFile}" 2>&1;
         retCode=$?;
         if [[ "X${retCode}" == "X0" ]];then
-            echo -n "Y;${retCode};" >> "${resultFile}";
+            echo -n "Y;" >> "${resultFile}";
         else
-            echo -n "N;${retCode};" >> "${resultFile}";
+            echo -n "N;" >> "${resultFile}";
         fi
         for agr in $(fgrep "|${URL}" "${agreementURLMap}" | cut -d \| -f1)
         do
@@ -26,7 +26,7 @@ server=$1;
 timeOutSec=5;
 logFile="$(dirname $0)/log.${server}.$(date "+%Y%m%d%H%M%S")";
 resultFile="${server}.csv";
-echo "FTP_URL;Result;RetCode;Agreement" > ${resultFile};
+echo "URL;Result;Agreement" > ${resultFile};
 connectionURLTmpFile="${server}.url";
 agreementURLMap="${server}.map"
 connectionDetect;
