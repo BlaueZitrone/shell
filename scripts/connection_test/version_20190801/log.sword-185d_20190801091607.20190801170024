@@ -1,0 +1,146 @@
+[Thu, Aug  1, 2019 17:00:25] : /usr/local/bin/nc -vzw3 10.200.200.141 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:27] : /usr/local/bin/nc -vzw3 10.213.174.142 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:28] : /usr/local/bin/nc -vzw3 10.213.228.54 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:28] : /usr/local/bin/nc -vzw3 10.215.22.49 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:29] : /usr/local/bin/nc -vzw3 10.215.222.9 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:30] : /usr/local/bin/nc -vzw3 10.215.38.13 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:30] : /usr/local/bin/nc -vzw3 10.216.205.109 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:31] : /usr/local/bin/nc -vzw3 10.216.205.6 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:32] : /usr/local/bin/nc -vzw3 10.216.206.137 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:32] : /usr/local/bin/nc -vzw3 10.216.206.139 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:33] : /usr/local/bin/nc -vzw3 10.216.206.157 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:34] : /usr/local/bin/nc -vzw3 10.216.206.21 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:34] : /usr/local/bin/nc -vzw3 10.216.206.212 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:35] : /usr/local/bin/nc -vzw3 10.216.206.97 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:36] : /usr/local/bin/nc -vzw3 10.224.65.58 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:38] : /usr/local/bin/nc -vzw3 10.224.65.58 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:38] : /usr/local/bin/nc -vzw3 10.224.97.87 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:39] : /usr/local/bin/nc -vzw3 119.92.194.214 555
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:40] : /usr/local/bin/nc -vzw3 129.178.52.19 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:40] : /usr/local/bin/nc -vzw3 193.182.220.116 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:41] : /usr/local/bin/nc -vzw3 193.182.220.116 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:42] : /usr/local/bin/nc -vzw3 193.182.220.119 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:42] : /usr/local/bin/nc -vzw3 193.182.220.130 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:43] : /usr/local/bin/nc -vzw3 193.182.220.217 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:44] : /usr/local/bin/nc -vzw3 203.160.247.48 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:44] : /usr/local/bin/nc -vzw3 203.167.250.187 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:45] : /usr/local/bin/nc -vzw3 47.90.83.144 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:46] : /usr/local/bin/nc -vzw3 47.90.83.144 3221
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:46] : /usr/local/bin/nc -vzw3 albert.mccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:47] : /usr/local/bin/nc -vzw3 ali.mccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:47] : /usr/local/bin/nc -vzw3 B71P09.MCCSEGOT.SIGNINTRA.COM 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:48] : /usr/local/bin/nc -vzw3 barcelona.mccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:49] : /usr/local/bin/nc -vzw3 broiwc04.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:50] : /usr/local/bin/nc -vzw3 broiwcx085.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:50] : /usr/local/bin/nc -vzw3 BROIWCX085.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:51] : /usr/local/bin/nc -vzw3 broiwv08.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:52] : /usr/local/bin/nc -vzw3 brotw04 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:52] : /usr/local/bin/nc -vzw3 brotw07.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:53] : /usr/local/bin/nc -vzw3 brotwv05.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:54] : /usr/local/bin/nc -vzw3 brotwv33.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:54] : /usr/local/bin/nc -vzw3 edi.postnet.se 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:55] : /usr/local/bin/nc -vzw3 eu-sftp.tms-lsp.blujaysolutions.net 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:56] : /usr/local/bin/nc -vzw3 foreman.mccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:56] : /usr/local/bin/nc -vzw3 ftp.adidas-group.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:57] : /usr/local/bin/nc -vzw3 ftp.honda.com.au 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:57] : /usr/local/bin/nc -vzw3 ftp.id.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:58] : /usr/local/bin/nc -vzw3 ftp.infodata.se 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:59] : /usr/local/bin/nc -vzw3 ftp.posthaste.co.nz 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:00:59] : /usr/local/bin/nc -vzw3 ftp.postnummerservice.se 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:00] : /usr/local/bin/nc -vzw3 FTP.SCHENKER-ASIA.COM 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:01] : /usr/local/bin/nc -vzw3 ftp.sonydadc.com 8080
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:01] : /usr/local/bin/nc -vzw3 ftp.tnt.com.au 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:02] : /usr/local/bin/nc -vzw3 ftp06.gls-unique.com 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:03] : /usr/local/bin/nc -vzw3 gotch05.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:04] : /usr/local/bin/nc -vzw3 gotch07.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:04] : /usr/local/bin/nc -vzw3 grgothi.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:05] : /usr/local/bin/nc -vzw3 grgotol.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:06] : /usr/local/bin/nc -vzw3 herbert.mccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:06] : /usr/local/bin/nc -vzw3 ibis.ggp-group.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:07] : /usr/local/bin/nc -vzw3 ICCB2B.HM.COM 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:08] : /usr/local/bin/nc -vzw3 internalftp2.dbschenker.com.au 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:08] : /usr/local/bin/nc -vzw3 nemesis.wmdata.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:09] : /usr/local/bin/nc -vzw3 qlikviewinrikes.se.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:10] : /usr/local/bin/nc -vzw3 sftp.australiasoutheast.assurant.com 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:10] : /usr/local/bin/nc -vzw3 sftp.bankgirot.se 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:11] : /usr/local/bin/nc -vzw3 sftp.bisnode.com 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:12] : /usr/local/bin/nc -vzw3 st.auspost.com.au 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:12] : /usr/local/bin/nc -vzw3 sto1wv11.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:13] : /usr/local/bin/nc -vzw3 sto1wv12.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:14] : /usr/local/bin/nc -vzw3 stomwv95.schenker.nccsegot.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:14] : /usr/local/bin/nc -vzw3 xib.services.logica.com 22
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:15] : /usr/local/bin/nc -vzw3 xibftprd1.dc.signintra.com 21
+./nc_detect.sh: line 20: /usr/local/bin/nc: No such file or directory
+[Thu, Aug  1, 2019 17:01:16] : dummy
+./nc_detect.sh: line 20: dummy: command not found

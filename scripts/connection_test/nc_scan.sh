@@ -6,6 +6,10 @@ agreementURLMap="$(dirname $0)/$(hostname)_${timestamp}.map";
 
 for agreementConfigFile in $(ls /ext/comsys*/agr/*/*_dump.xml)
 do
+    runmode=$(grep '<RunMode>.*</RunMode>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
+    if [[ "0" == "${runmode}" ]]; then
+        continue;
+    fi
     protocol=$(grep '<Protocol>.*</Protocol>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
     agreementName=$(grep '<AgrID>.*</AgrID>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
     hostname=$(grep '<RemoteHost>.*</RemoteHost>' ${agreementConfigFile} | sed "s/<[^<>]*>//g" | /opt/sfw/bin/sed -e "s/\s//g");
@@ -36,7 +40,14 @@ do
         url="dummy";
     fi
     echo "${url}" >> "${connectionURLTmpFile}";
-    echo "${agreementName}|${url}" >> "${agreementURLMap}";
+    ${url} >> /dev/null 2>&1;
+    retCode=$?;
+    if [[ "X${retCode}" == "X0" ]];then
+        result="Y";
+    else
+        result="N";
+    fi
+    echo "${agreementName}|${hostname}|${result}|${url}" >> "${agreementURLMap}";
 done
 
 LD_LIBRARY_PATH="";
