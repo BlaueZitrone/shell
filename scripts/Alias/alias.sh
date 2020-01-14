@@ -134,8 +134,8 @@ function sameFile()
     REF='';
 
     md5TmpFile="/tmp/md5_$(date "+%Y%m%d%H%M%S").tmp";
-    gfind /tmp/ -mtime +1 -name "md5_*.tmp" -exec /usr/bin/rm {} \; 2>/dev/null;
-    gfind . -maxdepth 1 -type f -exec md5sum {} \; > ${md5TmpFile};
+    find /tmp/ -mtime +1 -name "md5_*.tmp" -exec /usr/bin/rm {} \; 2>/dev/null;
+    find . -maxdepth 1 -type f -exec md5sum {} \; > ${md5TmpFile};
     cat ${md5TmpFile} | cut -c-32 | sort | uniq -c | while read rec
     do
         if [[ $(echo ${rec} | awk '{print $1}' | bc) -gt 1 ]];then
