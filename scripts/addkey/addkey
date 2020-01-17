@@ -29,6 +29,7 @@ fi
 echo "${keycontent}" > /tmp/public_key_${account};
 ssh-keygen -e -f /tmp/public_key_${account} > /dev/null;
 if [[ $? != 0 ]]; then
+    /usr/bin/rm /tmp/public_key_${account};
     exit;
 fi
 ssh-keygen -e -f /tmp/public_key_${account} >> ${accountfolder}/.sftp/authorized_keys;
