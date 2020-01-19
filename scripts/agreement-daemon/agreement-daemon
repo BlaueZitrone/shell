@@ -2,19 +2,33 @@
 
 logFile="/app/sword/log/agreement-daemon.log";
 ageThreadHold=3600;
-currentSec=$(date '+%s');
 
 for activePID in $(ps -eo pid,cmd | grep -v "grep" | grep "AgrID=" | awk '{print $1}')
 do
+    killed="false";
     processStartTime=$(ps -o lstart "${activePID}" | tail -1);
     processStartSec=$(date -d "${processStartTime}" '+%s' 2>/dev/null);
     if [[ $? == 0 ]]; then
-        age=$(echo "${currentSec} - ${processStartSec}" | bc);
-        if [[ ${age} -gt ${ageThreadHold} ]]; then
-            agrName=$(ps -o cmd ${activePID} | grep -Eo "AgrID=[^ ]+" | cut -d= -f2);
-            agrDir=$(ps -o cmd ${activePID} | grep -Eo "AgrDir=[^ ]+" | cut -d= -f2);
-            echo "$(date +'[%Y/%m/%d-%H:%M:%S]') Agreement(${agrName}) Age(${age} sec) PID(${activePID}) lock.info($(cat ${agrDir}/lock.info | tr -d ' '))" >> ${logFile};
-            kill ${activePID};
+        age=$(echo "$(date '+%s') - ${processStartSec}" | bc);
+        if [[ "${age}" -gt "${ageThreadHold}" ]]; then
+            agrName=$(ps -o cmd "${activePID}" | grep -Eo "AgrID=[^ ]+" | cut -d= -f2);
+            agrDir=$(ps -o cmd "${activePID}" | grep -Eo "AgrDir=[^ ]+" | cut -d= -f2);
+            if [[ ! -d "${agrDir}" ]]; then
+                killed="true";
+            fi
+            latestLogfile=$(ls -t ${agrDir}/prot/* | head -1);
+            if [[ ! -f "${latestLogfile}" ]]; then
+                killed="true";
+            fi
+            latestLogSec=$(ls -l --time-style='+%s' "${latestLogfile}" | awk '{print $6}');
+            latestLogAge=$(echo "$(date '+%s') - ${latestLogSec}" | bc);
+            if [[ "${latestLogAge}" -gt "${ageThreadHold}" ]]; then
+                killed="true";
+            fi
+            if [[ "${killed}" == "true" ]]; then
+                kill ${activePID};
+            fi
+            echo "$(date +'[%Y/%m/%d-%H:%M:%S]') Agreement(${agrName}) Age(${age} sec) PID(${activePID}) lock.info($(cat ${agrDir}/lock.info | tr -d ' ')) latestLogAge(${latestLogAge}) killed(${killed}))" | tee -a ${logFile};
         fi
     fi
 done
