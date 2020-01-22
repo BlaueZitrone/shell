@@ -16,19 +16,20 @@ do
             if [[ ! -d "${agrDir}" ]]; then
                 killed="true";
             fi
-            latestLogfile=$(ls -t ${agrDir}/prot/* | head -1);
-            if [[ ! -f "${latestLogfile}" ]]; then
+            latestLogfile=$(ls -t ${agrDir}/prot/ | head -1);
+            if [[ ! -f "${agrDir}/prot/${latestLogfile}" ]]; then
                 killed="true";
             fi
-            latestLogSec=$(ls -l --time-style='+%s' "${latestLogfile}" | awk '{print $6}');
+            latestLogSec=$(ls -l --time-style='+%s' "${agrDir}/prot/${latestLogfile}" | awk '{print $6}');
             latestLogAge=$(echo "$(date '+%s') - ${latestLogSec}" | bc);
             if [[ "${latestLogAge}" -gt "${ageThreadHold}" ]]; then
                 killed="true";
             fi
             if [[ "${killed}" == "true" ]]; then
                 kill ${activePID};
+                echo "$(date +'[%Y/%m/%d-%H:%M:%S]') Killed:${agrName};${activePID};${age};${latestLogAge}" | tee -a ${logFile};
             fi
-            echo "$(date +'[%Y/%m/%d-%H:%M:%S]') Agreement(${agrName}) Age(${age} sec) PID(${activePID}) lock.info($(cat ${agrDir}/lock.info | tr -d ' ')) latestLogAge(${latestLogAge}) killed(${killed}))" | tee -a ${logFile};
+            echo "$(date +'[%Y/%m/%d-%H:%M:%S]') Agreement(${agrName}) Age(${age} sec) PID(${activePID}) lock.info($(cat ${agrDir}/lock.info | tr -d ' ')) latestLogAge(${latestLogAge} sec) killed(${killed})" | tee -a ${logFile};
         fi
     fi
 done

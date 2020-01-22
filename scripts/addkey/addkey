@@ -15,7 +15,7 @@ if [[ ! -f ${accountfolder}/.sftp/authorized_keys ]]; then
     mkdir -p ${accountfolder}/.sftp;
     touch ${accountfolder}/.sftp/authorized_keys;
 
-    accountID=$(grep ${accountfolder} /app/sword/ftpserver/etc/proftpd_passwd | cut -d: -f3);
+    accountID=$(grep -w ${accountfolder} /app/sword/ftpserver/etc/proftpd_passwd | cut -d: -f3);
     if [[ -z "${accountID}" ]]; then
         echo "Failed to fetch UID for account ${account}";
         exit;
