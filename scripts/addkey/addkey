@@ -27,11 +27,10 @@ if [[ ! -f ${accountfolder}/.sftp/authorized_keys ]]; then
 fi
 
 echo "${keycontent}" > /tmp/public_key_${account};
+chmod 600 /tmp/public_key_${account};
 ssh-keygen -e -f /tmp/public_key_${account} > /dev/null;
-if [[ $? != 0 ]]; then
-    /usr/bin/rm /tmp/public_key_${account};
-    exit;
+if [[ $? == 0 ]]; then
+    ssh-keygen -e -f /tmp/public_key_${account} >> ${accountfolder}/.sftp/authorized_keys;
 fi
-ssh-keygen -e -f /tmp/public_key_${account} >> ${accountfolder}/.sftp/authorized_keys;
 /usr/bin/rm /tmp/public_key_${account};
 
