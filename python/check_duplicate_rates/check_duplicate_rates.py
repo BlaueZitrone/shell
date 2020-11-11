@@ -1,8 +1,8 @@
+#!/usr/bin/python3
 import xlrd
+import sys
 
-filename=input("Please input the excel file you want to check : ")
-workBook=xlrd.open_workbook(filename)
-workBook=xlrd.open_workbook("sample.xls")
+workBook=xlrd.open_workbook(sys.argv[1])
 
 keySheet=workBook.sheet_by_name("Key")
 valueSheet=workBook.sheet_by_name("Value")
@@ -22,3 +22,4 @@ for duplicateKey in duplicateKeys:
     for i,x in enumerate(listOfKeys):
         if x == duplicateKey:
             print("    Row: "+str(i+1)+" Value: "+str(listofValues[i]))
+
