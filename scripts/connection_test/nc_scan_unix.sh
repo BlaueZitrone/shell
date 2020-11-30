@@ -4,7 +4,7 @@ timestamp=$(date "+%Y%m%d%H%M%S");
 connectionURLTmpFile="$(dirname $0)/$(hostname)_${timestamp}.url";
 agreementURLMap="$(dirname $0)/$(hostname)_${timestamp}.map";
 
-for agreementConfigFile in $(ls /app/sword/schenker/comsys/COMS*/agr/*/*_dump.xml)
+for agreementConfigFile in $(ls /ext/comsys*/agr/*/*_dump.xml)
 do
     runmode=$(grep '<RunMode>.*</RunMode>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
     if [[ "0" == "${runmode}" ]]; then
@@ -12,7 +12,7 @@ do
     fi
     protocol=$(grep '<Protocol>.*</Protocol>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
     agreementName=$(grep '<AgrID>.*</AgrID>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
-    hostname=$(grep '<RemoteHost>.*</RemoteHost>' ${agreementConfigFile} | sed "s/<[^<>]*>//g" | sed -e "s/\s//g");
+    hostname=$(grep '<RemoteHost>.*</RemoteHost>' ${agreementConfigFile} | sed "s/<[^<>]*>//g" | /opt/sfw/bin/sed -e "s/\s//g");
     port=$(grep '<Port>.*</Port>' ${agreementConfigFile} | sed "s/<[^<>]*>//g");
     url="";
     if [[ "X${port}" == "X" ]]; then
@@ -30,7 +30,7 @@ do
         fi
     fi
     if [[ "X${hostname}" != "X" ]]; then
-        IPaddr=$(grep -w ${hostname} /etc/hosts | head -1 | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}");
+        IPaddr=$(grep -w ${hostname} /etc/hosts | head -1 | /usr/sfw/bin/ggrep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}");
         if [[ "X${IPaddr}" != "X" ]]; then
             url="/usr/local/bin/nc -vzw3 ${IPaddr} ${port}";
         else
@@ -51,5 +51,5 @@ do
 done
 
 LD_LIBRARY_PATH="";
-#/usr/bin/scp -o StrictHostKeyChecking=no ${connectionURLTmpFile} amtrix@xibftprd1.dc.signintra.com:/app/xib/ext/support/allen/connection_test;
-#/usr/bin/scp -o StrictHostKeyChecking=no ${agreementURLMap} amtrix@xibftprd1.dc.signintra.com:/app/xib/ext/support/allen/connection_test;
+/usr/bin/scp -o StrictHostKeyChecking=no ${connectionURLTmpFile} amtrix@xibftprd1.dc.signintra.com:/app/xib/ext/support/allen/connection_test;
+/usr/bin/scp -o StrictHostKeyChecking=no ${agreementURLMap} amtrix@xibftprd1.dc.signintra.com:/app/xib/ext/support/allen/connection_test;
