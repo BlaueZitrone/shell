@@ -1,0 +1,30 @@
+#!/bin/bash
+account=$1;
+newfolders=$2;
+accountfolder=/app/sword/shared/ftpserver/customer/${account};
+
+if [[ ! -d ${accountfolder} ]]; then
+    echo "Account ${account} does not exist.";
+    exit;
+fi
+accountID=$(grep -w ${accountfolder} /app/sword/ftpserver/etc/proftpd_passwd | cut -d: -f3);
+if [[ -z "${accountID}" ]]; then
+        echo "Failed to fetch UID for account ${account}";
+        exit;
+fi
+
+echo ">>>Folders before operation:";
+ls -l ${accountfolder} | grep -v "^total";
+echo;
+
+for newfolder in $(echo "${newfolders}" | sed 's/,/ /g')
+do
+    mkdir -p ${accountfolder}/${newfolder};
+    chown -R ${accountID}:b2bi ${accountfolder}/${newfolder};
+    echo ">>>New folder created: ${accountfolder}/${newfolder}";
+done
+
+echo;
+echo ">>>Folders after operation:"
+ls -l ${accountfolder} | grep -v "^total";
+
