@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [[ $1 == "" || $2 == "" ]]; then
+    echo "Usage: cptest oldTestPID newTestPID."
+    exit;
+fi
+
+oldTestPID=$1;
+newTestPID=$2;
+
+cd /app/sword/schenker/testsuite/tst;
+
+if [[ ! -d ${oldTestPID} ]]; then
+    echo "The old test case folder does not exist.";
+    exit;
+fi
+
+if [[ -d ${newTestPID} ]]; then
+    echo "The new test case folder already exists.";
+    exit;
+fi
+
+echo "======Copying directory======";
+cp -va ${oldTestPID} ${newTestPID};
+cd ${newTestPID};
+
+echo "======Cleaning archive folder and log folder======";
+rm -v archive/in/*;
+rm -v archive/out/*;
+rm -v log/*;
+
+echo "======Renaming files======";
+rename -v ${oldTestPID} ${newTestPID} * */*;
+
+echo "======Replacing text in files======";
+ls -p | grep -v /;
+sed -i "s/${oldTestPID}/${newTestPID}/g" $(ls -p | grep -v /);
+
+echo "======Done======"
