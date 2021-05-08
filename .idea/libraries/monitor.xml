@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="monitor">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/scripts/monitor/monitor.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
