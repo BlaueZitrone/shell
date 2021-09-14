@@ -1,0 +1,701 @@
+/**=============================================================================
+* @file    CR_InhouseInbound.s4
+* @author  Olaf Geserick; Axway GmbH
+* @version 9.0.0
+* @since   FW ?.?
+* @docRoot $CORE_LOCAL/4edi/component
+* 
+* $Revision:: 265173                                                      $
+* $LastChangedDate:: 2021-09-07 10:55:47 +0200 (Di, 07 Sep 2021)          $
+* $LastChangedBy:: demian.hartmann                                        $
+==============================================================================*/
+INCLUDE "mbci_hierchmsgenv.s4h" ONCE;
+INCLUDE "cfg_genericpropertystage.s4h" ONCE;
+INCLUDE "mbci_genericpropertystage.s4h" ONCE;
+INCLUDE "log_entry.s4h" ONCE;
+INCLUDE "log_genericevent2.s4h" ONCE;
+INCLUDE "dataio.s4h" ONCE;
+INCLUDE "error.s4h" ONCE;
+INCLUDE "sag_attributes.s4h"               ONCE;
+INCLUDE "sag_monitoring.s4h"               ONCE;
+INCLUDE "sag_tools.s4h" ONCE;
+INCLUDE "sag_hme.s4h"        ONCE;
+INCLUDE "sag_csc.s4h" ONCE;
+
+/* force implementation of these module */
+DECLARE MODULE INTERFACE MBC_HIERCHMSGENV { } 
+DECLARE MODULE INTERFACE MBC_GENERICPROPERTYSTAGE { }
+
+####################################################################################
+DECLARE MODULE IMBC_COMMON
+####################################################################################
+{
+    /*()----------------------------------------------------------------------------
+    ** GetInfo
+    **----------------------------------------------------------------------------*/
+    DECLARE PUBLIC STATEMENT
+            GetInfo     OUT $Name
+            Revision    OUT $Revision
+            Description OUT $Description
+    {
+        $Name        = "CR_InhouseInbound";
+        $Revision    = "9.0.0";
+        $Description = "The CR_InhouseInbound to splits all Business documents into single " &
+                       "interchange messages";
+
+        RETURN;
+    }
+}
+
+####################################################################################
+DECLARE MODULE IMBC_GENERICPROPERTYSTAGE
+####################################################################################
+{
+
+    /*()----------------------------------------------------------------------------
+    ** Initialize
+    ** - This statement is called once when the component is loaded for the first
+    **   time, and thereafter whenever the configuration for the component has
+    **   been modified.
+    **----------------------------------------------------------------------------*/
+    DECLARE PUBLIC STATEMENT Initialize IN $Configuration PRIMITIVE
+    {
+        RETURN;
+    }
+
+    /*()----------------------------------------------------------------------------
+    ** GetKeywords()
+    ** - This function is called when the component is registered in the
+    **   component registry.
+    **----------------------------------------------------------------------------*/
+    DECLARE PUBLIC FUNCTION GetKeywords() []
+    {
+        DECLARE $Keywords[] = {
+            "Stage (IN/OUT)",
+            "Sequence"
+        } CONSTANT STRING;
+
+        RETURN $Keywords;
+    }
+}
+
+####################################################################################
+DECLARE MODULE IMBC_HIERCHMSGENV
+####################################################################################
+{
+    /* Record declarations*/
+    DECLARE RECORD Configuration {
+      DECLARE FIELD $Stage            STRING;
+      DECLARE FIELD $Sequence         INTEGER;
+      DECLARE FIELD $NextActivityId[] INTEGER;
+    }
+
+    DECLARE RECORD MessageGroup {
+      DECLARE $GroupName STRING;    
+      DECLARE $NrOfMessages INTEGER;    /* Nr of messages in the group */
+      DECLARE $SequenceNumber INTEGER;  /* Sequence number in group */
+    }
+
+    /* Global variables */               
+    DECLARE $gv_Debug                   STRING;
+    DECLARE $gv_ProcId STRING;
+    DECLARE $gv_LogId STRING;
+
+    DECLARE $gv_CharSet                 STRING;
+    DECLARE $ga_PreviousMessages[]      STRING; 
+    DECLARE $gv_PassOn                  STRING;
+
+    DECLARE $gv_False = 0               CONSTANT INTEGER;
+    DECLARE $gv_True  = NOT $gv_False   CONSTANT INTEGER;
+    DECLARE $gv_MBCName                 STRING;
+    DECLARE $gv_MBCRevision             STRING;
+    DECLARE $gv_MBCDescription          STRING;
+
+##################################################################################################
+
+    /**
+    * This statement is called once when the component is loaded for the first
+    * time, and thereafter whenever the configuration for the component has
+    * been modified.
+    *
+    * @param $Configuration contains the configuration
+    */
+    DECLARE PUBLIC STATEMENT Initialize IN $Configuration PRIMITIVE
+    {
+      RETURN;
+    }
+
+    /**
+    * This function is called when the component is registered in the component registry.
+    */
+    DECLARE PUBLIC FUNCTION GetKeywords() []
+    {
+      # These keywords must be included since the stage is a 
+      # generic property stage of type modifier.
+      DECLARE $Keywords[] = {
+        CFG_GENERICPROPERTYSTAGE.$SubclassName,
+        MBCI_HIERCHMSGENV.$Keyword_StageCreator
+      } CONSTANT STRING;
+
+      RETURN $Keywords;
+    }
+
+    /**
+    * This function is called when the component is loaded.
+    *
+    * @param $Qualifier indicates, whether to load as single or mulit instance
+    */
+    DECLARE PUBLIC FUNCTION GetCharacteristics($Qualifier PRIMITIVE) PRIMITIVE
+    {
+      RETURN $InstanceMulti;
+    }
+
+    /**
+    * This statement is called when the process is stopped.
+    */
+    DECLARE PUBLIC STATEMENT Stop
+    {
+      RETURN;
+    }
+
+    /**
+    * This statement is called for each message to process.
+    *
+    * @param $SessionId           Session id
+    * @param $SessionId           Message id
+    * @param $ConfigurationString Configuration string
+    */
+    DECLARE PUBLIC STATEMENT
+    ProcessMessage    IN $SessionId           PRIMITIVE
+        MessageId     IN $MessageId           PRIMITIVE
+        Configuration IN $ConfigurationString PRIMITIVE
+    {
+      DECLARE $lr_StageConfiguration     RECORD MBCI_GENERICPROPERTYSTAGE.StageConfiguration;
+      DECLARE $lr_Config              RECORD Configuration;
+      DECLARE $lv_NewMessageId        INTEGER;
+      DECLARE $lr_ProcessIdProperties RECORD SAG_Attributes.REC_ProcessIdProperties;
+
+      DECLARE $la_ParentId[]          STRING;
+      DECLARE $lv_LoggerId            STRING;
+      DECLARE $lv_newLoggerId         STRING;
+      DECLARE $lr_Event                  RECORD SAG_MONITORING.Event;
+      DECLARE $lr_TransactionAttribute   RECORD SAG_MONITORING.TransactionAttribute;
+      DECLARE $lr_Structures          RECORD SAG_Attributes.REC_Structures;
+      DECLARE $lv_StructureName       STRING;
+      DECLARE $lv_DelimiterRecord     STRING;
+      DECLARE $lv_DelimiterGroup      STRING;
+      DECLARE $lv_DelimiterField      STRING;
+      DECLARE $lv_MaskCharacter       STRING;
+      DECLARE $lv_BDHeaderTag         STRING;
+      DECLARE $lv_RecordIdField       INTEGER;
+      DECLARE $lv_RecordLength        INTEGER;
+      DECLARE $lv_LenBDHeader         INTEGER;
+      DECLARE $lv_BDIdEachRow         STRING;
+      DECLARE $lr_DIOHandle           RECORD DATAIO.Handle;
+      DECLARE $lv_FlnHandle           INTEGER;
+      DECLARE $lv_Flname              STRING;
+      DECLARE $lv_DataBuffer          STRING;
+      DECLARE $lr_rcBDIDAttribs       RECORD SAG_Attributes.REC_BDIDRefValues;
+      DECLARE $lv_CntDocs = 1         INTEGER;
+      DECLARE $lv_Group               RECORD MessageGroup;
+      DECLARE $lv_GroupStr            STRING;
+      DECLARE $lv_Searchkey           STRING;
+      DECLARE $lv_MegaHeader          STRING;
+      DECLARE $lv_MegaHeaderTag       STRING;
+      DECLARE $lv_LenMegaHeaderTag    INTEGER;
+      DECLARE $lv_FlgFirst = 1        INTEGER;
+      DECLARE $lv_RecordIdGroupStart  INTEGER;
+      DECLARE $lv_Priority            STRING;
+      DECLARE $lv_DbString            STRING;
+      DECLARE $la_Values[]            STRING;
+      DECLARE $la_DbResult[][]        STRING;
+      
+#error event handling
+      DECLARE $lv_SuccessEventCode      ="M0059"  CONSTANT STRING; # pls adapt to your MBC
+      DECLARE $lv_PassOnEventCode       ="I0002"  CONSTANT STRING;
+      DECLARE $lv_DefaultErrorEventCode ="E0001"  CONSTANT STRING;
+      DECLARE $lv_ErrorCode04           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode05           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode06           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode07           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode08           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode09           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode10           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $la_EmptyArray[]                             STRING;
+      DECLARE $la_EventArray[]                             STRING;
+      DECLARE $lv_AttachedFileName      =" "               STRING;
+      DECLARE $lv_timeStart                                DATE;
+
+
+      TRY {
+        $lv_timeStart = CURRENTDATE();
+        /*
+         * Get stage configuration
+         */
+        UNSERIALIZE $ConfigurationString INTO $lr_StageConfiguration;
+
+        $lr_TransactionAttribute = SAG_MONITORING.GetTransactionAttribute($SessionId, $MessageId);
+        $lv_LoggerId = MBC_HIERCHMSGENV.GetLoggerId($SessionId, $MessageId);
+
+        IMBC_COMMON.Getinfo $gv_MBCName Revision $gv_MBCRevision Description $gv_MBCDescription;
+
+        $gv_ProcId = "";
+        $gv_LogId = MBC_HIERCHMSGENV.GetLoggerId($SessionId, $MessageId);
+        TRY { NOLOG {
+          DECLARE $lr_ProcIdPropertiesLOG RECORD sag_attributes.REC_ProcessIdProperties;
+          $lr_ProcIdPropertiesLOG = sag_attributes.getProcessIdProperties($SessionId, $MessageId);
+          $gv_ProcId = $lr_ProcIdPropertiesLOG.$ProcessId;
+        }} CATCH $exep
+        WHEN OTHERS {}
+
+        $lr_ProcessIdProperties = SAG_Attributes.getProcessIdProperties($SessionId, $MessageId);
+        $gv_PassOn = $lr_ProcessIdProperties.$PassOn;
+        $gv_Debug = sag_tools.getDebugFlag($SessionId, $MessageId, $gv_MBCName); 
+        $gv_CharSet = $lr_ProcessIdProperties.$CharSet;
+        $ga_PreviousMessages = $la_EmptyArray;
+        
+        # increase priority
+        $lv_Priority = MBC_HIERCHMSGENV.GetPriority ($SessionId, $MessageId );
+        MBC_HIERCHMSGENV.SetPriority $SessionId MessageId $MessageId Priority $lv_Priority +1;
+        TraceLog "Priority = " & $lv_Priority, SOURCELINE(), "INFO", "KEEP_YES";
+
+        IF $gv_PassOn <> "Y"
+        {
+          $lr_rcBDIDAttribs = sag_attributes.getBDIDRefValues($SessionId, $MessageId, $gv_CharSet);
+  
+          /************************************/
+          /* Enter process functionality here */
+          /************************************/
+          IF $lr_StageConfiguration.$Tags[1].$Value <> ""
+          {
+             $lr_Config.$Stage = $lr_StageConfiguration.$Tags[1].$Value;
+          } ELSE { /* Default value */
+              TraceLog "Stage is missing", SOURCELINE(), "WARNING", "KEEP_YES";
+              $lr_Config.$Stage = "Dynamic";
+          }
+          IF ($lr_StageConfiguration.$Tags[2].$Value <> ""){
+               $lr_Config.$Sequence    = $lr_StageConfiguration.$Tags[2].$Value;
+          } ELSE { /* Default value */
+              TraceLog "Sequence is missing", SOURCELINE(), "WARNING", "KEEP_YES";
+              $lr_Config.$Sequence = 1;
+          }
+          
+          
+          FOR $i = 1 to ARRAYSIZE( $lr_StageConfiguration.$NextActivityIds ) {
+              $lr_Config.$NextActivityId[ $i ] = $lr_StageConfiguration.$NextActivityIds[ $i ];
+          }
+          $lv_StructureName = sag_attributes.getGenericAttributeValue($SessionId, $MessageId, "CR_InhouseInbound_Parameter_" & $lr_Config.$Stage & "_" & $lr_Config.$Sequence, "StructureName",1, $gv_CharSet);
+          $lr_Structures = sag_attributes.getStructures($SessionId, $MessageId, $gv_CharSet);
+          
+          FOR $i = 1 TO ARRAYSIZE($lr_Structures.$REC_Structure)
+          {
+            IF $lr_Structures.$REC_Structure[$i].$RefStructure = $lv_StructureName
+            {
+              $lv_BDHeaderTag = $lr_Structures.$REC_Structure[$i].$BDHeader;
+              $lv_DelimiterRecord = $lr_Structures.$REC_Structure[$i].$DelimiterRecord;
+              $lv_DelimiterGroup = $lr_Structures.$REC_Structure[$i].$DelimiterGroup;
+              $lv_DelimiterField = $lr_Structures.$REC_Structure[$i].$DelimiterField;
+              $lv_RecordIdGroupStart = $lr_Structures.$REC_Structure[$i].$RecordIdGroupStart;
+              IF NOT $lv_RecordIdGroupStart {
+                $lv_RecordIdGroupStart = 1;
+              }
+              $lv_MegaHeaderTag = $lr_Structures.$REC_Structure[$i].$MegaHeader;
+              $lv_RecordIdField = $lr_Structures.$REC_Structure[$i].$RecordIdField;
+              $lv_RecordLength = $lr_Structures.$REC_Structure[$i].$RecordLength;
+              $lv_MaskCharacter = $lr_Structures.$REC_Structure[$i].$MaskCharacter;
+              $lv_BDIdEachRow = $lr_Structures.$REC_Structure[$i].$BDIdEachRow;
+
+              TraceLog "DelimiterRecord = " & $lv_DelimiterRecord, SOURCELINE(), "INFO", "KEEP_YES";
+              TraceLog "DelimiterGroup = " & $lv_DelimiterGroup, SOURCELINE(), "INFO", "KEEP_YES";
+              TraceLog "DelimiterField = " & $lv_DelimiterField, SOURCELINE(), "INFO", "KEEP_YES";
+              TraceLog "MegaHeaderTag = " & $lv_MegaHeaderTag, SOURCELINE(), "INFO", "KEEP_YES";
+              TraceLog "BDHeaderTag = " & $lv_BDHeaderTag, SOURCELINE(), "INFO", "KEEP_YES";
+              TraceLog "RecordIdGroupStart = " & $lv_RecordIdGroupStart, SOURCELINE(), "INFO", "KEEP_YES";
+              TraceLog "RecordIdField = " & $lv_RecordIdField, SOURCELINE(), "INFO", "KEEP_YES";
+              TraceLog "RecordLength = " & $lv_RecordLength, SOURCELINE(), "INFO", "KEEP_YES";
+              TraceLog "MaskCharacter = " & $lv_MaskCharacter, SOURCELINE(), "INFO", "KEEP_YES";
+              TraceLog "BDIdEachRow = " & $lv_BDIdEachRow, SOURCELINE(), "INFO", "KEEP_YES";
+              BREAK;
+            }
+          }
+
+          $lv_LenBDHeader = sag_csc.CSC_STRLEN($gv_CharSet,$lv_BDHeaderTag);
+          $lv_LenMegaHeaderTag = sag_csc.CSC_STRLEN($gv_CharSet,$lv_MegaHeaderTag);
+          CASE $lv_DelimiterRecord
+          WHEN "NL","\\n", "\\\n", "\\\\n"
+          {
+            $lv_DelimiterRecord = "\n";
+          }
+          WHEN "NA"
+          {
+            $lv_DelimiterRecord = "";
+          }
+          
+          $lr_DIOHandle = MBC_HIERCHMSGENV.GetData($SessionId, $MessageId);
+          IF DATAIO.GetLength($lr_DIOHandle)
+          {
+            $lv_Flname = UNIQUE_NAME(SAG_TOOLS.$CORE_DATA & SAG_TOOLS.$DSEP & "tmp");
+            DATAIO.OpenInput $lr_DIOHandle;
+            $lv_FlnHandle = RAW_OPEN($lv_Flname, "wb");
+            $lv_Group.$GroupName = $lv_LoggerId;
+            $lv_Group.$NrOfMessages = ARRAYSIZE($lr_rcBDIDAttribs.$REC_BDIDReferences);
+  
+            # Read first record
+            sag_tools.ReadRecordfromDataIO $lv_DataBuffer, $lv_DelimiterRecord, $lv_MaskCharacter, $lv_RecordLength, $lr_DIOHandle, $gv_CharSet;
+            IF $lv_MegaHeaderTag <> ""
+            {
+              IF $lv_MegaHeaderTag = sag_tools.GetRecordTag ( $lv_DataBuffer, $lv_DelimiterGroup, $lv_DelimiterField, $lv_MaskCharacter,
+                                                  $lv_RecordIdGroupStart, $lv_RecordIdField, $lv_LenMegaHeaderTag, $gv_CharSet)
+              {
+                $lv_MegaHeader = $lv_MegaHeader & $lv_DataBuffer & $lv_DelimiterRecord;
+                sag_tools.ReadRecordfromDataIO $lv_DataBuffer, $lv_DelimiterRecord, $lv_MaskCharacter, $lv_RecordLength, $lr_DIOHandle, $gv_CharSet;
+              }
+            }
+            WHILE NOT DATAIO.IsEndOfFile($lr_DIOHandle) OR $lv_DataBuffer <> ""
+            {
+              IF $lv_BDIdEachRow = "YES" OR $lv_BDHeaderTag = sag_tools.GetRecordTag ( $lv_DataBuffer, $lv_DelimiterGroup, $lv_DelimiterField, $lv_MaskCharacter,
+                                                  $lv_RecordIdGroupStart, $lv_RecordIdField, $lv_LenBDHeader, $gv_CharSet)
+              {
+                RAW_WRITE $lv_FlnHandle DATA $lv_MegaHeader;
+                RAW_WRITE $lv_FlnHandle DATA $lv_DataBuffer & $lv_DelimiterRecord;
+                BREAK;
+              }
+              ELSE
+              {
+                $lv_MegaHeader = $lv_MegaHeader & $lv_DataBuffer & $lv_DelimiterRecord;
+              }
+              $lv_DataBuffer = "";
+              # perhaps EOF already reached 
+              IF NOT DATAIO.IsEndOfFile($lr_DIOHandle)
+              {
+                sag_tools.ReadRecordfromDataIO $lv_DataBuffer, $lv_DelimiterRecord, $lv_MaskCharacter, $lv_RecordLength, $lr_DIOHandle, $gv_CharSet;
+              }
+            }
+
+            WHILE NOT DATAIO.IsEndOfFile($lr_DIOHandle) OR $lv_DataBuffer <> ""
+            {
+              IF NOT $lv_FlgFirst
+              {
+                # Start of a new document -> send the last one
+                IF $lv_BDIdEachRow = "YES" OR $lv_BDHeaderTag = sag_tools.GetRecordTag ( $lv_DataBuffer, $lv_DelimiterGroup, $lv_DelimiterField, $lv_MaskCharacter,
+                                                    $lv_RecordIdGroupStart, $lv_RecordIdField, $lv_LenBDHeader, $gv_CharSet)
+                {
+                  RAW_CLOSE $lv_FlnHandle;
+                  $lv_Group.$SequenceNumber = $lv_CntDocs;
+                  SERIALIZE $lv_Group INTO $lv_GroupStr;
+    
+                  Sendmessage $lv_Flname
+                             ,$SessionId
+                             ,$MessageId
+                             ,$lr_Config.$NextActivityId
+                             ,$lr_rcBDIDAttribs
+                             ,$lv_GroupStr
+                             ,$lr_TransactionAttribute
+                             ,$lv_CntDocs
+                             ,$lv_TimeStart
+                             ," " & $lv_CntDocs & "/" & $lv_Group.$NrOfMessages;
+
+                  $lv_Flname = UNIQUE_NAME(SAG_TOOLS.$CORE_DATA & SAG_TOOLS.$DSEP & "tmp");
+                  $lv_FlnHandle = RAW_OPEN($lv_Flname, "wb");
+                  $lv_CntDocs = $lv_CntDocs + 1;
+                  IF sag_csc.CSC_STRLEN($gv_CharSet,$lv_MegaHeader)
+                  {
+                    RAW_WRITE $lv_FlnHandle DATA $lv_MegaHeader;
+                  }
+                } # IF sag_csc.CSC_STRMID($gv_CharSet,$lv_DataBuffer,1,$lv_LenBDHeader)
+                RAW_WRITE $lv_FlnHandle DATA $lv_DataBuffer & $lv_DelimiterRecord;
+              }
+              ELSE
+              {
+                $lv_FlgFirst = 0;
+              }
+              $lv_DataBuffer = "";
+              # perhaps EOF already reached 
+              IF NOT DATAIO.IsEndOfFile($lr_DIOHandle)
+              {
+                sag_tools.ReadRecordfromDataIO $lv_DataBuffer, $lv_DelimiterRecord, $lv_MaskCharacter, $lv_RecordLength, $lr_DIOHandle, $gv_CharSet;
+              }
+            } # WHILE NOT DATAIO.IsEndOfFile($lr_DIOHandle)
+          
+            RAW_CLOSE $lv_FlnHandle;
+            DATAIO.CloseInput $lr_DIOHandle;
+  
+            $lv_Group.$SequenceNumber = $lv_CntDocs;
+            SERIALIZE $lv_Group INTO $lv_GroupStr;
+            Sendmessage $lv_Flname
+                       ,$SessionId
+                       ,$MessageId
+                       ,$lr_Config.$NextActivityId
+                       ,$lr_rcBDIDAttribs
+                       ,$lv_GroupStr
+                       ,$lr_TransactionAttribute
+                       ,$lv_CntDocs
+                       ,$lv_timeStart
+                       ," " & $lv_CntDocs & "/" & $lv_Group.$NrOfMessages;
+          }
+          DATAIO.Delete $lr_DIOHandle;
+        }
+        ELSE
+        {  # PassOn
+            FOR $i = 1 to ARRAYSIZE( $lr_StageConfiguration.$NextActivityIds )
+            {
+                $lr_Config.$NextActivityId[ $i ] = $lr_StageConfiguration.$NextActivityIds[ $i ];
+            }
+
+            #
+            # For each NextActivity
+            #
+            FOR $i = 1 to ARRAYSIZE($lr_Config.$NextActivityId)
+            {
+
+                /*
+                 * For more than one NextActivities
+                 * copy the message, same data, logid and attributes
+                 */
+                $lv_NewMessageId = MBC_HIERCHMSGENV.CreateMessageCopy($SessionId, $MessageId);
+                MBC_HIERCHMSGENV.SetActivityBranch $SessionId
+                                         MessageId $lv_NewMessageId
+                                  ActivityBranchId $lr_Config.$NextActivityId[$i];
+                $lv_NewLoggerId = MBC_HIERCHMSGENV.GetLoggerId($SessionId, $lv_NewMessageId);
+            }
+
+           /*
+            * Log Passed On event
+            */
+
+            $lv_NewLoggerId = MBC_HIERCHMSGENV.GetLoggerId($SessionId, $lv_NewMessageId);
+            IF $lv_NewLoggerId <> $lv_LoggerId
+            {
+               $la_ParentId[1] = $lv_LoggerId;
+            }
+
+            $lr_Event.$sessionId    = $SessionId;
+            $lr_Event.$messageId    = $lv_NewMessageId;
+            $lr_Event.$oldmessageId = $MessageId;
+            $lr_Event.$loggerId     = $lv_NewLoggerId;
+            $lr_Event.$parentId     = $la_ParentId;
+            $lr_Event.$code         = $lv_PassOnEventCode;
+            $lr_Event.$MbcName      = $gv_MBCName;
+
+            $lr_Event.$AllBDIDs     = "Y";
+         
+            sag_monitoring.CreateEvent  $lr_Event;
+        }
+
+
+        /*
+         * Done!
+         */
+         MBC_HIERCHMSGENV.ProcessMessageDone $SessionId MessageId $MessageId;
+
+      }
+      CATCH $Exception /* Outermost TRY/CATCH block for ProcessMessage statement */
+
+        WHEN "SWORD" 
+        {
+            if $lr_Event.$sessionId = 0
+            {
+                $lr_Event.$sessionId    = $SessionId;
+            }
+            if $lr_Event.$messageId = 0
+            {
+                $lr_Event.$messageId    = $MessageId;
+            }
+            if $lr_Event.$loggerId = ""
+            {
+                $lr_Event.$loggerId     = MBC_HIERCHMSGENV.GetLoggerId($SessionId, $MessageId); 
+            }
+            if ARRAYSIZE($lr_Event.$parentId) = 0
+            {
+                $lr_Event.$parentId     = $la_ParentId;
+            }
+            if $lr_Event.$code = ""
+            {
+                $lr_Event.$code         = $lv_DefaultErrorEventCode;
+            }
+            $lr_Event.$MbcName      = $gv_MBCName;
+            if $lr_Event.$AllBDIDs = ""
+            {
+                $lr_Event.$AllBDIDs     = "Y";
+            }
+
+            # fill event array up to  5 values with blanks if smaller than 5 values
+            FOR $i = (ARRAYSIZE($la_EventArray)+1) TO 5 {$la_EventArray[$i]=" ";};
+            
+                $lr_Event.$Parameter1       = $la_EventArray[1];
+                $lr_Event.$Parameter2       = $la_EventArray[2];
+                $lr_Event.$Parameter3       = $la_EventArray[3];
+                $lr_Event.$Parameter4       = $la_EventArray[4];
+                $lr_Event.$Parameter5       = $la_EventArray[5];
+                $lr_Event.$AttachedFileName = $lv_AttachedFileName;
+            sag_monitoring.CreateEvent  $lr_Event;
+            # empty event array AFTER having written the event
+              $la_EventArray = $la_EmptyArray;
+
+
+            MBC_HIERCHMSGENV.CreateSyncpoint $SessionId; 
+            sag_tools.setPassOn $SessionId MessageId $MessageId;
+            MBC_HIERCHMSGENV.ProcessMessageDone $SessionId MessageId $MessageId;               
+        }
+        WHEN OTHERS 
+        {
+            $lr_Event.$sessionId    = $SessionId;
+            $lr_Event.$messageId    = $MessageId;
+            $lr_Event.$loggerId     = MBC_HIERCHMSGENV.GetLoggerId($SessionId, $MessageId); 
+            $lr_Event.$parentId     = $la_ParentId;
+            $lr_Event.$code         = $lv_DefaultErrorEventCode;
+            $lr_Event.$MbcName      = $gv_MBCName;
+            $lr_Event.$AllBDIDs     = "Y";
+
+            $lr_Event.$Parameter1       = $error;
+            $lr_Event.$Parameter2       = $LogString;
+            $lr_Event.$Parameter3       = "";
+            $lr_Event.$Parameter4       = "";
+            $lr_Event.$Parameter5       = "";
+            $lr_Event.$AttachedFileName = "";
+            sag_monitoring.CreateEvent  $lr_Event;
+            # empty event array AFTER having written the event
+              $la_EventArray = $la_EmptyArray;
+
+
+            MBC_HIERCHMSGENV.CreateSyncpoint $SessionId; 
+            sag_tools.setPassOn $SessionId MessageId $MessageId;
+            MBC_HIERCHMSGENV.ProcessMessageDone $SessionId MessageId $MessageId;               
+        }
+
+      RETURN;
+    } # End ProcessMessage
+
+    /*()----------------------------------------------------------------------------
+    ** Sendmessage
+    **----------------------------------------------------------------------------*/
+    DECLARE STATEMENT Sendmessage IN $Flname  PRIMITIVE
+                                , IN $SessionId    PRIMITIVE
+                                , IN $MessageId    PRIMITIVE
+                                , IN $NextActivityId[]
+                                , IN $BDIDRefVals RECORD SAG_Attributes.REC_BDIDRefValues
+                                , IN $GroupStr  PRIMITIVE
+                                , IN $TransactionAttribute RECORD SAG_MONITORING.TransactionAttribute
+                                , IN $Index PRIMITIVE
+                                , IN $lv_TimeStart PRIMITIVE
+                                , IN $description =""  PRIMITIVE
+    {
+      DECLARE $lv_NewMessageId        INTEGER;
+      DECLARE $lr_Event               RECORD SAG_MONITORING.Event;
+      DECLARE $lr_NewDIOHandle        RECORD DATAIO.Handle;
+      DECLARE $lr_TransactionAttribute  RECORD SAG_MONITORING.TransactionAttribute;
+      DECLARE $lr_NewBDIDAttribs      RECORD SAG_Attributes.REC_BDIDRefValues;
+      DECLARE $la_Attributenames[]    STRING;
+      DECLARE $lv_AttributeValue      STRING;
+      DECLARE $m                      INTEGER;
+      DECLARE $la_Empty[]             STRING;
+      DECLARE $la_RefEmpty[]          RECORD SAG_MONITORING.References;
+
+#error event handling
+      DECLARE $lv_SuccessEventCode      ="M0059"  CONSTANT STRING; # pls adapt to your MBC
+      DECLARE $lv_PassOnEventCode       ="I0002"  CONSTANT STRING;
+      DECLARE $lv_DefaultErrorEventCode ="E0001"  CONSTANT STRING;
+      DECLARE $lv_ErrorCode04           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode05           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode06           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode07           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode08           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode09           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $lv_ErrorCode10           =" "      CONSTANT STRING; # not used, to be defined
+      DECLARE $la_EmptyArray[]                             STRING;
+      DECLARE $la_EventArray[]                             STRING;
+      DECLARE $lv_AttachedFileName      =" "               STRING;
+      DECLARE $lv_TimeApx                                  STRING;
+
+      
+      $lr_NewBDIDAttribs.$REC_BDIDReferences[1] = $BDIDRefVals.$REC_BDIDReferences[$Index];
+      $lr_TransactionAttribute = $TransactionAttribute;
+      $lr_TransactionAttribute.$BDID = $la_Empty;
+      $lr_TransactionAttribute.$Reference = $la_RefEmpty;
+                                                            
+      TRY 
+      {
+        $la_Attributenames = MBC_HIERCHMSGENV.GetAttributeNames($SessionId, $MessageId);
+      } 
+      CATCH $Exception
+      WHEN OTHERS
+      {}
+
+      DATAIO.AttachFile $lr_NewDIOHandle FILEPATH $Flname;
+
+      $lv_TimeApx = sag_tools.GetTimingEventCodeText($lv_TimeStart, CURRENTDATE());
+
+      #
+      # For each NextActivity
+      #
+      FOR $i = 1 to ARRAYSIZE($NextActivityId)
+      {
+        $lv_NewMessageId = MBC_HIERCHMSGENV.CreateMessage($SessionId, $MessageId);
+        MBC_HIERCHMSGENV.AttachData $SessionId MessageId $lv_NewMessageId Data $lr_NewDIOHandle;
+
+        MBC_HIERCHMSGENV.SetActivityBranch $SessionId
+                                 MessageId $lv_NewMessageId
+                          ActivityBranchId $NextActivityId[$i];
+
+        FOR $i_Attribute = 1 TO ARRAYSIZE($la_Attributenames)
+        {
+          CASE $la_Attributenames[$i_Attribute]
+          WHEN "BDIDRefValues", "TransactionAttribute" {}
+          WHEN OTHERS
+          {
+            $lv_AttributeValue = MBC_HIERCHMSGENV.GetAttribute($SessionId, $MessageId, $la_Attributenames[$i_Attribute]);    
+            MBC_HIERCHMSGENV.SetAttribute $SessionId
+                                MessageId $lv_NewMessageId
+                                     Name $la_Attributenames[$i_Attribute]
+                                     Value $lv_AttributeValue;
+          }
+        }
+
+        SAG_MONITORING.SetTransactionAttribute $SessionId MessageId $lv_NewMessageId
+             TransactionAttribute $lr_TransactionAttribute;
+
+        SAG_Attributes.setBDIDRefValues $SessionId
+                              MessageId $lv_NewMessageId
+                      REC_BDIDRefValues $lr_NewBDIDAttribs;
+
+        MBC_HIERCHMSGENV.SetAttribute $SessionId
+                            MessageId $lv_NewMessageId
+                                Name  "GROUP"
+                                Value $GroupStr;
+
+        $lr_Event.$sessionId    = $SessionId;
+        $lr_Event.$messageId    = $lv_NewMessageId;
+        $lr_Event.$oldmessageId = $MessageId; # because CreateMessage
+        $lr_Event.$loggerId     = MBC_HIERCHMSGENV.GetLoggerId($SessionId, $lv_NewMessageId);
+        $lr_Event.$parentId[1]  = MBC_HIERCHMSGENV.GetLoggerId($SessionId, $MessageId);
+        $lr_Event.$code         = $lv_SuccessEventCode;
+        $lr_Event.$MbcName      = $gv_MBCName;
+        $lr_Event.$Parameter1   = $lv_TimeApx;
+
+        $lr_Event.$AllBDIDs     = "Y";
+
+        SAG_MONITORING.CreateEvent $lr_Event;
+      }
+      
+      
+      
+      RETURN;
+    }
+    #---------------------------------------------------------------------------
+    # TraceLog
+    #---------------------------------------------------------------------------
+    DECLARE STATEMENT TraceLog IN $lv_TraceMessage PRIMITIVE,
+                               IN $lv_Line         PRIMITIVE,
+                               IN $lv_ErrorFlag    PRIMITIVE,
+                               IN $lv_ErrorLogFlag PRIMITIVE
+    {
+       sag_monitoring.CreateTrace $gv_Debug,
+                                 "[" & $gv_ProcId & "][" & $gv_LogId & "] " & $lv_TraceMessage,
+                                 $lv_ErrorLogFlag,
+                                 $lv_ErrorFlag,
+                                 $lv_Line,
+                                 $ga_PreviousMessages;
+        RETURN;
+    }
+
+} # Module IMBC_HIERCHMSGENV

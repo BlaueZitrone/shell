@@ -1,0 +1,6 @@
+---
+- name: delete backup file of 4edi
+  hosts: all
+  tasks:
+    - name: look for /app/sword/shared/axway/local/4edi/*.tar.gz
+      shell: find /app/sword/shared/axway/local/4edi/ -type f -name "*.tar.gz" -exec rm {} \;;

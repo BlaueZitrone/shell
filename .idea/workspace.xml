@@ -1,7 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="commit all" />
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="commit all">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/PassportTool_1_0_SNAPSHOT.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/PassportTool_1_0_SNAPSHOT.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/monitor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/monitor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/version_20190801.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/version_20190801.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shell.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shell.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/TEST/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/TEST/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/check_duplicate_rates/OFRT.xls" beforeDir="false" afterPath="$PROJECT_DIR$/python/check_duplicate_rates/OFRT.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/check_duplicate_rates/OTHCD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/python/check_duplicate_rates/OTHCD.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/check_duplicate_rates/OTHCO.xls" beforeDir="false" afterPath="$PROJECT_DIR$/python/check_duplicate_rates/OTHCO.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/check_duplicate_rates/check_duplicate_rates.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/check_duplicate_rates/check_duplicate_rates.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/check_duplicate_rates/check_duplicate_rates.sh" beforeDir="false" afterPath="$PROJECT_DIR$/python/check_duplicate_rates/check_duplicate_rates.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/optional_key_analyze/OFRT.xls" beforeDir="false" afterPath="$PROJECT_DIR$/python/optional_key_analyze/OFRT.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/optional_key_analyze/TEST.xls" beforeDir="false" afterPath="$PROJECT_DIR$/python/optional_key_analyze/TEST.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/optional_key_analyze/optional_key_analyze.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/optional_key_analyze/optional_key_analyze.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/optional_key_analyze/optional_key_analyze.sh" beforeDir="false" afterPath="$PROJECT_DIR$/python/optional_key_analyze/optional_key_analyze.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/optional_key_analyze/result_TEST.xls.txt" beforeDir="false" afterPath="$PROJECT_DIR$/python/optional_key_analyze/result_TEST.xls.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/remove_duplicate_rates/OFRT.xls" beforeDir="false" afterPath="$PROJECT_DIR$/python/remove_duplicate_rates/OFRT.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/remove_duplicate_rates/OTHCD.xls" beforeDir="false" afterPath="$PROJECT_DIR$/python/remove_duplicate_rates/OTHCD.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/remove_duplicate_rates/OTHCO.xls" beforeDir="false" afterPath="$PROJECT_DIR$/python/remove_duplicate_rates/OTHCO.xls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/remove_duplicate_rates/remove_duplicate_rates.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/remove_duplicate_rates/remove_duplicate_rates.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/remove_duplicate_rates/remove_duplicate_rates.sh" beforeDir="false" afterPath="$PROJECT_DIR$/python/remove_duplicate_rates/remove_duplicate_rates.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/addfolder/addfolder" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/addfolder/addfolder" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/addkey/addkey" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/addkey/addkey" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/agreement-daemon/agreement-daemon" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/agreement-daemon/agreement-daemon" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/check0byte/check0byte" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/check0byte/check0byte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/b2biprdcom1.sl3.comp.db.de_20201117103735.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/b2biprdcom1.sl3.comp.db.de_20201117103735.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/b2biprdcom1.sl3.comp.db.de_20201117103735.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/b2biprdcom1.sl3.comp.db.de_20201117103735.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/b2bitstcom1.sl3-test.comp.db.de_20201117103552.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/b2bitstcom1.sl3-test.comp.db.de_20201117103552.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/b2bitstcom1.sl3-test.comp.db.de_20201117103552.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/b2bitstcom1.sl3-test.comp.db.de_20201117103552.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/nc_scan.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/nc_scan.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801.zip" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/nc_detect.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/nc_detect.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-157d_20190801100253.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-157d_20190801100253.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-157d_20190801100253.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-157d_20190801100253.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-166d_20190801095506.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-166d_20190801095506.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-166d_20190801095506.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-166d_20190801095506.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-173d_20190801100308.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-173d_20190801100308.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-173d_20190801100308.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-173d_20190801100308.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-262b_20190801095433.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-262b_20190801095433.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-262b_20190801095433.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-262b_20190801095433.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/cptest/cptest" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/cptest/cptest" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -41,7 +88,7 @@
       <updated>1620476893043</updated>
       <workItem from="1620476894644" duration="2885000" />
       <workItem from="1620479811817" duration="337000" />
-      <workItem from="1620480173763" duration="1178000" />
+      <workItem from="1620480173763" duration="1252000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>

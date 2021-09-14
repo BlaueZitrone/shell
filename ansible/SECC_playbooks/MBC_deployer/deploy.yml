@@ -1,0 +1,30 @@
+---
+- name: deploy new MBC
+  hosts: all
+  tasks:
+    - name: backup Compile folder
+      shell: cd /app/sword/shared/axway/local/4edi/; tar -zcf Compile_$(date "+%Y%m%d_%H%M%S").tar.gz Compile/;
+
+    - name: backup include folder
+      shell: cd /app/sword/shared/axway/local/4edi/; tar -zcf include_$(date "+%Y%m%d_%H%M%S").tar.gz include/;
+
+    - name: backup lib folder
+      shell: cd /app/sword/shared/axway/local/4edi/; tar -zcf lib_$(date "+%Y%m%d_%H%M%S").tar.gz lib/;
+
+    - name: upload component to Compile
+      copy:
+        src: files/component/
+        dest: /app/sword/shared/axway/local/4edi/Compile/
+
+    - name: upload include
+      copy:
+        src: files/include/
+        dest: /app/sword/shared/axway/local/4edi/include/
+
+    - name: upload lib
+      copy:
+        src: files/lib/
+        dest: /app/sword/shared/axway/local/4edi/lib/
+
+    - name: call compile script
+      shell: /app/sword/schenker/framework/compileall > /dev/null &

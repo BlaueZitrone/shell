@@ -1,0 +1,10 @@
+---
+- name: check compile all result
+  hosts: all
+  tasks:
+    - name: output the last 6 lines of latest log file of compileall
+      shell: tail -6 $(ls -t /app/sword/log/compileall_* | head -1);
+      register: shell_result
+
+    - debug:
+        var: shell_result.stdout_lines
