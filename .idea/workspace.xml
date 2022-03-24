@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="commit all">
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="merge remove_backup.yml to deploy.yml">
+      <change afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/deploy.yml" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/deploy.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,7 +17,9 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="1sFmpEgKO3f2dANn7Gc6bFXjfok" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -27,8 +29,9 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="full.screen.before.presentation.mode" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -48,7 +51,7 @@
       <workItem from="1620476894644" duration="2885000" />
       <workItem from="1620479811817" duration="337000" />
       <workItem from="1620480173763" duration="1252000" />
-      <workItem from="1648132024277" duration="187000" />
+      <workItem from="1648132024277" duration="11689000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -64,7 +67,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620481048119</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="merge remove_backup.yml to deploy.yml">
+      <created>1648132356530</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1648132356530</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -84,7 +94,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="commit check0byte" />
     <MESSAGE value="commit all" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit all" />
+    <MESSAGE value="merge remove_backup.yml to deploy.yml" />
+    <option name="LAST_COMMIT_MESSAGE" value="merge remove_backup.yml to deploy.yml" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

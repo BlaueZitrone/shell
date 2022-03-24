@@ -1,0 +1,89 @@
+#values
+export HISTTIMEFORMAT="%F %T ";
+export PS1='\[\e[32m\][\[\e[33m\]\u\[\e[31m\]@\[\e[33m\]\h \[\e[34m\]\w \[\e[35m\]\t \[\e[31m\]!\! \[\e[34m\]\s\[\e[32m\]]\[\e[36m\]\$\[\e[0m\] ';
+export PATH="/app/sword/schenker/framework/:/app/sword/axway/Integrator/bin/:/app/sword/schenker/testsuite:$PATH";
+export CONSOLE_RECORD_DIR="/home/mob/console_record";
+export LOG_FILENAME="/home/mob/mob.$(date "+%Y").log";
+export WAITSEC=60;
+
+#alias
+alias ..='cd ..';
+alias ...='cd ../..';
+alias ll='ls -l';
+alias l='ls -l';
+alias la='ls -la';
+alias new='ls -lt | grep -v "^total" | head';
+alias old='ls -ltr | grep -v "^total" | head';
+
+#functions definition
+function record()
+{
+  read -p "Please input name for record: " record_name;
+  if [[ "${record_name}" != "" ]]; then
+    record_name="_${record_name}";
+    record_name="$(echo ${record_name} | sed 's/ /_/g')";
+  fi
+  echo "record_name=0${record_name}0";
+  mkdir -p ${CONSOLE_RECORD_DIR};
+  NOW=$(date "+%Y%m%d_%H%M%S");
+  script --timing=${CONSOLE_RECORD_DIR}/${NOW}${record_name}.time ${CONSOLE_RECORD_DIR}/${NOW}${record_name}.history;
+}
+
+function replay()
+{
+  clear;
+  echo "Existing record(s) is/are as below, please input the one you want to replay:";
+  seperateLine;
+  ls ${CONSOLE_RECORD_DIR} | cut -d\. -f1 | sort | uniq;
+  seperateLine;
+  read record_name;
+  echo "Hint: press \"Ctrl+S\" to pause, press \"Ctrl+Q\" to recover";
+  scriptreplay ${CONSOLE_RECORD_DIR}/${record_name}.time ${CONSOLE_RECORD_DIR}/${record_name}.history $1;
+}
+
+function log()
+{
+  time_string=$(date "+[%Y-%m-%d %H:%M:%S]");
+  echo "${time_string} $*" >> ${LOG_FILENAME};
+}
+
+function seperateLine()
+{
+  echo "********************************************************************************";
+}
+
+function deploy()
+{
+  log "Deployment start. File structure is as below:";
+  tree /home/mob/SECC_playbooks/MBC_deployer/files/ >> ${LOG_FILENAME};
+  cd /home/mob/SECC_playbooks/MBC_deployer;
+  ansible-playbook deploy.yml -CD;
+  echo "Files have been distributed to remote servers, will check compile result ${WAITSEC} seconds later.";
+  sleep ${WAITSEC};
+  servers_to_check="all";
+  while true; do
+    if [[ "${servers_to_check}" == "" ]]; then
+      break;
+    else
+      ansible-playbook compile_result.yml -l "${servers_to_check}";
+    fi
+    read -p "Need to check compile result again? 1)Press Enter to end the loop. 2)Input servers or groups separate by comma for checking. " servers_to_check;
+  done
+  log "Deployment end.";
+  cd;
+}
+
+function clean()
+{
+  echo "File structure before cleaning:";
+  tree /home/mob/SECC_playbooks/MBC_deployer/files/;
+  seperateLine;
+  find /home/mob/SECC_playbooks/MBC_deployer/files/ -type f -exec rm -v {} \;;
+  seperateLine;
+  echo "File structure after cleaning:";
+  tree /home/mob/SECC_playbooks/MBC_deployer/files/;
+  log "Deployer server has been cleaned up.";
+}
+
+log ".alias loaded.";
+#END
