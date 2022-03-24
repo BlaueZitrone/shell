@@ -2,6 +2,9 @@
 - name: deploy new MBC
   hosts: all
   tasks:
+    - name: delete backup file older than 180d
+      shell: find /app/sword/shared/axway/local/4edi/ -type f -name "*.tar.gz" -mtime +180 -exec rm {} \;;
+
     - name: backup Compile folder
       shell: cd /app/sword/shared/axway/local/4edi/; tar -zcf Compile_$(date "+%Y%m%d_%H%M%S").tar.gz Compile/;
 
