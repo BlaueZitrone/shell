@@ -85,5 +85,20 @@ function clean()
   log "Deployer server has been cleaned up.";
 }
 
+function mcopy()
+{
+  echo mcopy;
+}
+
+function mshell()
+{
+  echo mshell;
+}
+
+function hint()
+{
+  echo hint;
+}
+
 log ".alias loaded.";
 #END

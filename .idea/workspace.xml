@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="create alias for mob user">
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="commit test after changing github username">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/alias4mob/.alias" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,7 +51,7 @@
       <workItem from="1620476894644" duration="2885000" />
       <workItem from="1620479811817" duration="337000" />
       <workItem from="1620480173763" duration="1252000" />
-      <workItem from="1648132024277" duration="12203000" />
+      <workItem from="1648132024277" duration="13580000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -80,7 +81,14 @@
       <option name="project" value="LOCAL" />
       <updated>1648144529578</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="commit test after changing github username">
+      <created>1648144965278</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1648144965278</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -102,7 +110,8 @@
     <MESSAGE value="commit all" />
     <MESSAGE value="merge remove_backup.yml to deploy.yml" />
     <MESSAGE value="create alias for mob user" />
-    <option name="LAST_COMMIT_MESSAGE" value="create alias for mob user" />
+    <MESSAGE value="commit test after changing github username" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit test after changing github username" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
