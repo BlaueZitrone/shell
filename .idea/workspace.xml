@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="merge remove_backup.yml to deploy.yml">
-      <change afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="create alias for mob user">
+      <change beforePath="$PROJECT_DIR$/scripts/alias4mob/.alias" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +50,7 @@
       <workItem from="1620476894644" duration="2885000" />
       <workItem from="1620479811817" duration="337000" />
       <workItem from="1620480173763" duration="1252000" />
-      <workItem from="1648132024277" duration="11689000" />
+      <workItem from="1648132024277" duration="12203000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -74,7 +73,14 @@
       <option name="project" value="LOCAL" />
       <updated>1648132356530</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="create alias for mob user">
+      <created>1648144529578</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1648144529578</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -95,7 +101,8 @@
     <MESSAGE value="commit check0byte" />
     <MESSAGE value="commit all" />
     <MESSAGE value="merge remove_backup.yml to deploy.yml" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge remove_backup.yml to deploy.yml" />
+    <MESSAGE value="create alias for mob user" />
+    <option name="LAST_COMMIT_MESSAGE" value="create alias for mob user" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
