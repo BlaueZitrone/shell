@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="commit test after changing github username">
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="add some todo functions">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/alias4mob/.alias" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
     </list>
@@ -12,6 +12,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -51,7 +59,9 @@
       <workItem from="1620476894644" duration="2885000" />
       <workItem from="1620479811817" duration="337000" />
       <workItem from="1620480173763" duration="1252000" />
-      <workItem from="1648132024277" duration="13580000" />
+      <workItem from="1648132024277" duration="14798000" />
+      <workItem from="1648452419567" duration="2276000" />
+      <workItem from="1648479639920" duration="5717000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -88,7 +98,14 @@
       <option name="project" value="LOCAL" />
       <updated>1648144965278</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="add some todo functions">
+      <created>1648163459762</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1648163459762</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -111,7 +128,8 @@
     <MESSAGE value="merge remove_backup.yml to deploy.yml" />
     <MESSAGE value="create alias for mob user" />
     <MESSAGE value="commit test after changing github username" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit test after changing github username" />
+    <MESSAGE value="add some todo functions" />
+    <option name="LAST_COMMIT_MESSAGE" value="add some todo functions" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

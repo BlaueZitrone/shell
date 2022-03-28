@@ -54,22 +54,24 @@ function seperateLine()
 
 function deploy()
 {
+  if [[ "$1" == "" ]]; then
+    dest_system="all";
+  fi
   log "Deployment start. File structure is as below:";
   tree /home/mob/SECC_playbooks/MBC_deployer/files/ >> ${LOG_FILENAME};
   cd /home/mob/SECC_playbooks/MBC_deployer;
-  ansible-playbook deploy.yml -CD;
+  ansible-playbook deploy.yml "${dest_system} -CD";
   echo "Files have been distributed to remote servers, will check compile result ${WAITSEC} seconds later.";
   sleep ${WAITSEC};
-  servers_to_check="all";
   while true; do
-    if [[ "${servers_to_check}" == "" ]]; then
+    if [[ "${dest_system}" == "" ]]; then
       break;
     else
-      ansible-playbook compile_result.yml -l "${servers_to_check}";
+      ansible-playbook compile_result.yml -l "${dest_system}";
     fi
-    read -p "Need to check compile result again? 1)Press Enter to end the loop. 2)Input servers or groups separate by comma for checking. " servers_to_check;
+    read -p "Need to check compile result again? 1)Press Enter to end the loop. 2)Input servers or groups separate by comma for checking. " dest_system;
   done
-  log "Deployment end.";
+  log "Deployment to ${dest_system} is done.";
   cd;
 }
 
@@ -87,17 +89,76 @@ function clean()
 
 function mcopy()
 {
-  echo mcopy;
+  if [[ $1 != "" && $2 != "" ]]; then
+    ori_file="$1";
+    dest_path="$2";
+    if [[ $3 == "" ]]; then
+      dest_system="all";
+    else
+      dest_system="$3";
+    fi
+    cd /home/mob/SECC_playbooks/MBC_deployer;
+    ansible -m copy -a "src=${ori_file} dest=${dest_path}" "${dest_system}";
+    log "Copy ${ori_file} to ${dest_system}:${dest_path}";
+    cd;
+  fi
 }
 
 function mshell()
 {
-  echo mshell;
+  if [[ $1 != "" ]]; then
+    command_line="$1";
+    if [[ $2 == "" ]]; then
+      dest_system="all";
+    else
+      dest_system="$2";
+    fi
+    cd /home/mob/SECC_playbooks/MBC_deployer;
+    ansible -m shell -a "${command_line}" "${dest_system}";
+    log "Executed ${command_line} on ${dest_system}";
+    cd;
+  fi
+}
+
+function mcompile()
+{
+  if [[ $2 == "" ]]; then
+    dest_system="all";
+  else
+    dest_system="$2";
+  fi
+  mbc_name_prefix=$(echo "$1" | cut -d\. -f1);
+  if [[ "${mbc_name_prefix}" == "" || "${mbc_name_prefix}" == "all" ]]; then
+    mshell "/app/sword/schenker/framework/compileall > /dev/null &" "${dest_system}";
+    echo "compileall has been called on remote server(s), will check compile result ${WAITSEC} seconds later.";
+    cd /home/mob/SECC_playbooks/MBC_deployer;
+    sleep ${WAITSEC};
+    while true; do
+      if [[ "${dest_system}" == "" ]]; then
+        break;
+      else
+        ansible-playbook compile_result.yml -l "${dest_system}";
+      fi
+      read -p "Need to check compile result again? 1)Press Enter to end the loop. 2)Input servers or groups separate by comma for checking. " dest_system;
+    done
+    cd;
+    log "Compileall on ${dest_system}.";
+  else
+    mshell "cd /app/sword/shared/axway/local/4edi/Compile; c4edi ${mbc_name_prefix}.s4; mv ${mbc_name_prefix}.x4 ../component/;" "${dest_system}";
+    log "${mbc_name_prefix} has been compiled on ${dest_system}.";
+  fi
 }
 
 function hint()
 {
-  echo hint;
+  echo "Alias:";
+  alias;
+  echo -e "\nFunctions:";
+  echo "deploy(): deploy files in folders component/include/lib and check compile result afterwards.";
+  echo "clean(): remove files in folders component/include/lib.";
+  echo "mshell(command_line, dest_system=\"all\"), execute given command line(need to be quoted if parameter exists) on target system(default all).";
+  echo "mcopy(ori_file, dest_path, dest_system=\"all\"), copy file(absolute path or relative path based on /home/mob/SECC_playbooks/MBC_deployer) to specific path(absolute path) on target system(default all).";
+  echo "mcompile(mbc_name=\"all\", dest_system=\"all\"), compile specific MBC or all MBCs(default all) on target system(default all).";
 }
 
 log ".alias loaded.";
