@@ -17,6 +17,7 @@ b2biprdapp7.sl3.comp.db.de
 b2biprdapp9.sl3.comp.db.de
 b2biprdapp11.sl3.comp.db.de
 b2biprdapp13.sl3.comp.db.de
+b2biprdapp15.sl3.comp.db.de
 
 [voltest]
 b2bivolapp1.sl3-test.comp.db.de
@@ -27,3 +28,6 @@ b2bivolapp5.sl3-test.comp.db.de
 b2bivolapp6.sl3-test.comp.db.de
 b2bivolapp7.sl3-test.comp.db.de
 
+[mc]
+b2bimcpapp1.sl3.comp.db.de
+b2bimcpapp2.sl3.comp.db.de
