@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="enable the deploy() function and modify the hint description for it">
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="add -l for ansible-playbook command">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/alias4mob/.alias" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
     </list>
@@ -63,7 +63,7 @@
       <workItem from="1648452419567" duration="2276000" />
       <workItem from="1648479639920" duration="6379000" />
       <workItem from="1648633284860" duration="1535000" />
-      <workItem from="1648716133670" duration="861000" />
+      <workItem from="1648716133670" duration="1867000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -128,7 +128,14 @@
       <option name="project" value="LOCAL" />
       <updated>1648716343312</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="add -l for ansible-playbook command">
+      <created>1648718562072</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1648718562072</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -155,7 +162,8 @@
     <MESSAGE value="finish coding with mcopy() mshell() mcompile() and hint()" />
     <MESSAGE value="add new hosts to the inventory.all" />
     <MESSAGE value="enable the deploy() function and modify the hint description for it" />
-    <option name="LAST_COMMIT_MESSAGE" value="enable the deploy() function and modify the hint description for it" />
+    <MESSAGE value="add -l for ansible-playbook command" />
+    <option name="LAST_COMMIT_MESSAGE" value="add -l for ansible-playbook command" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
