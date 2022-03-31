@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="add some todo functions">
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="finish coding with mcopy() mshell() mcompile() and hint()">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.all" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.all" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/alias4mob/.alias" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -61,7 +62,9 @@
       <workItem from="1620480173763" duration="1252000" />
       <workItem from="1648132024277" duration="14798000" />
       <workItem from="1648452419567" duration="2276000" />
-      <workItem from="1648479639920" duration="5717000" />
+      <workItem from="1648479639920" duration="6379000" />
+      <workItem from="1648633284860" duration="1535000" />
+      <workItem from="1648716133670" duration="107000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -105,7 +108,14 @@
       <option name="project" value="LOCAL" />
       <updated>1648163459762</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="finish coding with mcopy() mshell() mcompile() and hint()">
+      <created>1648485964362</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1648485964362</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -129,7 +139,8 @@
     <MESSAGE value="create alias for mob user" />
     <MESSAGE value="commit test after changing github username" />
     <MESSAGE value="add some todo functions" />
-    <option name="LAST_COMMIT_MESSAGE" value="add some todo functions" />
+    <MESSAGE value="finish coding with mcopy() mshell() mcompile() and hint()" />
+    <option name="LAST_COMMIT_MESSAGE" value="finish coding with mcopy() mshell() mcompile() and hint()" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

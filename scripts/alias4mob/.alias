@@ -60,7 +60,7 @@ function deploy()
   log "Deployment start. File structure is as below:";
   tree /home/mob/SECC_playbooks/MBC_deployer/files/ >> ${LOG_FILENAME};
   cd /home/mob/SECC_playbooks/MBC_deployer;
-  ansible-playbook deploy.yml "${dest_system} -CD";
+  ansible-playbook deploy.yml "${dest_system}";
   echo "Files have been distributed to remote servers, will check compile result ${WAITSEC} seconds later.";
   sleep ${WAITSEC};
   while true; do
@@ -154,7 +154,7 @@ function hint()
   echo "Alias:";
   alias;
   echo -e "\nFunctions:";
-  echo "deploy(): deploy files in folders component/include/lib and check compile result afterwards.";
+  echo "deploy(dest_system=\"all\"): deploy files in folders component/include/lib and check compile result afterwards for target system(default all).";
   echo "clean(): remove files in folders component/include/lib.";
   echo "mshell(command_line, dest_system=\"all\"), execute given command line(need to be quoted if parameter exists) on target system(default all).";
   echo "mcopy(ori_file, dest_path, dest_system=\"all\"), copy file(absolute path or relative path based on /home/mob/SECC_playbooks/MBC_deployer) to specific path(absolute path) on target system(default all).";
