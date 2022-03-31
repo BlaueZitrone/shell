@@ -60,7 +60,7 @@ function deploy()
   log "Deployment start. File structure is as below:";
   tree /home/mob/SECC_playbooks/MBC_deployer/files/ >> ${LOG_FILENAME};
   cd /home/mob/SECC_playbooks/MBC_deployer;
-  ansible-playbook deploy.yml "${dest_system}";
+  ansible-playbook deploy.yml -l "${dest_system}";
   echo "Files have been distributed to remote servers, will check compile result ${WAITSEC} seconds later.";
   sleep ${WAITSEC};
   while true; do
