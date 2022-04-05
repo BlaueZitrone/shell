@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="support deploying to specified servers">
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="new function checkCompile, simplify the output for easier reading">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/alias4mob/.alias" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
     </list>
@@ -63,7 +63,8 @@
       <workItem from="1648452419567" duration="2276000" />
       <workItem from="1648479639920" duration="6379000" />
       <workItem from="1648633284860" duration="1535000" />
-      <workItem from="1648716133670" duration="7198000" />
+      <workItem from="1648716133670" duration="8112000" />
+      <workItem from="1649152605947" duration="222000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -142,7 +143,14 @@
       <option name="project" value="LOCAL" />
       <updated>1648720704822</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="new function checkCompile, simplify the output for easier reading">
+      <created>1648755136540</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1648755136541</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -171,7 +179,8 @@
     <MESSAGE value="enable the deploy() function and modify the hint description for it" />
     <MESSAGE value="add -l for ansible-playbook command" />
     <MESSAGE value="support deploying to specified servers" />
-    <option name="LAST_COMMIT_MESSAGE" value="support deploying to specified servers" />
+    <MESSAGE value="new function checkCompile, simplify the output for easier reading" />
+    <option name="LAST_COMMIT_MESSAGE" value="new function checkCompile, simplify the output for easier reading" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
