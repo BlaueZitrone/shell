@@ -15,6 +15,8 @@ alias l='ls -l';
 alias la='ls -la';
 alias new='ls -lt | grep -v "^total" | head';
 alias old='ls -ltr | grep -v "^total" | head';
+alias serverList='ansible-inventory --graph -i "${ANSIBLE_PATH}/inventory";';
+alias mping='cd ${ANSIBLE_PATH}; ansible -m ping all; cd';
 
 #functions definition
 function record()
@@ -150,11 +152,6 @@ function checkCompile()
   cd;
 }
 
-function serverList()
-{
-  ansible-inventory --graph -i "${ANSIBLE_PATH}/inventory";
-}
-
 function hint()
 {
   echo "Alias:";
@@ -164,7 +161,6 @@ function hint()
   echo -e "\nFunctions:";
   echo "deploy(dest_system=\"all\"): deploy files in folders component/include/lib and check compile result afterwards for target system(default all).";
   echo "clean(): remove files in folders component/include/lib.";
-  echo "serverList(): list the servers and groups defined for ansible playbook.";
   echo "mshell(command_line, dest_system=\"all\"), execute given command line(need to be quoted if parameter exists) on target system(default all).";
   echo "mcopy(ori_file, dest_path, dest_system=\"all\"), copy file(absolute path or relative path based on ${ANSIBLE_PATH}) to specific path(absolute path) on target system(default all).";
   echo "mcompile(mbc_name=\"all\", dest_system=\"all\"), compile specific MBC or all MBCs(default all) on target system(default all).";
