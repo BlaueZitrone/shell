@@ -157,7 +157,7 @@ function hint()
   echo "Alias:";
   alias;
   echo -e "\nServer List:";
-  serverList;
+  ansible-inventory --graph -i "${ANSIBLE_PATH}/inventory";
   echo -e "\nFunctions:";
   echo "deploy(dest_system=\"all\"): deploy files in folders component/include/lib and check compile result afterwards for target system(default all).";
   echo "clean(): remove files in folders component/include/lib.";
