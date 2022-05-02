@@ -1,14 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="change function serverList() to an alias and add new alias mping for connection checking">
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="since serverList has been changed from function to alias, need to replace the command in hint() definition">
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/cachedsearch.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/dotexport.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/exporter/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/exporter/dictexporter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/exporter/dotexporter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/exporter/jsonexporter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/importer/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/importer/dictimporter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/importer/jsonimporter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/iterators/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/iterators/abstractiter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/iterators/levelordergroupiter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/iterators/levelorderiter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/iterators/postorderiter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/iterators/preorderiter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/iterators/zigzaggroupiter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/node/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/node/anynode.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/node/exceptions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/node/node.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/node/nodemixin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/node/symlinknode.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/node/symlinknodemixin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/node/util.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/render.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/resolver.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/search.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/util/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/anytree/walker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python/start_cfg_parser/cfg_parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/alias4mob/.alias" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -35,11 +74,50 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="full.screen.before.presentation.mode" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/python/start_cfg_parser" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ALLECHE1\Workspace\shell\python\start_cfg_parser" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="cfg_parser" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="shell" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\ALLECHE1\AppData\Local\Programs\Python\Python310\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/python/start_cfg_parser" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\ALLECHE1\Workspace\shell\python\start_cfg_parser\cfg_parser.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.cfg_parser" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -66,7 +144,11 @@
       <workItem from="1648716133670" duration="8112000" />
       <workItem from="1649152605947" duration="1035000" />
       <workItem from="1649232401258" duration="2541000" />
-      <workItem from="1649666600305" duration="73000" />
+      <workItem from="1649666600305" duration="808000" />
+      <workItem from="1650983724652" duration="1292000" />
+      <workItem from="1651043919307" duration="3476000" />
+      <workItem from="1651054126026" duration="11442000" />
+      <workItem from="1651216342034" duration="1760000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -166,7 +248,14 @@
       <option name="project" value="LOCAL" />
       <updated>1649234644304</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="since serverList has been changed from function to alias, need to replace the command in hint() definition">
+      <created>1649666805571</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1649666805571</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -198,10 +287,14 @@
     <MESSAGE value="new function checkCompile, simplify the output for easier reading" />
     <MESSAGE value="new function serverList() for displaying the defined server list and add a function call of it in hint()" />
     <MESSAGE value="change function serverList() to an alias and add new alias mping for connection checking" />
-    <option name="LAST_COMMIT_MESSAGE" value="change function serverList() to an alias and add new alias mping for connection checking" />
+    <MESSAGE value="since serverList has been changed from function to alias, need to replace the command in hint() definition" />
+    <option name="LAST_COMMIT_MESSAGE" value="since serverList has been changed from function to alias, need to replace the command in hint() definition" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
     <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/shell$loader.coverage" NAME="cfg_parser Coverage Results" MODIFIED="1651069791525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/python/start_cfg_parser" />
   </component>
 </project>
