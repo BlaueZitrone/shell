@@ -168,4 +168,8 @@ function hint()
 }
 
 log ".alias loaded.";
+pkill -U mob -x ssh-agent;
+eval $(/usr/bin/ssh-agent) && /usr/bin/ssh-add ~/.ssh/id_rsa;
+cd ~/framework/; git pull; cd ~;
+log "git repository updated for project framework.";
 #END
