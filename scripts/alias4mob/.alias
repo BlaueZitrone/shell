@@ -66,8 +66,13 @@ function deploy()
   tree ${ANSIBLE_PATH}/files/ >> ${LOG_FILENAME};
   cd ${ANSIBLE_PATH};
   ansible-playbook deploy.yml -l "${dest_system}";
-  echo "Files have been distributed to remote servers, will check compile result ${WAITSEC} seconds later.";
-  sleep ${WAITSEC};
+  for time in $(seq ${WAITSEC} -1 0)
+  do
+    echo -ne "\r                                                                                          \r";
+    echo -n "Files have been distributed to remote servers, will check compile result ${time} seconds later.";
+    sleep 1;
+  done
+  echo;
   checkCompile "${dest_system}";
   echo "Please use function checkCompile() to check again if needed."
   log "Deployment to ${dest_system} is done.";
@@ -129,8 +134,13 @@ function mcompile()
   mbc_name_prefix=$(echo "$1" | cut -d\. -f1);
   if [[ "${mbc_name_prefix}" == "" || "${mbc_name_prefix}" == "all" ]]; then
     mshell "/app/sword/schenker/framework/compileall > /dev/null &" "${dest_system}";
-    echo "compileall has been called on remote server(s), will check compile result ${WAITSEC} seconds later.";
-    sleep ${WAITSEC};
+    for time in $(seq ${WAITSEC} -1 0)
+    do
+      echo -ne "\r                                                                                           \r";
+      echo -n "compileall has been called on remote server(s), will check compile result ${time} seconds later.";
+      sleep 1;
+    done
+    echo;
     checkCompile "${dest_system}";
     echo "Please use command \"checkCompile ${dest_system}\" to check again if needed."
     log "Compileall on ${dest_system}.";

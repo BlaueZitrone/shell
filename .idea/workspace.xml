@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="backup the ssh keys for all the deployment server">
-      <change afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/SSH_keys.7z" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/SSH_keys/Prod/id_rsa" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/SSH_keys/Prod/id_rsa.pub" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/SSH_keys/Test/id_rsa" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/SSH_keys/Test/id_rsa.pub" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/SSH_keys/Vol_test/id_rsa" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/SSH_keys/Vol_test/id_rsa.pub" beforeDir="false" />
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="encrypt the backup of ssh keys for all the deployment server">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/alias4mob/.alias" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,7 +118,8 @@
       <workItem from="1651054126026" duration="11442000" />
       <workItem from="1651216342034" duration="1760000" />
       <workItem from="1651489193081" duration="3063000" />
-      <workItem from="1651824371403" duration="888000" />
+      <workItem from="1651824371403" duration="1520000" />
+      <workItem from="1652085956378" duration="1977000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -244,7 +240,14 @@
       <option name="project" value="LOCAL" />
       <updated>1651824572098</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="encrypt the backup of ssh keys for all the deployment server">
+      <created>1651825392020</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1651825392020</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -279,7 +282,8 @@
     <MESSAGE value="since serverList has been changed from function to alias, need to replace the command in hint() definition" />
     <MESSAGE value="new python script to analyze starter2.cfg" />
     <MESSAGE value="backup the ssh keys for all the deployment server" />
-    <option name="LAST_COMMIT_MESSAGE" value="backup the ssh keys for all the deployment server" />
+    <MESSAGE value="encrypt the backup of ssh keys for all the deployment server" />
+    <option name="LAST_COMMIT_MESSAGE" value="encrypt the backup of ssh keys for all the deployment server" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
