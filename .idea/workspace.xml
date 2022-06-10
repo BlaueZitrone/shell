@@ -1,10 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="encrypt the backup of ssh keys for all the deployment server">
+    <list default="true" id="7cd66ad8-045e-4001-8044-891774b562ae" name="Default Changelist" comment="add nohup before running compileall in background, preventing it from hangup">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/ansible.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/ansible.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/ansible.log" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/ansible.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/compile_result.yml" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/compile_result.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/deploy.yml" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/deploy.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/alias4mob/.alias" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/alias4mob/.alias" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/files/component/CR_InhouseInbound.s4" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/files/component/CR_InhouseInbound.s4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.all" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.all" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.prod" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.prod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.test" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.test" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.voltest" beforeDir="false" afterPath="$PROJECT_DIR$/ansible/SECC_playbooks/MBC_deployer/inventory.voltest" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/TEST/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/TEST/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/check_duplicate_rates/check_duplicate_rates.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/check_duplicate_rates/check_duplicate_rates.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/check_duplicate_rates/check_duplicate_rates.sh" beforeDir="false" afterPath="$PROJECT_DIR$/python/check_duplicate_rates/check_duplicate_rates.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/optional_key_analyze/optional_key_analyze.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/optional_key_analyze/optional_key_analyze.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/optional_key_analyze/optional_key_analyze.sh" beforeDir="false" afterPath="$PROJECT_DIR$/python/optional_key_analyze/optional_key_analyze.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/optional_key_analyze/result_TEST.xls.txt" beforeDir="false" afterPath="$PROJECT_DIR$/python/optional_key_analyze/result_TEST.xls.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/remove_duplicate_rates/remove_duplicate_rates.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/remove_duplicate_rates/remove_duplicate_rates.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/remove_duplicate_rates/remove_duplicate_rates.sh" beforeDir="false" afterPath="$PROJECT_DIR$/python/remove_duplicate_rates/remove_duplicate_rates.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/start_cfg_parser/cfg_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/start_cfg_parser/cfg_parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/start_cfg_parser/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/start_cfg_parser/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/start_cfg_parser/result.txt" beforeDir="false" afterPath="$PROJECT_DIR$/python/start_cfg_parser/result.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/Alias/alias.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Alias/alias.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/Alias/alias_B2Bi" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Alias/alias_B2Bi" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/Alias/release.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Alias/release.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/Alias/sync.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Alias/sync.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/addfolder/addfolder" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/addfolder/addfolder" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/addkey/addkey" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/addkey/addkey" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/agreement-daemon/agreement-daemon" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/agreement-daemon/agreement-daemon" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/big_file/20171206_mysplit.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/big_file/20171206_mysplit.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/big_file/Guidance_of_mysplit" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/big_file/Guidance_of_mysplit" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/big_file/mysplit.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/big_file/mysplit.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/big_file/no_color_mysplit.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/big_file/no_color_mysplit.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/big_file/test_version_mysplit.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/big_file/test_version_mysplit.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/check0byte/check0byte" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/check0byte/check0byte" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/checkMassFilter/checkMassFilter.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/checkMassFilter/checkMassFilter.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/checkMassFilter/checkMassFilter.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/checkMassFilter/checkMassFilter.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/checkMassFilter/record.data" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/checkMassFilter/record.data" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/checkMassFilter/updateRecord.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/checkMassFilter/updateRecord.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/checkRemoteFTP/checkRemoteFTP.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/checkRemoteFTP/checkRemoteFTP.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/checkRemoteFTP/command.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/checkRemoteFTP/command.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/check_error/check_error.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/check_error/check_error.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/check_resend/check_resend.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/check_resend/check_resend.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_a1" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_a1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_a2" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_a2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_a3" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_a3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_a4" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_a4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_ftp" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_ftp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_g1" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_g1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_g2" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_g2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_g3" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_g3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_g4" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up2_g4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up3" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up3_a1.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up3_a1.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up3_ex_a1.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/clean_up3_demo/clean_up3_ex_a1.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/common_func/colorfulEcho.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/common_func/colorfulEcho.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/b2biprdcom1.sl3.comp.db.de_20201117103735.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/b2biprdcom1.sl3.comp.db.de_20201117103735.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/b2biprdcom1.sl3.comp.db.de_20201117103735.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/b2biprdcom1.sl3.comp.db.de_20201117103735.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/b2bitstcom1.sl3-test.comp.db.de_20201117103552.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/b2bitstcom1.sl3-test.comp.db.de_20201117103552.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/b2bitstcom1.sl3-test.comp.db.de_20201117103552.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/b2bitstcom1.sl3-test.comp.db.de_20201117103552.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/connection_test.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/connection_test.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/detect.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/detect.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/ftp_connection_detect.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/ftp_connection_detect.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/nc_detect.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/nc_detect.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/nc_scan.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/nc_scan.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/nc_scan_unix.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/nc_scan_unix.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/scan.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/scan.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/telnet_scan.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/telnet_scan.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/log.sword-185d_20190801091607.20190801170024" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/log.sword-185d_20190801091607.20190801170024" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/nc_detect.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/nc_detect.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-157d_20190801100253.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-157d_20190801100253.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-157d_20190801100253.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-157d_20190801100253.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-166d_20190801095506.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-166d_20190801095506.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-166d_20190801095506.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-166d_20190801095506.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-173d_20190801100308.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-173d_20190801100308.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-173d_20190801100308.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-173d_20190801100308.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.csv" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-185d_20190801091607.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-262b_20190801095433.map" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-262b_20190801095433.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-262b_20190801095433.url" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/connection_test/version_20190801/sword-262b_20190801095433.url" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/cptest/cptest" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/cptest/cptest" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/find_agreement/findAgreement.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/find_agreement/findAgreement.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/find_agreement/findAgreement.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/find_agreement/findAgreement.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/ftp_oldfile/runList2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/ftp_oldfile/runList2.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/house_keeping/myhk.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/house_keeping/myhk.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/monitor/monitor.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/monitor/monitor.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/monitor/monitor.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/monitor/monitor.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/monitor_disk/monitor_disk.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/monitor_disk/monitor_disk.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/remafi2_demo/MON_MASSFILTER.csv" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/remafi2_demo/MON_MASSFILTER.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/remafi2_demo/XIB_PROCESSIDPROPERTIES.csv" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/remafi2_demo/XIB_PROCESSIDPROPERTIES.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/remafi2_demo/remafi2" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/remafi2_demo/remafi2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/remafi2_demo/remafi_a1" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/remafi2_demo/remafi_a1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/remafi2_demo/remafi_a2" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/remafi2_demo/remafi_a2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/remafi2_demo/remafi_a3" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/remafi2_demo/remafi_a3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/remafi2_demo/remafi_a4" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/remafi2_demo/remafi_a4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/SQL" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/SQL" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/ScriptFunctions" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/ScriptFunctions" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/agrcheck" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/agrcheck" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/catlist" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/catlist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/checkLoggerArchiving.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/checkLoggerArchiving.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/clean_up2" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/clean_up2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/cleandir.all" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/cleandir.all" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/cleandir.scr" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/cleandir.scr" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/deletemassfilterflag" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/deletemassfilterflag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/expandcleandirconfig" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/expandcleandirconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/findliaison" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/findliaison" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/list2" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/list2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/list2_ftp" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/list2_ftp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/list2_gw" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/list2_gw" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/list3" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/list3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/list_of_scripts" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/list_of_scripts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/msplit" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/msplit" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/mv_APPLEINPRA_APPLE2EWCS" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/mv_APPLEINPRA_APPLE2EWCS" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/remafi" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/remafi" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/resend_APPLEINPRA_APPLE2EWCS" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/resend_APPLEINPRA_APPLE2EWCS" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/study/run" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/study/run" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/test/test.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/test/test.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +166,7 @@
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -117,7 +231,7 @@
       <workItem from="1651824371403" duration="1520000" />
       <workItem from="1652085956378" duration="1977000" />
       <workItem from="1652775591601" duration="182000" />
-      <workItem from="1654847346735" duration="3731000" />
+      <workItem from="1654847346735" duration="4443000" />
     </task>
     <task id="LOCAL-00001" summary="commit all">
       <created>1620480607073</created>
@@ -245,7 +359,14 @@
       <option name="project" value="LOCAL" />
       <updated>1651825392020</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="add nohup before running compileall in background, preventing it from hangup">
+      <created>1654861047169</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1654861047169</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -281,7 +402,8 @@
     <MESSAGE value="new python script to analyze starter2.cfg" />
     <MESSAGE value="backup the ssh keys for all the deployment server" />
     <MESSAGE value="encrypt the backup of ssh keys for all the deployment server" />
-    <option name="LAST_COMMIT_MESSAGE" value="encrypt the backup of ssh keys for all the deployment server" />
+    <MESSAGE value="add nohup before running compileall in background, preventing it from hangup" />
+    <option name="LAST_COMMIT_MESSAGE" value="add nohup before running compileall in background, preventing it from hangup" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
