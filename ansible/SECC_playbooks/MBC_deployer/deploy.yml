@@ -30,4 +30,4 @@
         dest: /app/sword/shared/axway/local/4edi/lib/
 
     - name: call compile script
-      shell: /app/sword/schenker/framework/compileall > /dev/null &
+      shell: nohup /app/sword/schenker/framework/compileall > /dev/null &

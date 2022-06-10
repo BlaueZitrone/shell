@@ -133,7 +133,7 @@ function mcompile()
   fi
   mbc_name_prefix=$(echo "$1" | cut -d\. -f1);
   if [[ "${mbc_name_prefix}" == "" || "${mbc_name_prefix}" == "all" ]]; then
-    mshell "/app/sword/schenker/framework/compileall > /dev/null &" "${dest_system}";
+    mshell "nohup /app/sword/schenker/framework/compileall > /dev/null &" "${dest_system}";
     for time in $(seq ${WAITSEC} -1 0)
     do
       echo -ne "\r                                                                                           \r";
